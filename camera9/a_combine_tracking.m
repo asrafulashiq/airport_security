@@ -7,6 +7,7 @@ clc;
 % file for input video
 
 file_number = '10A';
+
 input_filename = fullfile(file_number, ['camera9_' file_number '.mp4']);
 v = VideoReader(input_filename);
 
