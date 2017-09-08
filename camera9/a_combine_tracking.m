@@ -63,7 +63,7 @@ R_dropping.r1_lb = 0;
 R_belt.r4_lb = 0;
 
 %% Start tracking and baggage association
-frame_count = 1;
+frame_count = start_f;
 
 while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
     
