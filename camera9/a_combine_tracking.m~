@@ -7,25 +7,31 @@ clc;
 % file for input video
 
 file_number = '10A';
+
 input_filename = fullfile(file_number, ['camera9_' file_number '.mp4']);
 v = VideoReader(input_filename);
 
-% the file for the outputvideo
+%% the file for the outputvideo
+
 output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
 outputVideo = VideoWriter(output_filename);
 outputVideo.FrameRate = v.FrameRate;
 open(outputVideo);
 
-% the parameter for the start frame and end frame
+%% the parameter for the start frame and end frame
 
 end_f =  v.Duration * v.FrameRate ; %15500;
-start_f = 500;
+start_f = 100;
 v.CurrentTime = start_f / v.FrameRate ;
 
 
-% file to save variables
+%% file to save variables
 file_to_save = fullfile(file_number, ['camera9_' file_number '_vars.mat']);
-save file_to_save start_f; % creating f
+save(file_to_save, 'start_f'); % creating file_to_save
+matfile_save = matfile(file_to_save, 'Writable', true);
+matfile_save.r1_obj = [];
+matfile_save.r1_cnt = [];
+matfile_save.r1_lb = [];
 
 %% region setting,find region position
 
@@ -89,16 +95,22 @@ while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
     writeVideo(outputVideo,image);
     
     
-    % save variables
-    eval(['R_dropping_' int2str(frame_count) ' = R_dropping']);
-    eval(['R_belt_' int2str(frame_count) ' = R_belt']);
+    %%%%% save variables
+    %     eval(['R_dropping_' int2str(frame_count) ' = R_dropping']);
+    %     eval(['R_belt_' int2str(frame_count) ' = R_belt']);
+    %
+    %     save(file_to_save,['R_belt_' int2str(frame_count)],'-append');
+    %     save(file_to_save,['R_dropping_' int2str(frame_count)],'-append');
     
-    save(file_to_save,['R_belt_' int2str(frame_count)],'-append');
-    save(file_to_save,['R_dropping_' int2str(frame_count)],'-append');
-
+    matfile_save.r1_obj = [matfile_save.r1_obj R_dropping.r1_  ];
+    matfile_save.r1_cnt = [];
+    matfile_save.r1_lb = [];
+    
     disp(frame_count);
     
     frame_count = frame_count + 1;
+    
+    
     
     
 end
