@@ -15,9 +15,9 @@ outputVideo = VideoWriter(output_filename);
 outputVideo.FrameRate = v.FrameRate;
 open(outputVideo);
 
-% the parameter for the start second and end second
+% the parameter for the start frame and end frame
 end_f =  v.Duration * v.FrameRate ; %15500;
-start_f = 100;
+start_f = 500;
 v.CurrentTime = start_f / v.FrameRate ;
 
 %% region setting,find region position
