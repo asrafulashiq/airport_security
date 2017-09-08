@@ -5,7 +5,7 @@ clc;
 %% load video data
 % % %for mac sys 
 % file for input video
-file_number = '10A';
+file_number = '9A';
 input_filename = fullfile(file_number,['camera9_' file_number '.mp4']); 
 v = VideoReader(input_filename); 
 
@@ -16,7 +16,7 @@ outputVideo.FrameRate = v.FrameRate;
 open(outputVideo);
 
 % the parameter for the start frame and end frame
-end_f =  v.NumberofFrame; %15500;  
+end_f =  v.NumberOfFrames; %15500;  
 start_f = 50; 
 
 %% region setting,find region position
