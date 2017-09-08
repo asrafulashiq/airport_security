@@ -3,11 +3,11 @@ clearvars;
 close all;
 clc;
 %% load video data
-% % %for mac sys 
+% % %for mac sys
 % file for input video
 file_number = '10A';
-input_filename = fullfile(file_number,['camera9_' file_number '.mp4']); 
-v = VideoReader(input_filename); 
+input_filename = fullfile(file_number,['camera9_' file_number '.mp4']);
+v = VideoReader(input_filename);
 
 % the file for the outputvideo
 output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
@@ -15,9 +15,10 @@ outputVideo = VideoWriter(output_filename);
 outputVideo.FrameRate = v.FrameRate;
 open(outputVideo);
 
-% the parameter for the start frame and end frame
-end_f =  v.NumberofFrame; %15500;  
-start_f = 50; 
+% the parameter for the start second and end second
+end_f =  v.Duration * v.FrameRate ; %15500;
+start_f = 100;
+v.CurrentTime = start_f / v.FrameRate ;
 
 %% region setting,find region position
 
@@ -49,11 +50,11 @@ R_dropping.r1_lb = 0;
 R_belt.r4_lb = 0;
 
 %% Start tracking and baggage association
+frame_count = 1;
 
-speed = 1;
-for n_im = start_f:speed:end_f
+while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
     
-    im_c = imresize(read(v,n_im),0.25);%original image
+    im_c = imresize(readFrame(v),0.25);%original image
     im_c = imrotate(im_c, 100);
     % Region 1
     im_r1 = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -68,14 +69,15 @@ for n_im = start_f:speed:end_f
     se = strel('disk',10);
     im2_b = imclose(im2_b,se);
     
-    disp(n_im);
+    disp(frame_count);
+    frame_count = frame_count + 1;
     % tracking the people
     [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
     % tracking the bin
     [R_belt,im_c,bin_seq] = a_bintracking(im2_b,im_c,R_dropping,R_belt,bin_seq);
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    image=displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
+    image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
     
     %save image to video
     
