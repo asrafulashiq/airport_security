@@ -1,5 +1,9 @@
 *.mp4
 *.avi
+data/
+detected_bin/
+label*/
+new_bin*/
 
 # General
 *.DS_Store
