@@ -6,11 +6,11 @@ clc;
 % % %for mac sys 
 % file for input video
 file_number = '10A';
-input_filename=sprintf('./%s/camera9_%s.mp4', file_number, file_number); 
+input_filename = fullfile(file_number,['camera9_' file_number '.mp4']); 
 v = VideoReader(input_filename); 
 
 % the file for the outputvideo
-output_filename = sprintf('./%s/_output_%s.avi', file_number, file_number);
+output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
 outputVideo = VideoWriter(output_filename);
 outputVideo.FrameRate = v.FrameRate;
 open(outputVideo);
@@ -21,8 +21,8 @@ start_f = 50;
 
 %% region setting,find region position
 
-load('./Experi1A/r1.mat');
-load('./Experi1A/r4.mat');
+load(fullfile('Experi1A','r1.mat'));
+load(fullfile('Experi1A','r4.mat'));
 %load('region_pos2.mat');
 
 % Region1: droping bags
@@ -32,7 +32,7 @@ R_belt.r4 = r4+5;%[10 93 90 396];
 
 %% Region background
 
-im_background = imread('./Experi1A/camera9_1A_back.jpg');%background image
+im_background = imread(fullfile('Experi1A','camera9_1A_back.jpg'));%background image
 R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
 R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
 %object information for each region
