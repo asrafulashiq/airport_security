@@ -5,20 +5,19 @@ clc;
 
 %% control variable
 
-is_write_video = f
-
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
-my_decision = is_update_region;
+my_decision = is_load_region;
 
 %% load video data
 % % %for mac sys
 % file for input video
 
-all_file_nums = ["5A_take1"]; %,"5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "5A_take2";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -27,21 +26,23 @@ for file_number_str = all_file_nums
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
-    output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
-    outputVideo = VideoWriter(output_filename);
-    outputVideo.FrameRate = v.FrameRate;
-    open(outputVideo);
+    if is_write_video
+        output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
+        outputVideo = VideoWriter(output_filename);
+        outputVideo.FrameRate = v.FrameRate;
+        open(outputVideo);
+    end
     
     %% file to save variables
     file_to_save = fullfile(file_number, ['camera9_' file_number '_vars.mat']);
     
     if my_decision == is_update_region
         load(file_to_save);
-        start_fr = 2950;
+        start_fr = 101;
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 4000;
+        start_fr = 370;
         
     elseif my_decision == is_save_region
         start_fr = 101;
@@ -115,13 +116,15 @@ for file_number_str = all_file_nums
             
             starting_index = start_fr - start_f;
             
-            R_dropping.r1_obj = m_r1_obj{starting_index};
-            R_dropping.r1_cnt = m_r1_cnt(starting_index);
-            R_dropping.r1_lb = m_r1_lb(starting_index) ;
-            
-            R_belt.r4_obj = m_r4_obj{starting_index};
-            R_belt.r4_cnt = m_r4_cnt(starting_index);
-            R_belt.r4_lb = m_r4_lb(starting_index);
+            if starting_index > 0
+                R_dropping.r1_obj = m_r1_obj{starting_index};
+                R_dropping.r1_cnt = m_r1_cnt(starting_index);
+                R_dropping.r1_lb = m_r1_lb(starting_index) ;
+                
+                R_belt.r4_obj = m_r4_obj{starting_index};
+                R_belt.r4_cnt = m_r4_cnt(starting_index);
+                R_belt.r4_lb = m_r4_lb(starting_index);
+            end
             
             if my_decision == is_load_region
                 my_decision = is_do_nothing;
@@ -174,10 +177,9 @@ for file_number_str = all_file_nums
             m_r4_cnt(end+1) =  R_belt.r4_cnt;
             m_r4_lb(end+1)  =  R_belt.r4_lb;
             
-        elseif my_decision == is_load_region
-            writeVideo(outputVideo,image);
-            
-        elseif my_decision == is_update_region
+        end
+        
+        if is_write_video
             writeVideo(outputVideo,image);
             
         end
@@ -196,7 +198,10 @@ for file_number_str = all_file_nums
         save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
             'm_r4_lb', 'start_f');
     end
-    close(outputVideo);
+    
+    if is_write_video
+        close(outputVideo);
+    end
     
     beep;
     

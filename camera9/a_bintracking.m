@@ -1,11 +1,11 @@
-function [R4,im_color,bin_seq] = a_bintracking(im2_b,im_c,R1,R4,bin_seq)
-r1_obj = R1.r1_obj;
-r1 = R1.r1;
-r4_obj = R4.r4_obj;
-r4_cnt = R4.r4_cnt;
-r4_lb = R4.r4_lb;
-r4 = R4.r4;
-im_r4_p = R4.im_r4_p;
+function [R_belt,im_color,bin_seq] = a_bintracking(im2_b,im_c,R_dropping,R_belt,bin_seq)
+r1_obj = R_dropping.r1_obj;
+r1 = R_dropping.r1;
+r4_obj = R_belt.r4_obj;
+r4_cnt = R_belt.r4_cnt;
+r4_lb = R_belt.r4_lb;
+r4 = R_belt.r4;
+im_r4_p = R_belt.im_r4_p;
 %% Set up parameters
 limit_area = 3000;%the minimum area of region that can be seen as an object
 threshold = 140;%threshold for object recognition
@@ -204,13 +204,13 @@ if (pcnt_r4~=0)
                     dis1 = pdist2(r4_obj(:,1:2),temp_r4(i,1:2),'euclidean');
                     if min(dis1)>=50
                         py1=max(1,round(temp_r4(i,2)-35));
-                        py2=min(R4.r4(4)-R4.r4(3),round(temp_r4(i,2)+35));
+                        py2=min(R_belt.r4(4)-R_belt.r4(3),round(temp_r4(i,2)+35));
                         % double check if there is a people nearby
                         max_dist_b_p=72;
-                        r1_edge=r1_obj(:,1:2)+[R1.r1(1) R1.r1(3)];
+                        r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
                         r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
-                        r1_edge(r1_edge(:,1)<R1.r1(1),1)=R1.r1(1);
-                        dist_b_p=pdist2(r1_edge,temp_r4(i,1:2)+[R4.r4(1) R4.r4(3)],'euclidean');
+                        r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
+                        dist_b_p=pdist2(r1_edge,temp_r4(i,1:2)+[R_belt.r4(1) R_belt.r4(3)],'euclidean');
                         dist_b_p_min=min(dist_b_p);
                         if dist_b_p_min>max_dist_b_p
                             continue;
@@ -222,8 +222,8 @@ if (pcnt_r4~=0)
                         r4_obj=[r4_obj;temp_r4(i,1:3) r4_lb 1 r1_obj(bin_belong(1,1),4)];
                         %save the detected bin
                         save_bin_path='./detected_bin/';
-                        px = temp_r4(i,1)+R4.r4(1);
-                        py = temp_r4(i,2)+R4.r4(3);
+                        px = temp_r4(i,1)+R_belt.r4(1);
+                        py = temp_r4(i,2)+R_belt.r4(3);
                         wintx = 35;
                         winty = 25;
                         imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
@@ -265,10 +265,10 @@ if (pcnt_r4~=0)
                 if size(r1_obj,1)==0
                     continue;
                 end
-                r1_edge=r1_obj(:,1:2)+[R1.r1(1) R1.r1(3)];
+                r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
                 r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
-                r1_edge(r1_edge(:,1)<R1.r1(1),1)=R1.r1(1);
-                dist_b_p=pdist2(r1_edge,temp_r4(q,1:2)+[R4.r4(1) R4.r4(3)],'euclidean');
+                r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
+                dist_b_p=pdist2(r1_edge,temp_r4(q,1:2)+[R_belt.r4(1) R_belt.r4(3)],'euclidean');
                 dist_b_p_min=min(dist_b_p);
                 if dist_b_p_min>max_dist_b_p
                     continue;
@@ -280,22 +280,21 @@ if (pcnt_r4~=0)
                 r4_obj=[r4_obj;temp_r4(q,1:3) r4_lb 1 r1_obj(bin_belong(1,1),4)];
                 %save the detected bin
                 save_bin_path='./detected_bin/';
-                px = temp_r4(q,1)+R4.r4(1);
-                py = temp_r4(q,2)+R4.r4(3);
+                px = temp_r4(q,1)+R_belt.r4(1);
+                py = temp_r4(q,2)+R_belt.r4(3);
                 wintx = 35;
                 winty = 25;
                 imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
                     [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
             end
-        end
-        
+        end  
     end
     
 end
 im_color = im_c;
-R4.r4_obj = r4_obj;
-R4.r4_cnt = r4_cnt;
-R4.r4_lb = r4_lb;
-R1.r1_obj = r1_obj;
+R_belt.r4_obj = r4_obj;
+R_belt.r4_cnt = r4_cnt;
+R_belt.r4_lb = r4_lb;
+R_dropping.r1_obj = r1_obj;
 
 end
