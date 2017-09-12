@@ -5,7 +5,7 @@ clc;
 
 %% control variable
 
-is_write_video = false;
+is_write_video = f
 
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
@@ -27,12 +27,10 @@ for file_number_str = all_file_nums
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
-    if is_write_video
-        output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
-        outputVideo = VideoWriter(output_filename);
-        outputVideo.FrameRate = v.FrameRate;
-        open(outputVideo);
-    end
+    output_filename = fullfile(file_number, ['_output_' file_number '.avi']);
+    outputVideo = VideoWriter(output_filename);
+    outputVideo.FrameRate = v.FrameRate;
+    open(outputVideo);
     
     %% file to save variables
     file_to_save = fullfile(file_number, ['camera9_' file_number '_vars.mat']);
@@ -176,9 +174,10 @@ for file_number_str = all_file_nums
             m_r4_cnt(end+1) =  R_belt.r4_cnt;
             m_r4_lb(end+1)  =  R_belt.r4_lb;
             
-        end
-        
-        if is_write_video
+        elseif my_decision == is_load_region
+            writeVideo(outputVideo,image);
+            
+        elseif my_decision == is_update_region
             writeVideo(outputVideo,image);
             
         end
@@ -197,10 +196,7 @@ for file_number_str = all_file_nums
         save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
             'm_r4_lb', 'start_f');
     end
-    
-    if is_write_video
-        close(outputVideo);
-    end
+    close(outputVideo);
     
     beep;
     
