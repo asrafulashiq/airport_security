@@ -4,7 +4,7 @@ close all;
 clc;
 
 %% control variable
-is_save_region = false; % flag to save region data to matfile in a completely new fashion
+is_save_region = false; % flag to save region data to matfile
 is_load_region = false; % flag to load region data from respective matfile
 is_update_region = false; % flag to update region data from respective matfile
 
@@ -31,28 +31,28 @@ for file_number_str = all_file_nums
     file_to_save = fullfile(file_number, ['camera9_' file_number '_vars.mat']);
 
     if is_update_region
-        start_fr = 101;
+        start_f = 101;
         load(file_to_save);
         
     elseif is_load_region
         load(file_to_save); % start_f will load here 
         
     elseif is_save_region
-        start_fr = 101;
+        start_f = 101;
         save(file_to_save, 'start_f'); % creating file_to_save
         m_r1_obj = {};  m_r4_obj = {};
         m_r1_cnt = [];  m_r4_cnt = [];
         m_r1_lb = [];   m_r4_lb = [];
       
     else
-        start_fr = 101;
+        start_f = 101;
         
     end
     
     %% the parameter for the start frame and end frame
     end_f = 1050;%v.Duration * v.FrameRate ; %15500;
     %start_f = 1000;
-    v.CurrentTime = start_fr / v.FrameRate ;
+    v.CurrentTime = start_f / v.FrameRate ;
     
     %% region setting,find region position
     
@@ -142,7 +142,6 @@ for file_number_str = all_file_nums
     end
     
     if is_save_region
-        start_f = start_fr;
         save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
             'm_r4_lb', 'start_f');
     end
