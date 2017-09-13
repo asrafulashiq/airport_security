@@ -84,7 +84,7 @@ for i = 1:size(cpro_r4,1)
                 std_I(1,j)=std(I_j(:),1);
                 mean_I(1,j)=mean(I_j(:));
             end
-            if n==1
+            if n==1  %%%????? 
                 f_n(1,1)=0;
             else
                 f_n(1,n)=mean(std_I)/std(mean_I,1);
@@ -151,24 +151,24 @@ if (pcnt_r4~=0)
             end
         end
         
-        sort_t = [];
-        sort_o = [];
+        sort_prev = [];
+        sort_now = [];
         
         %sort the minimum distance
         for i = 1:r4_cnt
-            sort_t(i) = find(dis_r4(i,:)==min(dis_r4(i,:)),1);
+            sort_prev(i) = find(dis_r4(i,:)==min(dis_r4(i,:)),1);
         end       
         for i = 1:pcnt_r4
-            sort_o(i) = find(dis_r4(:,i)==min(dis_r4(:,i)),1);
+            sort_now(i) = find(dis_r4(:,i)==min(dis_r4(:,i)),1);
         end
         
         % double match?
         for i = 1:r4_cnt
-            if (sort_o(sort_t(i))==i && abs(temp_r4(sort_t(i),2)-r4_obj(i,2))<50)
-                r4_obj(i,1:2) = 0.5*temp_r4(sort_t(i),1:2)+0.5*r4_obj(i,1:2);
-                r4_obj(i,3) = temp_r4(sort_t(i),3);
+            if (sort_now(sort_prev(i))==i && abs(temp_r4(sort_prev(i),2)-r4_obj(i,2))<50)
+                r4_obj(i,1:2) = 0.5*temp_r4(sort_prev(i),1:2)+0.5*r4_obj(i,1:2);
+                r4_obj(i,3) = temp_r4(sort_prev(i),3);
                 r4_obj(i,5) = 1;
-                temp_r4(sort_t(i),4) = 1;
+                temp_r4(sort_prev(i),4) = 1;
             end
         end
         
