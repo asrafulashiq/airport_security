@@ -86,7 +86,7 @@ for i = 1:size(cpro_r4,1)
                 std_I(1,j)=std(I_j(:),1);
                 mean_I(1,j)=mean(I_j(:));
             end
-            if n==1  %%%?????
+            if n==1  %%%????? 
                 f_n(1,1)=0;
             else
                 f_n(1,n)=mean(std_I)/std(mean_I,1);
@@ -159,32 +159,20 @@ if (pcnt_r4~=0)
         %sort the minimum distance
         for i = 1:r4_cnt
             sort_prev(i) = find(dis_r4(i,:)==min(dis_r4(i,:)),1);
-        end
+        end       
         for i = 1:pcnt_r4
             sort_now(i) = find(dis_r4(:,i)==min(dis_r4(:,i)),1);
         end
         
-        %%%%%%%%%
-                % double match?
-                for i = 1:r4_cnt
-                    if (sort_now(sort_prev(i))==i && abs(temp_r4(sort_prev(i),2)-r4_obj(i,2))<50)
-                        r4_obj(i,1:2) = 0.5*temp_r4(sort_prev(i),1:2)+0.5*r4_obj(i,1:2);
-                        r4_obj(i,3) = temp_r4(sort_prev(i),3);
-                        r4_obj(i,5) = 1;
-                        temp_r4(sort_prev(i),4) = 1;
-                    end
-                end
-        
-%         for i_ = 1:r4_cnt
-%             if (sort_now(sort_prev(i_))==i_ && abs(temp_r4(sort_prev(i_),2)-r4_obj(i_,2))<50)
-%                 r4_obj(i_,1:2) = 0.5*temp_r4(sort_prev(i_),1:2)+0.5*r4_obj(i_,1:2);
-%                 %r4_obj(i_,3) = temp_r4(sort_prev(i_),3);
-%                 %r4_obj(i_,5) = 1;
-%                 temp_r4(sort_prev(i_),4) = 1;
-%             end
-%         end
-        
-        %%%%%%%%%
+        % double match?
+        for i = 1:r4_cnt
+            if (sort_now(sort_prev(i))==i && abs(temp_r4(sort_prev(i),2)-r4_obj(i,2))<50)
+                r4_obj(i,1:2) = 0.5*temp_r4(sort_prev(i),1:2)+0.5*r4_obj(i,1:2);
+                r4_obj(i,3) = temp_r4(sort_prev(i),3);
+                r4_obj(i,5) = 1;
+                temp_r4(sort_prev(i),4) = 1;
+            end
+        end
         
         % check the distance between two bins
         for i = 1:r4_cnt
@@ -215,19 +203,6 @@ if (pcnt_r4~=0)
             
             if (temp_r4(i,4)==0)
                 if (temp_r4(i,2)<dis_enter && temp_r4(i,1)<dis_enter_y)
-                    
-                    %%%%%%
-                    % double match?
-%                     for i_ = 1:r4_cnt
-%                         if (sort_now(sort_prev(i_))==i_ && abs(temp_r4(sort_prev(i_),2)-r4_obj(i_,2))<50)
-%                             r4_obj(i_,1:2) = 0.5*temp_r4(sort_prev(i_),1:2)+0.5*r4_obj(i_,1:2);
-%                             r4_obj(i_,3) = temp_r4(sort_prev(i_),3);
-%                             r4_obj(i_,5) = 1;
-%                             temp_r4(sort_prev(i_),4) = 1;
-%                         end
-%                     end
-                    %%%%%%%%
-                    
                     dis1 = pdist2(r4_obj(:,1:2),temp_r4(i,1:2),'euclidean');
                     if min(dis1)>=50
                         py1=max(1,round(temp_r4(i,2)-35));
@@ -314,7 +289,7 @@ if (pcnt_r4~=0)
                 imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
                     [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
             end
-        end
+        end  
     end
     
 end

@@ -1,7 +1,7 @@
 %% clear all variable
-clearvars;
-close all;
-clc;
+%clearvars;
+%close all;
+%clc;
 
 %% control variable
 is_do_nothing = 0;
@@ -21,14 +21,19 @@ for file_number_str = all_file_nums
     input_filename = fullfile(file_number, ['camera9_' file_number '.mp4']);
     v = VideoReader(input_filename);
     
+    
     my_decision = is_load_region;
     file_to_save = fullfile(file_number, ['camera9_' file_number '_vars.mat']);
     
-    load(file_to_save); % start_f will load here    
+    load(file_to_save); % start_f will load here
+    
+    
+    start_fr = 700;
+    
     
     %% the parameter for the start frame and end frame
     end_f = 3000;%v.Duration * v.FrameRate ; %15500;
-    start_fr = 840;
+    % start_f = 1000;
     v.CurrentTime = start_fr / v.FrameRate ;
     
     %% region setting,find region position
@@ -66,12 +71,23 @@ for file_number_str = all_file_nums
     
     %blob_tracker = vision.PointTracker;
     
-    htm=vision.TemplateMatcher;
+    %     %% background detection
+    %     foregroundDetector = vision.ForegroundDetector('NumGaussians', 5, ...
+    %         'NumTrainingFrames', 10);
+    %
+    %    blobAnalysis = vision.BlobAnalysis('BoundingBoxOutputPort', true, ...
+    %     'AreaOutputPort', false, 'CentroidOutputPort', false, ...
+    %     'MinimumBlobArea', 3000);
+    
+%    %% template matching
+%     htm=vision.TemplateMatcher;
+%     hmi = vision.MarkerInserter('Size',30, ...
+%         'Fill',true,'FillColor','White','Opacity',0.75);
+%     
+%     T = rgb2gray( imread('template1.jpg') );
 
-    T_in = imread('template1.jpg');
-    T = rgb2gray(T_in);
-    w = size(T,2);
-    h = size(T,1)+10;
+    %% correlation based  tracker
+
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -118,50 +134,27 @@ for file_number_str = all_file_nums
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
         
-        r4 = R_belt.r4; 
+        
+        r4 = R_belt.r4;
+        
         im_r4 = im_c(r4(3):r4(4),r4(1):r4(2),:);
- 
-        
-        
-%         if frame_count==start_fr
-%             corner_points = detectMinEigenFeatures( rgb2gray(im_r4),'ROI',[14 65 70 56] );
-%             initialize(blob_tracker, corner_points.Location, im_r4);
-%             
-%             figure(1);imshow(im_r4);
-%             hold on; plot(corner_points.selectStrongest(37));
-%             drawnow;
-%             
-%         else
-%             [corner_points validity] = blob_tracker(im_r4);
-%             out = insertMarker(im_r4, corner_points(validity, :),'+');
-%             figure(1);imshow(out);
-%             drawnow;
-%             
-%         end
-        
         I = rgb2gray(im_r4);
+        %im_r4_p = R_belt.im_r4_p;
         
-        Loc=step(htm,I,T)  ;
-            
-        x = Loc(1); y = Loc(2);
+      
+%         I = rgb2gray(im_r4);
+%         Loc=step(htm,I,T);
+%         w = min(77,size(I,2) ); h = min(60, size(I,1)); % width and height of blob
+%         J = insertShape( I, 'Rectangle', [ Loc(1) - w/2 Loc(2)-h/2 w h ] );
+%         index_box = [ max(Loc(1)-w/2,1)  max(Loc(2)-h/2,1) ];
+%         index_box = [ index_box  min( index_box(1) + w , size(I,2)) min( index_box(2) + h , size(I,1))  ];
+%         figure(1);imshow(J);
+%         drawnow;
+%         T = I(index_box(2):index_box(4), index_box(1):index_box(3));
         
-        % calc bounding box
-        width_T = size(T_in,2);
         
-        height_T = size(T_in,1);
         
-        bbox = int64 ([ max(1,x-width_T/2) max(1,y-height_T/2)...
-            min( x+width_T/2, size(I,2))  min(y+height_T/2, size(I,1)) ] );
-        
-        T = I(bbox(2):bbox(4), bbox(1):bbox(3));
-        
-        im_and_shape = insertShape( I,'Rectangle',[ bbox(1) bbox(2) width_T height_T ]);
-        
-        figure(1);
-        imshow(im_and_shape);
-        
-        figure(2);imshow(T);
-        drawnow;
+
         
         disp(frame_count);
         
