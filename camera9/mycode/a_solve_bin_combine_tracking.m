@@ -5,7 +5,7 @@
 
 %% control variable
 
-is_write_video = false;
+is_write_video = true;
 
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 670;
+        start_fr = 420;
         
     elseif my_decision == is_save_region
         start_fr = 101;
@@ -54,12 +54,12 @@ for file_number_str = all_file_nums
         m_r1_lb = [];   m_r4_lb = [];
         
     else
-        start_fr = 530;
+        start_fr = 490;
         
     end
     
     %% the parameter for the start frame and end frame
-    end_f = 3000;%v.Duration * v.FrameRate ; %15500;
+    end_f = v.Duration * v.FrameRate ; %15500;
     % start_f = 1000;
     v.CurrentTime = start_fr / v.FrameRate ;
     
@@ -72,7 +72,8 @@ for file_number_str = all_file_nums
     % Region1: droping bags
     R_dropping.r1 = r1;%[103 266 61 436];
     % Region4: Belt
-    R_belt.r4 = r4+5;%[10 93 90 396];
+    R_belt.r4 = [161   243   123   386]; %r4+5;%[10 93 90 396];
+    %R_belt.r4 = r4;
     
     %% Region background
     
@@ -95,6 +96,7 @@ for file_number_str = all_file_nums
     
     %% Start tracking and baggage association
     frame_count = start_fr;
+    template = [];
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -144,11 +146,15 @@ for file_number_str = all_file_nums
             
         end
         
+        if frame_count > 485
+           1; 
+        end
+        
         % tracking the people
         [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [R_belt,im_c,bin_seq] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq);
+        [R_belt,im_c,bin_seq,template] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,template);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
@@ -181,8 +187,7 @@ for file_number_str = all_file_nums
         end
         
         if is_write_video
-            writeVideo(outputVideo,image);
-            
+            writeVideo(outputVideo,image);        
         end
         
         disp(frame_count);

@@ -1,4 +1,4 @@
-function [R_belt,im_color,bin_seq, template] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq, template)
+function [R_belt,im_color,bin_seq, template] = a_solve_bin_bin_tracking_3(im2_b,im_c,R_dropping,R_belt,bin_seq, template)
 r1_obj = R_dropping.r1_obj;
 r1 = R_dropping.r1;
 r4_obj = R_belt.r4_obj;
@@ -10,7 +10,7 @@ im_r4_p = R_belt.im_r4_p;
 limit_area = 3000;%the minimum area of region that can be seen as an object
 threshold = 90;%threshold for object recognition
 dis_enter = 150;%enter distance (coordinate x)
-dis_enter_y = 80;%enter dista nce (coordinate y)
+dis_enter_y = 80;%enter distance (coordinate y)
 dis_exit = 185;%exit distance (coordinate x)
 %% Preprocessing
 im_r4 = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -29,8 +29,6 @@ stp1 = 20;
 % for i = (1+stp1):(size(imr4t,1)-stp2)
 %     pt2(i) = mean(mean(imr4t(i-stp2:i+stp2,:)));
 % end
-
-
 
 for i = 1: (size(imr4t,1)-stp2)
    pt2(i) = mean( mean( imr4t(i:i+stp2,:) ) ); 
@@ -58,19 +56,23 @@ I = im_channel;
 % htm=vision.TemplateMatcher('ROIInputPort',true, 'ROIValidityOutputPort',true,...
 %     'BestMatchNeighborhoodOutputPort',true,'NeighborhoodSize',3,'OutputValue','Best match location') ;
 
-[cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
+
+[cpro_r4,template] = match_template(loc_something, I, template , 0.7);
+
+
+%[cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
 
 %% draw conveyar
-% figure(2);
-% imshow(im_channel);
-% 
-% figure(3);
-% len = size(template,2);
-% for i=1:len
-%   subplot(len,1,i);
-%   imshow(template{i}.image);
-% end
-% drawnow;
+figure(2);
+imshow(im_channel);
+
+figure(3);
+len = size(template,2);
+for i=1:len
+  subplot(len,1,i);
+  imshow(template{i});
+end
+drawnow;
 %%
 
 % filtered with area;
@@ -120,6 +122,16 @@ if (pcnt_r4~=0)
             end
         end
         
+        %         for i_ = 1:r4_cnt
+        %             if (sort_now(sort_prev(i_))==i_ && abs(temp_r4(sort_prev(i_),2)-r4_obj(i_,2))<50)
+        %                 r4_obj(i_,1:2) = 0.5*temp_r4(sort_prev(i_),1:2)+0.5*r4_obj(i_,1:2);
+        %                 %r4_obj(i_,3) = temp_r4(sort_prev(i_),3);
+        %                 %r4_obj(i_,5) = 1;
+        %                 temp_r4(sort_prev(i_),4) = 1;
+        %             end
+        %         end
+        
+        %%%%%%%%%
         
         % check the distance between two bins
         for i = 1:r4_cnt
@@ -151,10 +163,22 @@ if (pcnt_r4~=0)
             if (temp_r4(i,4)==0)
                 if (temp_r4(i,2)<dis_enter && temp_r4(i,1)<dis_enter_y)
                     
+                    %%%%%%
+                    % double match?
+                    %                     for i_ = 1:r4_cnt
+                    %                         if (sort_now(sort_prev(i_))==i_ && abs(temp_r4(sort_prev(i_),2)-r4_obj(i_,2))<50)
+                    %                             r4_obj(i_,1:2) = 0.5*temp_r4(sort_prev(i_),1:2)+0.5*r4_obj(i_,1:2);
+                    %                             r4_obj(i_,3) = temp_r4(sort_prev(i_),3);
+                    %                             r4_obj(i_,5) = 1;
+                    %                             temp_r4(sort_prev(i_),4) = 1;
+                    %                         end
+                    %                     end
+                    %%%%%%%%
+                    
                     dis1 = pdist2(r4_obj(:,1:2),temp_r4(i,1:2),'euclidean');
                     if min(dis1)>=50
-                        %py1=max(1,round(temp_r4(i,2)-35));
-                        %py2=min(R_belt.r4(4)-R_belt.r4(3),round(temp_r4(i,2)+35));
+                        py1=max(1,round(temp_r4(i,2)-35));
+                        py2=min(R_belt.r4(4)-R_belt.r4(3),round(temp_r4(i,2)+35));
                         % double check if there is a people nearby
                         max_dist_b_p=72;
                         r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
@@ -171,13 +195,13 @@ if (pcnt_r4~=0)
                         bin_belong=find(dist_b_p==dist_b_p_min);
                         r4_obj=[r4_obj;temp_r4(i,1:3) r4_lb 1 r1_obj(bin_belong(1,1),4)];
                         %save the detected bin
-                        %save_bin_path='../detected_bin/';
-                        %px = temp_r4(i,1)+R_belt.r4(1);
-                        %py = temp_r4(i,2)+R_belt.r4(3);
-                        %wintx = 35;
-                        %winty = 25;
-                        %imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
-                        %    [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
+                        save_bin_path='../detected_bin/';
+                        px = temp_r4(i,1)+R_belt.r4(1);
+                        py = temp_r4(i,2)+R_belt.r4(3);
+                        wintx = 35;
+                        winty = 25;
+                        imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
+                            [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
                     end
                 end
             end
@@ -192,7 +216,7 @@ if (pcnt_r4~=0)
                 r4_obj = r4_obj(1:r4_cnt,:);
                 disp('delete!');
                 break
-            elseif (r4_obj(i,2)>=(dis_exit-40) && isempty(find(r1_obj(:,4)==r4_obj(i,6), 1)))
+            elseif (r4_obj(i,2)>=(dis_exit-40) && isempty(find(r1_obj(:,4)==r4_obj(i,6))))
                 bin_seq = [bin_seq;r4_obj(i,:)];
                 r4_obj(i:end-1,:) = r4_obj(i+1:end,:);
                 r4_cnt = r4_cnt-1;
@@ -208,8 +232,8 @@ if (pcnt_r4~=0)
         for q = 1:pcnt_r4
             if (temp_r4(q,2)<dis_enter && temp_r4(q,1)<dis_enter_y && temp_r4(q,3)>limit_area)
                 %find the maximum area of the temp region
-                %py1=max(1,round(temp_r4(q,2)-35));
-                %py2=min(size(im_channel,1),round(temp_r4(q,2)+35));
+                py1=max(1,round(temp_r4(q,2)-35));
+                py2=min(size(im_channel,1),round(temp_r4(q,2)+35));
                 % double check if there is a people nearby
                 max_dist_b_p=72;
                 if size(r1_obj,1)==0
@@ -229,13 +253,13 @@ if (pcnt_r4~=0)
                 r4_lb=r4_lb+1;
                 r4_obj=[r4_obj;temp_r4(q,1:3) r4_lb 1 r1_obj(bin_belong(1,1),4)];
                 %save the detected bin
-%                 save_bin_path='./detected_bin/';
-%                 px = temp_r4(q,1)+R_belt.r4(1);
-%                 py = temp_r4(q,2)+R_belt.r4(3);
-%                 wintx = 35;
-%                 winty = 25;
-%                 imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
-%                     [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
+                save_bin_path='./detected_bin/';
+                px = temp_r4(q,1)+R_belt.r4(1);
+                py = temp_r4(q,2)+R_belt.r4(3);
+                wintx = 35;
+                winty = 25;
+                imwrite(im_c(py-winty:py+winty,px-wintx:px+wintx),...
+                    [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
             end
         end
     end
