@@ -18,7 +18,7 @@ my_decision = 2;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "5A_take1";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 330;
+        start_fr = 450;
         
     elseif my_decision == is_save_region
         start_fr = 101;
@@ -97,6 +97,7 @@ for file_number_str = all_file_nums
     %% Start tracking and baggage association
     frame_count = start_fr;
     template = [];
+    bin_array={};
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -154,7 +155,7 @@ for file_number_str = all_file_nums
         [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [R_belt,im_c,bin_seq,template] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,template);
+        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,bin_array);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);

@@ -18,7 +18,7 @@ my_decision = 2;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "5A_take1";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 330;
+        start_fr = 450;
         
     elseif my_decision == is_save_region
         start_fr = 101;
