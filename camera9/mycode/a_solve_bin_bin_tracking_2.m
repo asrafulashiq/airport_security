@@ -58,7 +58,7 @@ I = im_channel;
 % htm=vision.TemplateMatcher('ROIInputPort',true, 'ROIValidityOutputPort',true,...
 %     'BestMatchNeighborhoodOutputPort',true,'NeighborhoodSize',3,'OutputValue','Best match location') ;
 
-[cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
+[cpro_r4,template] = my_template_match_main(loc_something, imr4eqc, template , 0.7);
 
 %% draw conveyar
 % figure(2);

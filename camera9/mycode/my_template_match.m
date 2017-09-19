@@ -1,4 +1,4 @@
-function t_struct = my_template_match(loc_something, I, T, thr )
+  function t_struct = my_template_match(loc_something, I, T, thr )
 
 t_struct = [];
 % if target is smaller than template
@@ -24,7 +24,7 @@ loc_array = [];
 for i = loc_something(1) : ( loc_something(2) - thr * size(T,1) )
     
     s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
-    if s < 0.2
+    if s < 0.1
        continue; 
     end
     sim_array = [ sim_array s ]; 

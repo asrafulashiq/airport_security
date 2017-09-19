@@ -32,11 +32,12 @@ if obj_num == 0
     % determine target location
     
     
-    
-    for i = loc_something(1) : ( loc_something(2) - thr* size(T,1) )
+    x = [];
+    for i = loc_something(1) : ( loc_something(2) -  size(T,1) )
         
         s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
-        if s < 0.22
+        x = [x s];
+        if s < 0.1
             continue;
         end
         sim_array = [ sim_array s ];
@@ -122,8 +123,8 @@ else
         lim = 25;
         
         loc_to_match = [
-            max( template{i}.BoundingBox(2)-lim,1)  ...
-            min( template{i}.BoundingBox(2)+template{i}.BoundingBox(4)+lim, size(I,1)-lim )
+            max( [ template{i}.BoundingBox(2)-lim,loc_something(1) ])  ...
+            min([ template{i}.BoundingBox(2)+template{i}.BoundingBox(4)+lim, loc_something(2) ]) %size(I,1)-lim )
         ];
         
         t_s = my_template_match(loc_to_match, I, T, thr)  ;
