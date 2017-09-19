@@ -5,20 +5,20 @@ clc;
 
 %% control variable
 
-is_write_video = false;
+is_write_video = true;
 
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
-my_decision = 2;
+my_decision = 1;
 
 %% load video data
 % % %for mac sys
 % file for input video
 
-all_file_nums = "5A_take1";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
         start_fr = 655;
         
     elseif my_decision == is_save_region
-        start_fr = 101;
+        start_fr = 100;
         start_f = start_fr; % starting frame for saving
         save(file_to_save, 'start_f'); % creating file_to_save
         m_r1_obj = {};  m_r4_obj = {};
