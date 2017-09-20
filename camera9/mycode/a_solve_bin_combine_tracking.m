@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 420;
+        start_fr = 450;
         
     elseif my_decision == is_save_region
         start_fr = 101;
