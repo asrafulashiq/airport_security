@@ -8,7 +8,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 %% Set up parameters
 limit_area = 3000;%the minimum area of region that can be seen as an object
-threshold = 110;%threshold for object recognition
+threshold = 20;%threshold for object recognition
 dis_enter = 150;%enter distance (coordinate x)
 dis_enter_y = 80;%enter dista nce (coordinate y)
 dis_exit = 185;%exit distance (coordinate x)
@@ -21,11 +21,11 @@ ch = 3;
 %imr4eqc = 0.33*(im_r4(:,:,1)+im_r4(:,:,2)+im_r4(:,:,3));
 imr4eqc = rgb2gray(im_r4);
 
-imr4eq = histeq(imr4eqc);
+imr4eq = imr4eqc;%histeq(imr4eqc);
 imr4t = imr4eq;
 %speed up here
 pt2 = [];
-stp2 = 15;
+stp2 = 10;
 
 %stp1 = 20;
 % for i = (1+stp1):(size(imr4t,1)-stp2)
@@ -68,13 +68,14 @@ I = im_all;
 
 % [cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
 
-bin_array = my_template_match_main(loc_something, I, bin_array , 0.7);
+bin_array = my_template_match_main(loc_something, I, bin_array , 0.8);
+
 
 %% for test
 cpro_r4 = [];
 template = {};
 
-for i = 1:size(bin_array)
+for i = 1:size(bin_array,2)
    cpro_r4 = [cpro_r4;  struct('Area',bin_array{i}.Area, 'Centroid', bin_array{i}.Centroid, ...
                  'BoundingBox', bin_array{i}.BoundingBox ) ];  
              
@@ -227,6 +228,7 @@ if (pcnt_r4~=0)
             
         end
         
+        
     else %r4_cnt == 0
         
         for q = 1:pcnt_r4
@@ -264,6 +266,7 @@ if (pcnt_r4~=0)
         end
     end 
 end
+
 im_color = im_c;
 R_belt.r4_obj = r4_obj;
 R_belt.r4_cnt = r4_cnt;
@@ -272,50 +275,6 @@ R_dropping.r1_obj = r1_obj;
 
 end
 
-
-
-% if ~isempty(loc_something)
-%     
-%     a = loc_something(1); b = loc_something(end);
-%     
-%     x = 1; y = a;
-%     wid = size(im_channel,2);
-%     hei = b - a + 1;
-%     
-%     [Loc, NVals,~,~] = step(htm,I,T,[x y wid hei]);
-%     %NVals
-%     
-%    % htm1=vision.TemplateMatcher( 'BestMatchNeighborhoodOutputPort',true,'NeighborhoodSize',3,'OutputValue','Metric matrix') ;
-%    % Metric = step(htm1, I, T);
-%     
-%    % [Loc1, NVals1,~,~] = step(htm,I,T,[1 1 83 65]);
-%    % NVals1
-%     
-%    % thr_nval = NVals( floor(size(NVals,1) / 2), floor(size(NVals,2) / 2 ));
-%     
-%     height = 64;
-%     
-%     if rem( size(T,1),2 ) == 0
-%         dim_y = Loc(2) - size(T,1) / 2 + 1;
-%     else
-%         dim_y = ceil(Loc(2) - size(T,1) / 2 );
-%     end
-%     
-%     
-%     %bbox = int64 ([ 1 max(1,py-height_T/2) wid  min(py+height_T/2, size(I,1)) ] );
-%     
-%     im_and_shape = insertShape( I,'Rectangle',[ 1 dim_y wid height ]);
-%     
-%     figure(1);imshow(im_and_shape);
-%     drawnow;
-%     
-%     %loc_something(1) = loc_something(1) - 
-%     
-% end
-
-% width = min( size(T,2), size(I,2) );
-% I = I(:, 1:width);
-% T = T(:, 1:width);
 
 
 % 
@@ -345,76 +304,6 @@ end
 %         end
 %     end
 % end
-% %% Acquire bin quantity
-% %try to split the bigger area
-% split_area = 4100;
-% size_lb = size(lb_r4);
-% for i = 1:size(cpro_r4,1)
-%     if (cpro_r4(i).Area>split_area*2)
-%         pos_x = max(1,int16(cpro_r4(i).BoundingBox(2)));
-%         pos_y = max(1,int16(cpro_r4(i).BoundingBox(1)));
-%         pos_x_end = min(int16(cpro_r4(i).BoundingBox(2)+cpro_r4(i).BoundingBox(4)),size_lb(1));
-%         pos_y_end = min(int16(cpro_r4(i).BoundingBox(1)+cpro_r4(i).BoundingBox(3)),size_lb(2));
-%         blob_region = im_channel(pos_x:pos_x_end,pos_y:pos_y_end);
-%         f_n = zeros(1,3);
-%         for n = 1:3
-%             f_n(1,n)=0;
-%             std_I=zeros(1,n);
-%             mean_I=zeros(1,n);
-%             size_b=size(blob_region);
-%             part=round(size_b(1,1)/n);
-%             for j=1:n
-%                 end_part=j*part;
-%                 if(size_b(1,1)<end_part)
-%                     end_part=size_b(1,1);
-%                 end
-%                 I_j=im2double(blob_region((1+(j-1)*part):end_part,:));
-%                 std_I(1,j)=std(I_j(:),1);
-%                 mean_I(1,j)=mean(I_j(:));
-%             end
-%             if n==1  %%%?????
-%                 f_n(1,1)=0;
-%             else
-%                 f_n(1,n)=mean(std_I)/std(mean_I,1);
-%             end
-%         end
-%         max_pos = find(f_n==max(f_n));
-%         
-%         if(cpro_r4(i).Area>split_area*3)
-%             %upper region
-%             temp_struct1=struct('Area',cpro_r4(i).Area/3,...
-%                 'Centroid',[cpro_r4(i).Centroid(1), cpro_r4(i).Centroid(2)-cpro_r4(i).BoundingBox(4)/3],...
-%                 'BoundingBox', [cpro_r4(i).BoundingBox(1:3) cpro_r4(i).BoundingBox(4)/3]);
-%             
-%             %middle region
-%             temp_struct2=struct('Area',cpro_r4(i).Area/3,...
-%                 'Centroid',cpro_r4(i).Centroid(1:2),...
-%                 'BoundingBox', [cpro_r4(i).BoundingBox(1) cpro_r4(i).BoundingBox(2)+cpro_r4(i).BoundingBox(4)/3 ...
-%                 cpro_r4(i).BoundingBox(3) cpro_r4(i).BoundingBox(4)/3]);
-%             
-%             %down region
-%             temp_struct3=struct('Area',cpro_r4(i).Area/3,...
-%                 'Centroid',[cpro_r4(i).Centroid(1), cpro_r4(i).Centroid(2)+cpro_r4(i).BoundingBox(4)/3],...
-%                 'BoundingBox', [cpro_r4(i).BoundingBox(1) cpro_r4(i).BoundingBox(2)+cpro_r4(i).BoundingBox(4)/3*2 ...
-%                 cpro_r4(i).BoundingBox(3) cpro_r4(i).BoundingBox(4)/3]);
-%             
-%             cpro_r4 = [cpro_r4;temp_struct1;temp_struct2;temp_struct3];
-%             cpro_r4(i).Area = -1;
-%         elseif(max_pos>=2)
-%             %upper region
-%             temp_struct1=struct('Area',cpro_r4(i).Area/2,...
-%                 'Centroid',[cpro_r4(i).Centroid(1), cpro_r4(i).Centroid(2)-cpro_r4(i).BoundingBox(4)/4],...
-%                 'BoundingBox', [cpro_r4(i).BoundingBox(1:3) cpro_r4(i).BoundingBox(4)/2]);
-%             %bottom region
-%             temp_struct2=struct('Area',cpro_r4(i).Area/2,...
-%                 'Centroid',[cpro_r4(i).Centroid(1), cpro_r4(i).Centroid(2)+cpro_r4(i).BoundingBox(4)/4],...
-%                 'BoundingBox', [cpro_r4(i).BoundingBox(1) cpro_r4(i).Centroid(2) cpro_r4(i).BoundingBox(3) cpro_r4(i).BoundingBox(4)/2]);
-%             
-%             cpro_r4 = [cpro_r4;temp_struct1;temp_struct2];
-%             cpro_r4(i).Area=-1;
-%             %lb_r1(int16(cpro_r1(i).Centroid(2)),:)=0;
-%         end
-%     end
-% end
+
 
 

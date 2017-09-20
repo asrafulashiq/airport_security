@@ -12,6 +12,7 @@ obj_num = size(bin_array,2);
 if obj_num == 0
     
     T = rgb2gray(imread('template1.jpg'));
+    T = imadjust(T, [ 0; 0.6 ], [ 0.2; 0.8 ] );
     
     if abs(loc_something(2) - loc_something(1)) < thr * size(T,1)
         return;
@@ -23,7 +24,6 @@ if obj_num == 0
         T = rgb2gray(T);
     end
     
-    
     width = min( size(T,2), size(I,2) );
     I_ = I(:, 1:width);
     T_ = T(:, 1:width);
@@ -31,11 +31,15 @@ if obj_num == 0
     sim_array = [];
     loc_array = [];
     
+    % height
+    
+    
+    
     % determine target location
     
     
     x = [];
-    for i = loc_something(1) : ( loc_something(2) -  size(T,1) )
+    for i = loc_something(1) : ( loc_something(2) -  thr*size(T,1) )
         
         s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
         x = [x s];
@@ -57,13 +61,17 @@ if obj_num == 0
     dim_y = loc_array(max_sim_index);
     dim_y_2 = min(dim_y+size(T,1)-1, loc_something(2) );
     
+    
+    
     if loc_something(2) - dim_y_2 < 15
         dim_y_2 = loc_something(2);
+        dim_y = max(dim_y_2 - size(T,1)+1,1);
     end
     
     
-    
-    Loc = [ size(I,2)/2 dim_y+(dim_y_2 - dim_y)/2-1 ]; % centroid
+    height = dim_y_2 - dim_y + 1;
+
+    Loc = [ size(I,2)/2 dim_y+height/2-1 ]; % centroid
     
     
     Bin = struct( ...
@@ -112,6 +120,8 @@ else
     %         1;
     %     end
     
+    
+    
     for i = 1:obj_num
         
         T = bin_array{i}.image;
@@ -132,7 +142,6 @@ else
             bin.belongs_to = bin_array{i}.belongs_to;
             bin_array{i} = bin; % update bin information
         end
-        %t_struct = [t_struct; t_s];
     end
     
     % search new bin
@@ -150,12 +159,7 @@ else
         bins = my_template_match_main( [loc_something(1) loc_2], I, {}, thr );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
-            %             t_struct = [t_struct; t_s];
-            %             for i = size(temp,2)
-            %                 if ~isempty(temp{i})
-            %                     template{end+1} = temp{i};
-            %                 end
-            %             end
+         
         end
     end
     

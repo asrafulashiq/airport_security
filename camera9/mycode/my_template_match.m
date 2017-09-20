@@ -23,6 +23,7 @@ loc_array = [];
 
 for i = loc_something(1) : ( loc_something(2) - thr * size(T,1) )
     
+    last = min( (i + size(T,1)-1 ), loc_something(2) );
     s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
     if s < 0.2
         continue;
@@ -45,6 +46,7 @@ dim_y_2 = min( dim_y+size(T,1)-1, loc_something(2) );
 
 if loc_something(2) - dim_y_2 < 15
    dim_y_2 = loc_something(2); 
+   dim_y = max(dim_y_2 - size(T,1)+1,1);
 end
 
 height = dim_y_2 - dim_y + 1;
