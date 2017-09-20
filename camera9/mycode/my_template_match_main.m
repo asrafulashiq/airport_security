@@ -163,18 +163,7 @@ else
     
     loc_2 = min_;
     if loc_2 > loc_something(1)
-<<<<<<< HEAD
-       [t_s, temp] = my_template_match_main( [loc_something(1) loc_2], I, {}, thr );
-       if ~isempty(t_s)
-          t_struct = [t_struct; t_s];
-          for i = size(temp,2)
-             if ~isempty(temp{i})
-                template{end+1} = temp{i}; 
-             end
-          end
-       end
-    end  
-=======
+ 
         bins = my_template_match_main( [loc_something(1) loc_2], I, {}, thr );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
@@ -187,7 +176,6 @@ else
         end
     end
     
->>>>>>> c1a4bac330753484f484c46c12743743c78d7a9f
 end
 
 end
