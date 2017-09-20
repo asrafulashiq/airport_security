@@ -97,7 +97,6 @@ for file_number_str = all_file_nums
     %% Start tracking and baggage association
     frame_count = start_fr;
     template = [];
-    bin_array={};
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -155,7 +154,7 @@ for file_number_str = all_file_nums
         [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,bin_array);
+        [R_belt,im_c,bin_seq,template] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,template);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);

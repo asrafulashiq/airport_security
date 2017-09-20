@@ -1,6 +1,6 @@
-function Bin = my_template_match(loc_something, I, T, thr )
+function t_struct = my_template_match(loc_something, I, T, thr )
 
-Bin = [];
+t_struct = [];
 % if target is smaller than template
 if abs(loc_something(2) - loc_something(1)) < thr * size(T,1)
     return;
@@ -44,10 +44,10 @@ dim_y_2 = min( dim_y+size(T,1)-1, loc_something(2) );
 
 Loc = [ size(I,2)/2  dim_y+size(T,1)/2-1 ]; % centroid
 
-%t_struct = struct('Area',size(T,1)*size(T,2), 'Centroid', Loc, ...
-%    'BoundingBox', [1 dim_y size(T,2) dim_y_2 - dim_y + 1 ] );
+t_struct = struct('Area',size(T,1)*size(T,2), 'Centroid', Loc, ...
+    'BoundingBox', [1 dim_y size(T,2) dim_y_2 - dim_y + 1 ] );
 
-%T = I( dim_y : dim_y_2, 1:size(I,2) );
+T = I( dim_y : ( dim_y +t_s.BoundingBox(4)-1 ), 1:size(I,2) )
 
 Bin = struct( ...
     'Area',size(T,1)*size(T,2), 'Centroid', Loc, ...

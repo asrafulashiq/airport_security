@@ -1,4 +1,4 @@
-function [R_belt,im_color,bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq, bin_array)
+function [R_belt,im_color,bin_seq, template] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq, template)
 r1_obj = R_dropping.r1_obj;
 r1 = R_dropping.r1;
 r4_obj = R_belt.r4_obj;
@@ -17,8 +17,8 @@ im_r4 = im_c(r4(3):r4(4),r4(1):r4(2),:);
 im_channel = rgb2gray(im_r4);
 im_r4 = abs(im_r4_p-im_r4)+abs(im_r4-im_r4_p);
 ch = 3;
-imr4eqc = 0.33*(im_r4(:,:,1)+im_r4(:,:,2)+im_r4(:,:,3));
-%imr4eqc = rgb2gray(im_r4);
+%imr4eqc = 0.33*(im_r4(:,:,1)+im_r4(:,:,2)+im_r4(:,:,3));
+imr4eqc = rgb2gray(im_r4);
 
 imr4eq = histeq(imr4eqc);
 imr4t = imr4eq;
@@ -58,24 +58,7 @@ I = im_channel;
 % htm=vision.TemplateMatcher('ROIInputPort',true, 'ROIValidityOutputPort',true,...
 %     'BestMatchNeighborhoodOutputPort',true,'NeighborhoodSize',3,'OutputValue','Best match location') ;
 
-% [cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
-
-bin_array = my_template_match_main(loc_something, I, bin_array , 0.7);
-
-%% for test
-cpro_r4 = [];
-template = {};
-
-for i = 1:size(bin_array)
-   cpro_r4 = [cpro_r4;  struct('Area',bin_array{i}.Area, 'Centroid', bin_array{i}.Centroid, ...
-                 'BoundingBox', bin_array{i}.BoundingBox ) ];  
-             
-    template{end+1} =  struct( ...
-                 'image',bin_array{i}.image, ...
-                 'BoundingBox', bin_array{i}.BoundingBox ...
-                 ) ;
-    
-end
+[cpro_r4,template] = my_template_match_main(loc_something, I, template , 0.7);
 
 %% draw conveyar
 % figure(2);
@@ -255,7 +238,8 @@ if (pcnt_r4~=0)
 %                     [save_bin_path 'b' num2str(r4_lb) ' p' num2str(r1_obj(bin_belong(1,1),4)) '.jpg'])
             end
         end
-    end 
+    end
+    
 end
 im_color = im_c;
 R_belt.r4_obj = r4_obj;
