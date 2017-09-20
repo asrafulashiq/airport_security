@@ -12,7 +12,7 @@ is_save_region = 1; % flag to save region data to matfile in a completely new fa
 is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
-my_decision = 2;
+my_decision = 0;
 
 %% load video data
 % % %for mac sys
@@ -37,24 +37,20 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
+    start_fr = 665;
+    
     if my_decision == is_update_region
         load(file_to_save);
-        start_fr = 760;
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 450;
         
     elseif my_decision == is_save_region
-        start_fr = 101;
         start_f = start_fr; % starting frame for saving
         save(file_to_save, 'start_f'); % creating file_to_save
         m_r1_obj = {};  m_r4_obj = {};
         m_r1_cnt = [];  m_r4_cnt = [];
         m_r1_lb = [];   m_r4_lb = [];
-        
-    else
-        start_fr = 490;
         
     end
     

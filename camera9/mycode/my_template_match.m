@@ -24,7 +24,7 @@ loc_array = [];
 for i = loc_something(1) : ( loc_something(2) - thr * size(T,1) )
     
     s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
-    if s < 0.1
+    if s < 0.2
         continue;
     end
     sim_array = [ sim_array s ];
@@ -40,9 +40,16 @@ end
 %disp(max_val);
 
 dim_y = loc_array(max_sim_index);
+
 dim_y_2 = min( dim_y+size(T,1)-1, loc_something(2) );
 
-Loc = [ size(I,2)/2  dim_y+size(T,1)/2-1 ]; % centroid
+if loc_something(2) - dim_y_2 < 15
+   dim_y_2 = loc_something(2); 
+end
+
+height = dim_y_2 - dim_y + 1;
+
+Loc = [ size(I,2)/2  dim_y+height/2-1 ]; % centroid
 
 %t_struct = struct('Area',size(T,1)*size(T,2), 'Centroid', Loc, ...
 %    'BoundingBox', [1 dim_y size(T,2) dim_y_2 - dim_y + 1 ] );

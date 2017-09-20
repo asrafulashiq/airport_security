@@ -8,7 +8,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 %% Set up parameters
 limit_area = 3000;%the minimum area of region that can be seen as an object
-threshold = 110;%threshold for object recognition
+threshold = 90;%threshold for object recognition
 dis_enter = 150;%enter distance (coordinate x)
 dis_enter_y = 80;%enter dista nce (coordinate y)
 dis_exit = 185;%exit distance (coordinate x)
@@ -25,7 +25,7 @@ imr4eq = histeq(imr4eqc);
 imr4t = imr4eq;
 %speed up here
 pt2 = [];
-stp2 = 15;
+stp2 = 20;
 
 %stp1 = 20;
 % for i = (1+stp1):(size(imr4t,1)-stp2)
@@ -42,7 +42,7 @@ end
 
 %loc = find(pt2_293x1>threshold);
 
-loc = find( pt2 > threshold);
+loc = find(pt2>threshold);
 
 if isempty(loc)
     im_color = im_c;
@@ -51,18 +51,11 @@ end
 
 loc_something = [ loc(1) loc(end)];
 
-im_all = rgb2gray(im_all);
 % subtract background
-for i=1:size(im_all,1)
-   if isempty(find(loc==i, 1))
-       im_all(i,:) = 0;
-   end
-end
+indices = loc_something(1):loc_something(2);
+im_r4(indices) = abs(im_r4_p(indices)-im_all(indices))+abs(im_all(indices)-im_r4_p(indices));
 
-% increase brightness
-im_all(loc,:) = imadjust(im_all(loc,:), [ 0; 0.6 ], [ 0.2; 0.8 ] );
-
-I = im_all;
+I = im_channel;
 % htm=vision.TemplateMatcher('ROIInputPort',true, 'ROIValidityOutputPort',true,...
 %     'BestMatchNeighborhoodOutputPort',true,'NeighborhoodSize',3,'OutputValue','Best match location') ;
 
