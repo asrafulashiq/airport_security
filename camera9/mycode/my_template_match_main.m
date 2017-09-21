@@ -11,6 +11,8 @@ obj_num = size(bin_array,2);
 
 if obj_num == 0
     
+    % detect new bin
+    
     T = rgb2gray(imread('template1.jpg'));
     T = imadjust(T, [ 0; 0.6 ], [ 0.2; 0.8 ] );
     
@@ -39,11 +41,16 @@ if obj_num == 0
     
     
     x = [];
+    
+    if ( loc_something(2) + (1-thr)*size(T,1)) >= size(I,1)
+       return; 
+    end
+    
     for i = loc_something(1) : ( loc_something(2) -  thr*size(T,1) )
         
         s = ssim( I_( i: (i + size(T,1)-1 ) , :  ), T_ );
         x = [x s];
-        if s < 0.2
+        if s < 0.3
             continue;
         end
         sim_array = [ sim_array s ];
@@ -54,7 +61,7 @@ if obj_num == 0
         return;
     end
     
-    [ max_val , max_sim_index] = max(sim_array);
+    [ ~ , max_sim_index] = max(sim_array);
     
     %disp(max_val);
     
@@ -78,7 +85,8 @@ if obj_num == 0
         'Area',size(T,1)*size(T,2), 'Centroid', Loc, ...
         'BoundingBox', [1 dim_y size(T,2) dim_y_2 - dim_y + 1 ], ...
         'image',I( dim_y : dim_y_2 , 1:size(I,2) ), ...
-        'belongs_to', -1 ...
+        'belongs_to', -1, ...
+        'label', -1 ...
         );
     
    
@@ -101,18 +109,6 @@ if obj_num == 0
     end
     
     
-    % lower region
-    %     loc_lower(1) = dim_y + size(T,1) * thr;
-    %     loc_lower(2) = loc_something(2);
-    %
-    %     if loc_lower(2) - loc_lower(1) > thr * size(T,1)
-    %
-    %         t_lower = my_template_match(loc_lower, I, T, thr);
-    %         if ~isempty(t_lower)
-    %             t_struct = [t_struct; t_lower];
-    %              template{end+1} = I( t_lower.BoundingBox(2) : ( t_lower.BoundingBox(2)+t_lower.BoundingBox(4)-1 ), 1:size(I,2) ) ;
-    %         end
-    %     end
     
 else
     
@@ -140,7 +136,9 @@ else
         bin = my_template_match(loc_to_match, I, T, thr)  ;
         if ~isempty(bin)
             bin.belongs_to = bin_array{i}.belongs_to;
+            bin.label = bin_array{i}.label;
             bin_array{i} = bin; % update bin information
+            loc_something(2) = bin.BoundingBox(2);
         end
     end
     

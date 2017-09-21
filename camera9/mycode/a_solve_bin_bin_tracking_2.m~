@@ -6,18 +6,13 @@ r4_cnt = R_belt.r4_cnt;
 r4_lb = R_belt.r4_lb;
 r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
-
-
-r4_obj = [];
-
-
 %% Set up parameters
 limit_area = 3000;%the minimum area of region that can be seen as an object
 threshold = 20;%threshold for object recognition
 dis_enter = 150;%enter distance (coordinate x)
 dis_enter_y = 80;%enter dista nce (coordinate y)
 dis_exit = 185;%exit distance (coordinate row /x)
-dis_exit_y = 220;
+dis_exit_y = 200;
 dis_exit_limit = 40;
 %% Preprocessing
 im_r4 = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -124,25 +119,17 @@ for counter = 1: total_bins
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
         centroid = bin_array{i}.Centroid;
-        
-        if centroid(2) > dis_exit_y
-            bin_array(i) = [];
-            continue;
-        end
-        
         r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
         r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
         r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
         dis_b_p = pdist2( r1_edge, centroid + [R_belt.r4(1) R_belt.r4(3)],'euclidean');
         bin_belong = find( dis_b_p == min(dis_b_p) );
         belongs_to = r1_obj(bin_belong(1,1),4);
+        bin_array{i}.belongs_to = belongs_to;
         
         r4_lb=r4_lb+1;
         r4_cnt=r4_cnt+1;
-        
-        bin_array{i}.belongs_to = belongs_to;
-        bin_array{i}.label = r4_lb;
-        
+            
         i = i+1; % go to next bin in bin_array
            
      %%% detect exiting
@@ -151,14 +138,13 @@ for counter = 1: total_bins
          && isempty( find( r1_obj(:,4) == bin_array{i}.belongs_to, 1 ))  )
         
             r4_obj_this = [ bin_array{i}.Centroid(1)  bin_array{i}.Centroid(2)  bin_array{i}.Area ...
-                bin_array{i}.label  1  bin_array{i}.belongs_to  ];
+                r4_lb  1  bin_array{i}.belongs_to  ];
             bin_seq = [ bin_seq; r4_obj_this  ];
             r4_cnt = r4_cnt-1;
             disp('delete');
             
             bin_array(i) = [];
-    else
-        i = i+1;
+            
     end
             
 end
@@ -325,9 +311,7 @@ end
 
 
 for i=1:size(bin_array,2)
-    bin = [ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
-        bin_array{i}.label 1 bin_array{i}.belongs_to ];
-    r4_obj = [r4_obj; bin];
+    
 end
 
 im_color = im_c;

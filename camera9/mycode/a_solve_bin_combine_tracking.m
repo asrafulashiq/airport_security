@@ -18,7 +18,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -37,7 +37,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 350;
+    start_fr = 330;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -143,7 +143,7 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count >= 620
+        if frame_count >= 490
            1; 
         end
         
@@ -151,7 +151,8 @@ for file_number_str = all_file_nums
         [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq,bin_array);
+        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,...
+            R_belt,bin_seq,bin_array);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
