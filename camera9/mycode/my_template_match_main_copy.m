@@ -36,13 +36,10 @@ if obj_num == 0
     
     % determine target location
     
-    if loc_something(2) > size(I,1)/2
-        loc_something(2) = size(I,1)/2;
-    end
         
-%     if ( loc_something(2) + (1-thr)*size(T,1)) >= size(I,1)
-%        return; 
-%     end
+    if ( loc_something(2) + (1-thr)*size(T,1)) >= size(I,1)
+       return; 
+    end
     
     for i = loc_something(1) : ( loc_something(2) -  thr*size(T,1) )
         if (i + size(T,1)-1 ) >= size(I_,1)
@@ -81,7 +78,7 @@ if obj_num == 0
     
     
     Bin = struct( ...
-        'Area',size(T,1)*size(T,2), 'Centroid', Loc', ...
+        'Area',size(T,1)*size(T,2), 'Centroid', Loc, ...
         'BoundingBox', [1 dim_y size(T,2) dim_y_2 - dim_y + 1 ], ...
         'image',I( dim_y : dim_y_2 , 1:size(I,2) ), ...
         'belongs_to', -1, ...
@@ -113,12 +110,8 @@ else
     
     for i = 1:obj_num
         
-        %T = bin_array{i}.image;
-        T = rgb2gray(imread('template1.jpg'));
-        % Ref = bin_array{i}.image;
-        % T = imhistmatch(T,Ref);
-
-
+        T = bin_array{i}.image;
+        
         if isempty(T)
             continue;
         end
@@ -130,11 +123,9 @@ else
 %             min([ bin_array{i}.BoundingBox(2)+bin_array{i}.BoundingBox(4), loc_something(2) ]) %size(I,1)-lim )
 %             ];
 
-        loc_to_match = [  max([bin_array{i}.BoundingBox(2) - lim ,loc_something(1)]) loc_something(2)  ];
+        loc_to_match = [  max([ bin_array{i}.BoundingBox(2) - lim ,loc_something(1)]) loc_something(2)  ];
         
-        bin = my_template_match_back(loc_to_match, I, T, thr, ...
-                bin_array{i}.BoundingBox(2)+bin_array{i}.BoundingBox(4)-1 )  ;
-
+        bin = my_template_match(loc_to_match, I, T, thr)  ;
         if ~isempty(bin)
             bin.belongs_to = bin_array{i}.belongs_to;
             bin.label = bin_array{i}.label;

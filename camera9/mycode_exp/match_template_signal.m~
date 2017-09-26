@@ -1,0 +1,71 @@
+function bin_array =  match_template_signal(I, bin_array)
+
+obj_num = size(bin_array,2);
+
+% create rectangular tall pulse
+r_tall = zeros(1,60);
+r_tall(5:55) = 1;
+r_tall = r_tall * 160;
+
+
+% create rectangular wide pulse
+r_wide = zeros(1,80);
+r_wide(5:75) = 1;
+r_wide = r_wide * 110;
+
+if obj_num == 0
+    
+    % match
+    coef_aray = [];
+    loc_array = [];
+    for i = 1: size(I,1) / 2
+        I_d = calc_intens(I, [ i i+length(r_tall)-1 ]);
+        coef = mean( r_tall .* I_d );
+        coef_aray = [ coef_aray coef ];
+        loc_array = [loc_array i];
+        
+    end
+    %     for i = 1: size(I,1) / 2
+    %         I_d = calc_intens(I, [ i i+length(r_wide)-1 ]);
+    %         coef = mean( r_wide .* I_d ) / norm(r_wide) ;
+    %         coef_aray = [ coef_aray coef ];
+    %         loc_array = [loc_array i];
+    %
+    %     end
+    
+    [ max_val , max_index] = max(coef_aray);
+    max_loc = loc_array(max_index);
+    disp("max loc :"+max_loc);
+    disp("max value :"+max_val)
+    
+    
+    %     figure(4); imshow(I(max_loc:max_loc+59,:));
+    %
+    %      x = [];
+    
+else
+    
+    for i = 1:obj_num
+
+        lim = 20;
+        loc_to_match = [ max([bin_array{i}.limit(1) - lim , 1]) ...
+                        min( bin_array{i}.limit(2)+lim, size(I,1)-lim ) ];
+    
+        % match
+    coef_aray = [];
+    loc_array = [];
+    for i = loc_to_match(1): loc_to_match(2)
+        width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
+        I_d = calc_intens(I, [ i i+width-1 ]);
+        coef = mean( r_tall .* I_d );
+        coef_aray = [ coef_aray coef ];
+        loc_array = [loc_array i];     
+    end
+
+        
+    end
+    
+end
+
+
+end

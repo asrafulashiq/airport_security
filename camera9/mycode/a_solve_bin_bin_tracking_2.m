@@ -7,30 +7,41 @@ r4_lb = R_belt.r4_lb;
 r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
-
 r4_obj = [];
-
 
 %% Set up parameters
 limit_area = 3000;%the minimum area of region that can be seen as an object
-threshold = 20;%threshold for object recognition
+threshold = 10;%threshold for object recognition
 dis_enter = 150;%enter distance (coordinate x)
 dis_enter_y = 80;%enter dista nce (coordinate y)
 dis_exit = 185;%exit distance (coordinate row /x)
 dis_exit_y = 220;
 dis_exit_limit = 40;
 %% Preprocessing
-im_r4 = im_c(r4(3):r4(4),r4(1):r4(2),:);
-im_all = im_r4;
-im_channel = rgb2gray(im_r4);
-im_r4 = abs(im_r4_p-im_r4)+abs(im_r4-im_r4_p);
+im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+
+im_all = rgb2gray(im_actual);
+
+%im_channel = rgb2gray(im_r4);
+im_background = rgb2gray(im_r4_p);
+im_r4 = 2 * abs(im_all-im_background);
+
+x = [];
+for i = 1:size(im_r4,1)
+    x = [x mean(im_r4(i,:))];
+end
+[b,a] = butter(10,0.2);
+x = filter(b,a,x);
+%x = smoothdata(x);
+
+figure(2);plot(x);
+figure(3);imshow(im_r4);
+drawnow;
 
 %imr4eqc = 0.33*(im_r4(:,:,1)+im_r4(:,:,2)+im_r4(:,:,3));
-imr4eqc = rgb2gray(im_r4);
 
-imr4eq = imr4eqc;%histeq(imr4eqc);
-imr4t = imr4eq;
-%speed up here
+imr4t = im_r4;
+
 pt2 = [];
 stp2 = 10;
 
@@ -58,16 +69,26 @@ end
 
 loc_something = [ loc(1) loc(end)];
 
-im_all = rgb2gray(im_all);
+%im_all = rgb2gray(im_all);
 % subtract background
+if ~isempty(bin_array)
+    x = [bin_array{1,:}];
+    x_cen = [x.Centroid];
+    x_cen_y = x_cen(2,:);
+end
+
 for i=1:size(im_all,1)
-    if isempty(find(loc==i, 1))
-        im_all(i,:) = 0;
+    if isempty(find(loc==i, 1)) 
+        if  ~isempty(bin_array) && abs(min(x_cen_y-i)) < 40
+            continue;
+        else
+            im_all(i,:) = 0;
+        end
     end
 end
 
 % increase brightness
-im_all(loc,:) = imadjust(im_all(loc,:), [ 0; 0.6 ], [ 0.2; 0.8 ] );
+%im_all(loc,:) = imadjust(im_all(loc,:), [ 0; 0.6 ], [ 0.1; 0.8 ] );
 
 I = im_all;
 
@@ -124,6 +145,7 @@ for counter = 1: total_bins
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
         centroid = bin_array{i}.Centroid;
+        centroid = centroid';
         
         if centroid(2) > dis_exit_y
             bin_array(i) = [];
@@ -133,7 +155,7 @@ for counter = 1: total_bins
         r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
         r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
         r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
-        dis_b_p = pdist2( r1_edge, centroid + [R_belt.r4(1) R_belt.r4(3)],'euclidean');
+        dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)],'euclidean');
         bin_belong = find( dis_b_p == min(dis_b_p) );
         belongs_to = r1_obj(bin_belong(1,1),4);
         
@@ -325,8 +347,8 @@ end
 
 
 for i=1:size(bin_array,2)
-    bin = [ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
-        bin_array{i}.label 1 bin_array{i}.belongs_to ];
+    bin = double([ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
+        bin_array{i}.label 1 bin_array{i}.belongs_to ]);
     r4_obj = [r4_obj; bin];
 end
 

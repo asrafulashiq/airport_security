@@ -18,7 +18,7 @@ my_decision = 2;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A"; %["6A","9A","10A"];
+all_file_nums = "5A_take1";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
         
     elseif my_decision == is_load_region
         load(file_to_save); % start_f will load here
-        start_fr = 500;
+        start_fr = 655;
         
     elseif my_decision == is_save_region
         start_fr = 100;
@@ -59,7 +59,7 @@ for file_number_str = all_file_nums
     end
     
     %% the parameter for the start frame and end frame
-    end_f = 3000;%v.Duration * v.FrameRate ; %15500;
+    end_f = v.Duration * v.FrameRate ; %15500;
     % start_f = 1000;
     v.CurrentTime = start_fr / v.FrameRate ;
     

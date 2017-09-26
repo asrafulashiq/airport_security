@@ -18,7 +18,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -37,7 +37,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 2200;
+    start_fr = 400;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -157,7 +157,7 @@ for file_number_str = all_file_nums
         title(num2str(frame_count));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
+        image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
         
         
         
