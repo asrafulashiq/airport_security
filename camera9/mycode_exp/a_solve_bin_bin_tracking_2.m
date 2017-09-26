@@ -94,7 +94,14 @@ I = im_all;
 
 % bin_array = my_template_match_main(loc_something, I, bin_array , 0.8);
 
+figure(2);
+plot(1:size(I,1), calc_intens(I,[]));
+hold on;
+
 bin_array = match_template_signal(im_all, bin_array, []);
+
+hold off;
+drawnow;
 
 % im_color = im_c;
 % return;
