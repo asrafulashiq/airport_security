@@ -5,6 +5,9 @@
 
 %% control variable
 
+global debug;
+debug = true;
+
 is_write_video = false;
 
 is_do_nothing = 0;
@@ -37,7 +40,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 400;
+    start_fr = 3200;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -74,7 +77,12 @@ for file_number_str = all_file_nums
     %% Region background
     
     im_background = imread(fullfile('..','Experi1A','camera9_1A_back.jpg'));%background image
-    R_belt.im_r4_p = im_background(R_belt.r4(3)+45:R_belt.r4(4)+45,R_belt.r4(1):R_belt.r4(2),:);
+    
+    %%% exp
+    %R_belt.r4(3) = R_belt.r4(3) + 45;
+    R_belt.r4(4) = R_belt.r4(4) + 45;
+
+    R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
     R_dropping.r1_obj = [];
@@ -143,7 +151,7 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count >= 650
+        if frame_count >= 1540
            1; 
         end
         
@@ -157,7 +165,7 @@ for file_number_str = all_file_nums
         title(num2str(frame_count));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
+        image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
         
         
         

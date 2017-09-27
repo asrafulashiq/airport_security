@@ -1,4 +1,8 @@
 function [R_belt,im_color,bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,R_belt,bin_seq, bin_array)
+
+global debug;
+
+
 r1_obj = R_dropping.r1_obj;
 r1 = R_dropping.r1;
 r4_obj = R_belt.r4_obj;
@@ -10,12 +14,12 @@ im_r4_p = R_belt.im_r4_p;
 r4_obj = [];
 
 %% Set up parameters
-limit_area = 3000;%the minimum area of region that can be seen as an object
+%limit_area = 3000;%the minimum area of region that can be seen as an object
 threshold = 10;%threshold for object recognition
-dis_enter = 150;%enter distance (coordinate x)
-dis_enter_y = 80;%enter dista nce (coordinate y)
-dis_exit = 185;%exit distance (coordinate row /x)
-dis_exit_y = 220;
+%dis_enter = 150;%enter distance (coordinate x)
+%dis_enter_y = 80;%enter dista nce (coordinate y)
+%dis_exit = 185;%exit distance (coordinate row /x)
+dis_exit_y = 230;
 dis_exit_limit = 40;
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -26,12 +30,7 @@ im_all = rgb2gray(im_actual);
 im_background = rgb2gray(im_r4_p);
 im_r4 = 2 * abs(im_all-im_background);
 
-x = [];
-for i = 1:size(im_r4,1)
-    x = [x mean(im_r4(i,:))];
-end
-[b,a] = butter(10,0.2);
-x = filter(b,a,x);
+
 %x = smoothdata(x);
 
 % figure(2);plot(x);
@@ -67,25 +66,25 @@ if isempty(loc)
     return;
 end
 
-loc_something = [ loc(1) loc(end)];
+loc_something = [ loc(1) loc(end) ];
 
 %im_all = rgb2gray(im_all);
 % subtract background
-if ~isempty(bin_array)
-    x = [bin_array{1,:}];
-    x_cen = [x.Centroid];
-    x_cen_y = x_cen(2,:);
-end
+% if ~isempty(bin_array)
+%     x = [bin_array{1,:}];
+%     x_cen = [x.Centroid];
+%     x_cen_y = x_cen(2,:);
+% end
 
-for i=1:size(im_all,1)
-    if isempty(find(loc==i, 1))
-        if  ~isempty(bin_array) && abs(min(x_cen_y-i)) < 40
-            continue;
-        else
-            im_all(i,:) = 0;
-        end
-    end
-end
+% for i=1:size(im_all,1)
+%     if isempty(find(loc==i, 1))
+%         if  ~isempty(bin_array) && abs(min(x_cen_y-i)) < 40
+%             continue;
+%         else
+%             im_all(i,:) = 0;
+%         end
+%     end
+% end
 
 % increase brightness
 %im_all(loc,:) = imadjust(im_all(loc,:), [ 0; 0.6 ], [ 0.1; 0.8 ] );
@@ -94,14 +93,19 @@ I = im_all;
 
 % bin_array = my_template_match_main(loc_something, I, bin_array , 0.8);
 
-figure(2);
-plot(1:size(I,1), calc_intens(I,[]));
-hold on;
+if debug
+    figure(2);
+    plot(1:size(im_r4,1), calc_intens(im_r4,[]));
+    hold on;
+end
 
-bin_array = match_template_signal(im_all, bin_array, []);
 
-hold off;
-drawnow;
+bin_array = match_template_signal(im_r4, bin_array, loc_something);
+
+if debug
+    hold off;
+    drawnow;
+end
 
 % im_color = im_c;
 % return;
@@ -138,17 +142,29 @@ for counter = 1: total_bins
         i = i+1; % go to next bin in bin_array
         
         %%% detect exiting
-    elseif bin_array{i}.Centroid(2) >= dis_exit_y || ...
-            ( bin_array{i}.Centroid(2) >= dis_exit_y - dis_exit_limit ...
-            && isempty( find( r1_obj(:,4) == bin_array{i}.belongs_to, 1 ))  )
+    elseif bin_array{i}.Centroid(2) >= dis_exit_y  % || ...
+        %             ( bin_array{i}.Centroid(2) >= dis_exit_y - dis_exit_limit ...
+        %             && isempty( find( r1_obj(:,4) == bin_array{i}.belongs_to, 1 ))  )
         
-        r4_obj_this = [ bin_array{i}.Centroid(1)  bin_array{i}.Centroid(2)  bin_array{i}.Area ...
-            bin_array{i}.label  1  bin_array{i}.belongs_to  ];
-        bin_seq = [ bin_seq; r4_obj_this  ];
-        r4_cnt = r4_cnt-1;
-        disp('delete');
+        if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
+            
+            if bin_array{i}.in_flag ~= 0
+                r4_obj_this = [ bin_array{i}.Centroid(1)  bin_array{i}.Centroid(2)  bin_array{i}.Area ...
+                    bin_array{i}.label  1  bin_array{i}.belongs_to  ];
+                bin_seq = [ bin_seq; r4_obj_this  ];
+                r4_cnt = r4_cnt - 1;
+                bin_array{i}.in_flag = 0;
+            end
+            
+            i = i + 1;
+            
+        else
+            
+            bin_array(i) = [];
+            disp('delete');
+            
+        end
         
-        bin_array(i) = [];
     else
         i = i+1;
     end
@@ -156,9 +172,11 @@ for counter = 1: total_bins
 end
 
 for i=1:size(bin_array,2)
-    bin = double([ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
-        bin_array{i}.label 1 bin_array{i}.belongs_to ]);
-    r4_obj = [r4_obj; bin];
+    if bin_array{i}.in_flag==1
+        bin = double([ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
+            bin_array{i}.label 1 bin_array{i}.belongs_to ]);
+        r4_obj = [r4_obj; bin];
+    end
 end
 
 im_color = im_c;

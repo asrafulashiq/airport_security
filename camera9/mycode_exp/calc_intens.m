@@ -16,5 +16,8 @@ for i = strt_loc:end_loc
     x = [ x  mean(I(i, :)) ];
 end
 
+% [b,a] = butter(10,0.2);
+% x = filter(b,a,x);
+
 
 end
