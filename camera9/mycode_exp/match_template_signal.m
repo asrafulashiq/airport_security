@@ -106,23 +106,24 @@ else
     for i = 1:obj_num
         
         lim = 20;
+        lim_b = 0;
+        loc_to_match = [];
         
-        %%% loc to match
-        if i > 1
-            loc_end_match = min( bin_array{i}.limit(2)+lim, bin_array{i-1}.limit(1) );
-        end
-        if i < obj_num
-            loc_strt_match = max(bin_array{i}.limit(1)-lim, bin_array{i+1}.limit(2)  );
-        end
-        if i==obj_num
-            loc_strt_match = max(bin_array{i}.limit(1)-lim, loc_something(1) );
-        end
-        if i==1
-            loc_end_match = min( bin_array{i}.limit(2)+lim, loc_something(2) );
-        end
+        while isempty(loc_to_match)
         
-        
-        loc_to_match = [loc_strt_match loc_end_match];
+            loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
+            
+            if loc_to_match(2) < loc_to_match(1)
+               bin_array{i} = [];
+               continue;
+            end
+            
+            if loc_to_match(2) - loc_to_match(1) < thr * length(r_tall)
+               lim_b = lim_b + 5;
+               loc_to_match = [];
+            end
+            
+        end
         
         % match
         coef_aray = [];
@@ -182,7 +183,7 @@ else
                 bin_array{i}.recent_unspec
                 bin_array{i}.recent_unspec( end+1 ) = min_val;
                 if length(bin_array{i}.recent_unspec) > 5
-                    std_unspec = std(bin_array{i}.recent_unspec(end-4:end), 1)
+                    std_unspec = std(bin_array{i}.recent_unspec(end-4:end), 1);
                     if std_unspec < 15
                         % change state
                         if mean2( I(min_loc:loc_end, :)) > 90
