@@ -7,11 +7,10 @@ thr = 0.75;
 
 
 %%
-r_tall_bin = create_rect(60, 5, 160);
+r_tall = create_rect(60, 5, 160);
 
 % create rectangular wide pulse
 r_wide = create_rect(80, 5, 110);
-r_tall = r_tall_bin;
 
 if obj_num == 0
     
@@ -89,7 +88,7 @@ if obj_num == 0
         'image',I( min_loc : loc_end , : ), ...
         'belongs_to', -1, ...
         'label', -1, ...
-        'in_flag', 1, 'r_val', 160, 'bin_or',"tall", ...
+        'in_flag', 1, 'r_val', 160, ...
         'state', "empty", 'count', 1, ...
         'std', std( calc_intens(I, [min_loc loc_end]) ,1) ...
         );
@@ -117,7 +116,6 @@ else
             r_tall = create_rect(80, 5, bin_array{i}.r_val);
         end
         
-        k = 0;
         while isempty(loc_to_match)
             
             loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
@@ -130,19 +128,6 @@ else
             if loc_to_match(2) - loc_to_match(1) < thr * length(r_tall)
                 lim_b = lim_b + 5;
                 loc_to_match = [];
-                k = k+1;
-            end
-            
-            if k >5
-                if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
-                    r_tall = create_rect(60, 5, bin_array{i}.r_val);
-                    bin_array{i}.r_val = 60;
-                    bin_array{i}.bin_or = "tall";
-                    loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
-                    break;
-                end
-                
-                error('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
             end
             
         end
@@ -150,8 +135,15 @@ else
         % match
         coef_aray = [];
         loc_array = [];
-        r_val_tall = bin_array{i}.r_val;
-       
+        r_val_tall = 160;
+        if bin_array{i}.state == "empty"
+            r_val_tall = bin_array{i}.r_val;
+            %r_val_wide = 100;
+        elseif bin_array{i}.state == "fill"
+            r_val_tall = bin_array{i}.r_val;
+            %         elseif bin_array{i}.state == "unspec"
+            %             r_val_tall = 100;
+        end
         
         %r_tall = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val_tall );
         
@@ -186,7 +178,7 @@ else
         loc_end = min_loc + length(r_tall)-1;
         
         %%% check wide
-        if bin_array{i}.state=="empty" && bin_array{i}.bin_or == "tall" && bin_array{i}.count < 150
+        if bin_array{i}.state=="empty" && ~isfield(bin_array{i},'bin_or') && bin_array{i}.count < 70
             
             lim_b = 30;
             r_wide = create_rect(80, 5, 110);
@@ -224,45 +216,6 @@ else
                     end
                 end
             end
-        elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" && bin_array{i}.count < 150
-            
-            lim_b = 30;
-            r_tall_w = r_tall_bin;
-            
-            loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
-            if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_tall_w)
-                if loc_to_match_w(2)-loc_to_match_w(1) < length(r_tall_w)
-                    r_tall_w = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val_tall*0.8 );
-                    
-                end
-                
-                coef_aray_tall = [];
-                loc_array_tall = [];
-                for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_tall_w) + 1
-                    % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
-                    I_d = calc_intens(I, [ j j+length(r_tall_w)-1 ]);
-                    coef = calc_coef(r_tall_w, I_d, bin_array{i}.std);
-                    coef_aray_tall = [ coef_aray_tall coef ];
-                    loc_array_tall = [loc_array_tall j];
-                end
-                
-                if ~isempty(coef_aray_tall)
-                    [ min_val_t , min_index_t] = min(coef_aray_tall);
-                    if min_val_t < min_val && abs(min_val_t-min_val) >= 10
-                        min_index = min_index_t;
-                        r_tall = r_tall_w;
-                        
-                        min_loc = loc_array_wide(min_index);
-                        loc_end = min_loc + length(r_tall_w)-1;
-                        
-                        bin_array{i}.bin_or = "tall";
-                        bin_array{i}.r_val = 160;
-                        min_val = min_val_t;
-                        
-                    end
-                end
-            end
-            
             
         end
         
@@ -270,7 +223,7 @@ else
         
         %% state calculation
         
-        if min_val > 60 && bin_array{i}.state ~= "unspec"
+        if min_val > 70 && bin_array{i}.state ~= "unspec"
             bin_array{i}.state = "unspec";
         end
         
