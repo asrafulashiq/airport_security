@@ -2,7 +2,7 @@ function bin_array =  match_template_signal(I, bin_array, loc_something)
 global debug;
 
 obj_num = size(bin_array,2);
-thr = 0.7;
+thr = 0.8;
 % create rectangular tall pulse
 
 
@@ -23,7 +23,7 @@ if obj_num == 0
     end
     
     if loc_something(2) > size(I,1)/2
-       loc_something(2) = size(I,1)/2; 
+        loc_something(2) = size(I,1)/2;
     end
     
     %loc_end = loc_something(2) - length(r_tall) + 1;
@@ -88,8 +88,8 @@ if obj_num == 0
         'image',I( min_loc : loc_end , : ), ...
         'belongs_to', -1, ...
         'label', -1, ...
-        'in_flag', 1, ...
-        'state', "empty", ...
+        'in_flag', 1, 'r_val', 160, ...
+        'state', "empty", 'count', 1, ...
         'std', std( calc_intens(I, [min_loc loc_end]) ,1) ...
         );
     
@@ -105,22 +105,29 @@ else
     
     for i = 1:obj_num
         
+        r_tall = create_rect(60, 5, 160);
+        
+        
         lim = 20;
         lim_b = 0;
         loc_to_match = [];
         
-        while isempty(loc_to_match)
+        if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
+            r_tall = create_rect(80, 5, bin_array{i}.r_val);
+        end
         
+        while isempty(loc_to_match)
+            
             loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
             
             if loc_to_match(2) < loc_to_match(1)
-               bin_array{i} = [];
-               continue;
+                bin_array{i} = [];
+                continue;
             end
             
             if loc_to_match(2) - loc_to_match(1) < thr * length(r_tall)
-               lim_b = lim_b + 5;
-               loc_to_match = [];
+                lim_b = lim_b + 5;
+                loc_to_match = [];
             end
             
         end
@@ -130,8 +137,8 @@ else
         loc_array = [];
         r_val_tall = 160;
         if bin_array{i}.state == "empty"
-            r_val_tall = 160;
-            r_val_wide = 100;
+            r_val_tall = bin_array{i}.r_val;
+            %r_val_wide = 100;
         elseif bin_array{i}.state == "fill"
             r_val_tall = bin_array{i}.r_val;
             %         elseif bin_array{i}.state == "unspec"
@@ -140,12 +147,15 @@ else
         
         %r_tall = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val_tall );
         
-         if abs(loc_to_match(2) - loc_to_match(1))> thr * length(r_tall) && loc_to_match(2)-loc_to_match(1) < length(r_tall)
-             r_tall = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val_tall );
-         else
-             r_tall = create_rect(60, 5, r_val_tall);
-
-         end
+        if abs(loc_to_match(2) - loc_to_match(1)) >= thr * length(r_tall) && loc_to_match(2)-loc_to_match(1) < length(r_tall)
+            r_tall = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val_tall );
+        else
+            if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or == "wide"
+                r_tall = create_rect(80, 5, r_val_tall);
+            else
+                r_tall = create_rect(60, 5, r_val_tall);
+            end
+        end
         
         for j = loc_to_match(1): loc_to_match(2)- length(r_tall) + 1
             % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
@@ -156,7 +166,7 @@ else
         end
         
         if isempty(coef_aray)
-            bin_array(i) = [];
+            bin_array(i).destroy = true;
             disp('coef array is empty');
             continue;
         end
@@ -166,6 +176,49 @@ else
         [ min_val , min_index] = min(coef_aray);
         min_loc = loc_array(min_index);
         loc_end = min_loc + length(r_tall)-1;
+        
+        %%% check wide
+        if bin_array{i}.state=="empty" && ~isfield(bin_array{i},'bin_or') && bin_array{i}.count < 70
+            
+            lim_b = 30;
+            r_wide = create_rect(80, 5, 110);
+            
+            loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
+            if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_wide)
+                if loc_to_match_w(2)-loc_to_match_w(1) < length(r_wide)
+                    r_wide = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val_tall*0.8 );
+                    
+                end
+                
+                coef_aray_wide = [];
+                loc_array_wide = [];
+                for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_wide) + 1
+                    % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
+                    I_d = calc_intens(I, [ j j+length(r_wide)-1 ]);
+                    coef = calc_coef(r_wide, I_d, bin_array{i}.std);
+                    coef_aray_wide = [ coef_aray_wide coef ];
+                    loc_array_wide = [loc_array_wide j];
+                end
+                
+                if ~isempty(coef_aray_wide)
+                    [ min_val_wide , min_index_wide] = min(coef_aray_wide);
+                    if min_val_wide < min_val && abs(min_val_wide-min_val) >= 10
+                        min_index = min_index_wide;
+                        r_tall = r_wide;
+                        
+                        min_loc = loc_array_wide(min_index);
+                        loc_end = min_loc + length(r_tall)-1;
+                        
+                        bin_array{i}.bin_or = "wide";
+                        bin_array{i}.r_val = 110;
+                        min_val = min_val_wide;
+                        
+                    end
+                end
+            end
+            
+        end
+        
         
         
         %% state calculation
@@ -217,17 +270,13 @@ else
         bin_array{i}.BoundingBox = [1 min_loc size(I,2) height ];
         bin_array{i}.limit= [ min_loc loc_end ] ;
         bin_array{i}.image=I( min_loc : loc_end , : );
-        bin_array{i}.belongs_to= bin_array{i}.belongs_to;
-        bin_array{i}.label= bin_array{i}.label;
-        bin_array{i}.in_flag= bin_array{i}.in_flag;
-        bin_array{i}.state= bin_array{i}.state;
+        %bin_array{i}.belongs_to= bin_array{i}.belongs_to;
+        %bin_array{i}.label= bin_array{i}.label;
+        %bin_array{i}.in_flag= bin_array{i}.in_flag;
+        %bin_array{i}.state= bin_array{i}.state;
         bin_array{i}.std =  std( calc_intens(I, [min_loc loc_end]) ,1);
-        
-        
-        
-        
+        bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
-        
         
     end
     
@@ -249,6 +298,5 @@ else
     end
     
 end
-
 
 end

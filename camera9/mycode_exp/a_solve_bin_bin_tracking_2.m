@@ -116,6 +116,12 @@ total_bins = size(bin_array,2);
 i = 1;
 for counter = 1: total_bins
     
+    if isfield(bin_array{i},'destroy')
+       bin_array(i) = [];
+       r4_cnt = r4_cnt - 1;
+       continue;
+    end
+    
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
         centroid = bin_array{i}.Centroid;
@@ -159,7 +165,12 @@ for counter = 1: total_bins
             i = i + 1;
             
         else
-            
+            if bin_array{i}.in_flag ~= 0
+                r4_obj_this = [ bin_array{i}.Centroid(1)  bin_array{i}.Centroid(2)  bin_array{i}.Area ...
+                    bin_array{i}.label  1  bin_array{i}.belongs_to  ];
+                bin_seq = [ bin_seq; r4_obj_this  ];
+                r4_cnt = r4_cnt - 1;
+            end
             bin_array(i) = [];
             disp('delete');
             
@@ -171,12 +182,17 @@ for counter = 1: total_bins
     
 end
 
+r4_obj = [];
 for i=1:size(bin_array,2)
     if bin_array{i}.in_flag==1
         bin = double([ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
             bin_array{i}.label 1 bin_array{i}.belongs_to ]);
         r4_obj = [r4_obj; bin];
     end
+end
+
+if r4_cnt ~= size(r4_obj,1)
+   error('smething is wrong'); 
 end
 
 im_color = im_c;
