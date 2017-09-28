@@ -192,7 +192,8 @@ for i=1:size(bin_array,2)
 end
 
 if r4_cnt ~= size(r4_obj,1)
-   error('smething is wrong'); 
+    r4_cnt = size(r4_obj,1);
+   %error('smething is wrong'); 
 end
 
 im_color = im_c;
