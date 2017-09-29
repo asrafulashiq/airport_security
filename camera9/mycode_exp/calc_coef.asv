@@ -13,13 +13,13 @@ function coef = calc_coef(r_tall, I_d, st)
     
     % peak
     [pks,locs] = findpeaks(I_d, 'MinPeakHeight', mean(I_d)*2,...
-        'MinPeakProminence', mean(I_d));
+        'MinPeakProminance', mean(I_d));
     
-    loc_interest = find(pdist2(locs,locs)> 0.9 * length(r_tall) );
-    if ~isempty(loc_interest ) 
+    loc_interest = find(pdist2(locs,locs)> 0.9 * length(r_tall);
+    if ~isempty(loc_interest , 1) 
         loc_interest = ceil(loc_interest/length(r_tall));
         if length(loc_interest) <= 3
-            diff_(loc_interest) = -10;
+            diff
         end
     end
     coef = sum(abs( diff_ )) / length(r_tall);

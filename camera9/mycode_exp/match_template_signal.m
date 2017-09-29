@@ -23,8 +23,8 @@ if obj_num == 0
         loc_something = [1 size(I,1)/2];
     end
     
-    if loc_something(2) > size(I,1)/2
-        loc_something(2) = size(I,1)/2;
+    if loc_something(2) > size(I,1)*.6
+        loc_something(2) = size(I,1)*.6;
     end
     
     %loc_end = loc_something(2) - length(r_tall) + 1;
@@ -45,7 +45,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 60
+        if coef > 80
             continue;
         end
         coef_aray = [ coef_aray coef ];
