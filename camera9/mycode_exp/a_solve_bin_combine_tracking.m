@@ -8,19 +8,19 @@ global debug;
 debug = false;
 show_image = true;
 
-is_write_video = true;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
-my_decision = 2;
+my_decision = 0;
 
 %% load video data
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "7A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
