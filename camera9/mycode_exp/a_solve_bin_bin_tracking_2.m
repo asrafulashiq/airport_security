@@ -19,8 +19,8 @@ threshold = 10;%threshold for object recognition
 %dis_enter = 150;%enter distance (coordinate x)
 %dis_enter_y = 80;%enter dista nce (coordinate y)
 %dis_exit = 185;%exit distance (coordinate row /x)
-dis_exit_y = 240;
-dis_exit_limit = 40;
+dis_exit_y = 250;
+%dis_exit_limit = 40;
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
 
@@ -100,7 +100,7 @@ if debug
 end
 
 
-bin_array = match_template_signal(im_r4, bin_array, loc_something);
+bin_array = match_template_signal2(im_r4, bin_array, loc_something);
 
 if debug
     hold off;

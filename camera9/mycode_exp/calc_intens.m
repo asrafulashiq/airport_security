@@ -13,11 +13,10 @@ end_loc = loc(2);
 
 x = [];
 for i = strt_loc:end_loc
-    x = [ x  mean(I(i, :)) ];
+    x = [ x  mean(I(i, 1:floor(end/2))) ];
 end
 
 % [b,a] = butter(10,0.2);
 % x = filter(b,a,x);
-
 
 end
