@@ -4,12 +4,11 @@
 %clc;
 
 %% control variable
-
 global debug;
 debug = true;
+show_image = true;
 
-is_write_video = true;
-
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -21,7 +20,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "5A_take3";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -40,7 +39,8 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 400;
+
+    start_fr = 3;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -151,7 +151,7 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count >= 1540
+        if frame_count > 499
            1; 
         end
         
@@ -165,8 +165,9 @@ for file_number_str = all_file_nums
         title(num2str(frame_count));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
-        
+        if show_image
+            image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
+        end
         
         
         %%%%% save variables
