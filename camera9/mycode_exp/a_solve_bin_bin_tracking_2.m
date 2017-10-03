@@ -23,12 +23,18 @@ dis_exit_y = 250;
 %dis_exit_limit = 40;
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+im_background = im_r4_p;
+
+im_r4 = 2 * abs(im_actual-im_background);
 
 im_all = rgb2gray(im_actual);
 
+im_r4 = rgb2gray(im_r4);
+
 %im_channel = rgb2gray(im_r4);
-im_background = rgb2gray(im_r4_p);
-im_r4 = 2 * abs(im_all-im_background);
+%im_background = rgb2gray(im_r4_p);
+
+%im_r4 = 2 * abs(im_all-im_background);
 
 
 %x = smoothdata(x);

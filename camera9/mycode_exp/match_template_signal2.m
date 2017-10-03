@@ -7,10 +7,10 @@ thr = 0.75;
 
 
 %%
-r_tall_bin = create_rect(60, 5, 140);
+r_tall_bin = create_rect(60, 5, 160);
 
 % create rectangular wide pulse
-r_wide = create_rect(80, 5, 90);
+r_wide = create_rect(80, 5, 120);
 r_tall = r_tall_bin;
 
 if obj_num == 0
@@ -189,7 +189,7 @@ else
         if bin_array{i}.state=="empty" && bin_array{i}.bin_or == "tall" && bin_array{i}.count < 150
             
             lim_b = 30;
-            r_wide = create_rect(80, 5, 140);
+            r_wide = create_rect(80, 5, 120);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_wide)
@@ -218,7 +218,7 @@ else
                         loc_end = min_loc + length(r_tall)-1;
                         
                         bin_array{i}.bin_or = "wide";
-                        bin_array{i}.r_val = 110;
+                        bin_array{i}.r_val = 120;
                         min_val = min_val_wide;
                         
                     end
@@ -291,7 +291,7 @@ else
                             bin_array{i}.state = "empty";
                         else
                             bin_array{i}.state = "fill";
-                            bin_array{i}.r_val = mean2( I(min_loc:loc_end, :));
+                            bin_array{i}.r_val = mean2( I(min_loc:loc_end, 1:floor(end/2)));
                             
                         end
                         bin_array{i} = rmfield(bin_array{i}, 'recent_unspec');

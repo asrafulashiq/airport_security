@@ -1,6 +1,5 @@
 function coef = calc_coef(r_tall, I_d, st)
 
-
 diff_ = zeros(1,length(r_tall));
 
 for i = 1:length(r_tall)
