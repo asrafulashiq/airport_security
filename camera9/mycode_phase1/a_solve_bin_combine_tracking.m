@@ -20,7 +20,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "5A_take3";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -40,7 +40,7 @@ for file_number_str = all_file_nums
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
 
-    start_fr = 3;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -105,7 +105,8 @@ for file_number_str = all_file_nums
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
-        im_c = imresize(readFrame(v),0.25);%original image
+        img = readFrame(v);
+        im_c = imresize(img,0.25);%original image
         im_c = imrotate(im_c, 100);
         % Region 1
         im_r1 = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
