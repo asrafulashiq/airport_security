@@ -6,9 +6,11 @@
 %% control variable
 global debug;
 debug = true;
-show_image = true;
+global scale;
+scale = 0.5;
 
-is_write_video = false;
+show_image = true;
+is_write_video = true;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -25,7 +27,7 @@ all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
+    input_filename = fullfile('..',file_number, ['camera9_' file_number '_new.mp4']);
     
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_9.mp4');
@@ -44,9 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-
-
-    start_fr = 300;
+    start_fr = 1500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -63,10 +63,7 @@ for file_number_str = all_file_nums
         
     end
     
-    %% the parameter for the start frame and end frame
-    end_f = v.Duration * v.FrameRate ; %15500;
-    % start_f = 1000;
-    v.CurrentTime = start_fr / 30;%v.FrameRate ;
+    
     
     %% region setting,find region position
     
@@ -75,15 +72,24 @@ for file_number_str = all_file_nums
     % load('region_pos2.mat');
     
     % Region1: droping bags
-    R_dropping.r1 = [996 1396 512 2073]; %r1;%[103 266 61 436];
+    R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
     % Region4: Belt
-    R_belt.r4 = [660 990 536 1676]; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    R_belt.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
-    
+    rot_angle = 102;
     %% Region background
+    counter = 0;
+    im_back = 0.0;
+    while hasFrame(v) && counter < 10
+        im_back = im_back + double(readFrame(v));
+        counter = counter + 1;
+    end
+    im_background = im_back / (counter);
+    im_background = uint8(im_background);
     
-    load('imback.mat','im_background');
-    %im_background = imread(fullfile('..','Experi1A','camera9_1A_back.jpg'));%background image
+    %load('imback.mat','im_background');
+    im_background = imresize(im_background, scale);
+    im_background = imrotate(im_background, rot_angle);
     
     %%% exp
     %R_belt.r4(3) = R_belt.r4(3) + 45;
@@ -92,30 +98,35 @@ for file_number_str = all_file_nums
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
-    R_dropping.r1_obj = [];
-    R_belt.r4_obj = [];
+%     R_dropping.r1_obj = [];
+%     R_belt.r4_obj = [];
     % sequence of bin and people
     people_seq = {};
     bin_seq = {};
+    bin_array={};
+    people_array = {};
     % object count for each region
-    R_dropping.r1_cnt = 0;
-    R_belt.r4_cnt = 0;
+    %R_dropping.r1_cnt = 0;
+    %R_belt.r4_cnt = 0;
     % object Labels
-    R_dropping.r1_lb = 0;
-    R_belt.r4_lb = 0;
+    %R_dropping.r1_lb = 0;
+    %R_belt.r4_lb = 0;
     starting_index = -1;
+    
+    %% the parameter for the start frame and end frame
+    end_f = v.Duration * v.FrameRate ; %15500;
+    v.CurrentTime = start_fr / 30;%v.FrameRate ;
     
     %% Start tracking and baggage association
     frame_count = start_fr;
-    bin_array={};
-    people_array = {};
+
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
-        scale = 0.25;
-        im_c = img;%imresize(img,scale);%original image
-        im_c = imrotate(im_c, 102);
+        im_c = imresize(img,scale);%original image
+        im_c = imrotate(im_c, rot_angle);
+       
         % Region 1
         im_r1 = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
         % Region 1 background subtraction

@@ -1,6 +1,7 @@
 function [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array)
 
 global debug;
+global scale;
 
 r4_lb = R_belt.r4_lb;
 r4 = R_belt.r4;
@@ -8,33 +9,29 @@ im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
 threshold = 10;%threshold for object recognition
-dis_exit_y = 980;%2401520;
+dis_exit_y = 980 * scale;%2401520;
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
 
 im_all = rgb2gray(im_actual);
-
 im_background = rgb2gray(im_r4_p);
-im_r4 = 2 * abs(im_all-im_background);
+%im_r4 = 2 * abs(im_all-im_background);
 
-
-
-
+% im_r4 = uint8(abs(im_actual - im_r4_p));
+im_r4 = abs(im_r4_p - im_actual) + abs(im_actual - im_r4_p);
+im_r4 = rgb2gray(im_r4);
 
 imr4t = im_r4;
 
 pt2 = [];
 stp2 = 10;
 
-
 for i = 1: (size(imr4t,1)-stp2)
     pt2(i) = mean( mean( imr4t(i:i+stp2,:) ) );
 end
 
-
 loc = find( pt2 > threshold);
-
 if isempty(loc)
     return;
 end

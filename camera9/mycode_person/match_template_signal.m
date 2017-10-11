@@ -1,5 +1,6 @@
 function bin_array =  match_template_signal(I, bin_array, loc_something)
 global debug;
+global scale;
 
 obj_num = size(bin_array,2);
 thr = 0.7;
@@ -7,13 +8,13 @@ thr = 0.7;
 
 
 %%
-r_tall_val = 180;
-r_tall_width = 195;
+r_tall_val = 100;
+r_tall_width = floor(200 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 130;
-r_wide_width = 280;
+r_wide_val = 80;
+r_wide_width = floor(310 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -50,7 +51,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 80
+        if coef > 40
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -139,7 +140,7 @@ else
                 k = k+1;
             end
             
-            if k >5
+            if k > 10
                 if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
                     r_bin = create_rect(r_tall_width, 5, bin_array{i}.r_val);
                     bin_array{i}.r_val = r_tall_val;
@@ -199,7 +200,7 @@ else
         %%% check wide
         if bin_array{i}.state=="empty" && bin_array{i}.bin_or == "tall" && bin_array{i}.count < 150
             
-            lim_b = 90;
+            lim_b = r_wide_width - r_tall_width;
             r_wide = create_rect(r_wide_width, 5, r_wide_val);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
@@ -221,7 +222,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val && abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -281,7 +282,7 @@ else
         
         %% state calculation
         
-        if min_val > 60 && bin_array{i}.state ~= "unspec"
+        if min_val > 50 && bin_array{i}.state ~= "unspec"
             bin_array{i}.state = "unspec";
         end
         
@@ -297,7 +298,7 @@ else
                     std_unspec = std(bin_array{i}.recent_unspec(end-4:end), 1);
                     if std_unspec < 15
                         % change state
-                        if mean2( I(min_loc:loc_end, :)) > 100
+                        if mean2( I(min_loc:loc_end, :)) > 110
                             % empty state
                             bin_array{i}.state = "empty";
                         else
