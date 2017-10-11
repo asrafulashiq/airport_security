@@ -22,7 +22,6 @@ my_decision = 0;
 
 all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
-
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
@@ -47,7 +46,7 @@ for file_number_str = all_file_nums
     
 
 
-    start_fr = 300;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -159,7 +158,7 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count > 1113
+        if frame_count > 980
            1; 
         end
         
@@ -167,7 +166,7 @@ for file_number_str = all_file_nums
         [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im2_b,im_c,R_dropping,...
+        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
             R_belt,bin_seq,bin_array);
         
         title(num2str(frame_count));
