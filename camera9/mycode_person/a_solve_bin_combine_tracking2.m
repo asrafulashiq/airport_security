@@ -8,7 +8,7 @@ global debug;
 debug = true;
 show_image = true;
 
-is_write_video = false;
+is_write_video = true;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -20,7 +20,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     
 
 
-    start_fr = 300;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -75,19 +75,18 @@ for file_number_str = all_file_nums
     % load('region_pos2.mat');
     
     % Region1: droping bags
-    R_dropping.r1 = [996 1396 512 2073]; %r1;%[103 266 61 436];
+    R_dropping.r1 = r1;%[103 266 61 436];
     % Region4: Belt
-    R_belt.r4 = [660 990 536 1676]; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    R_belt.r4 = [161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
     
     %% Region background
     
-    load('imback.mat','im_background');
-    %im_background = imread(fullfile('..','Experi1A','camera9_1A_back.jpg'));%background image
+    im_background = imread(fullfile('..','Experi1A','camera9_1A_back.jpg'));%background image
     
     %%% exp
     %R_belt.r4(3) = R_belt.r4(3) + 45;
-    %R_belt.r4(4) = R_belt.r4(4) + 45;
+    R_belt.r4(4) = R_belt.r4(4) + 45;
 
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -95,8 +94,8 @@ for file_number_str = all_file_nums
     R_dropping.r1_obj = [];
     R_belt.r4_obj = [];
     % sequence of bin and people
-    people_seq = {};
-    bin_seq = {};
+    people_seq = [];
+    bin_seq = [];
     % object count for each region
     R_dropping.r1_cnt = 0;
     R_belt.r4_cnt = 0;
@@ -107,15 +106,14 @@ for file_number_str = all_file_nums
     
     %% Start tracking and baggage association
     frame_count = start_fr;
+    template = [];
     bin_array={};
-    people_array = {};
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
-        scale = 0.25;
-        im_c = img;%imresize(img,scale);%original image
-        im_c = imrotate(im_c, 102);
+        im_c = imresize(img,0.25);%original image
+        im_c = imrotate(im_c, 100);
         % Region 1
         im_r1 = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
         % Region 1 background subtraction
@@ -160,24 +158,22 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count > 1113
+        if frame_count > 980
            1; 
         end
         
         % tracking the people
-        %[R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
+        [R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
         
         % tracking the bin
-        [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        [R_belt,im_c,bin_seq,bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
             R_belt,bin_seq,bin_array);
         
         title(num2str(frame_count));
 
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
-            %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
-            image = displayimage2(im_c, R_belt, R_dropping, bin_array, ...
-                people_array, bin_seq, people_seq);
+            image = displayimage(im_c,R_dropping,R_belt,people_seq,bin_seq);
         end
         
         
@@ -189,17 +185,17 @@ for file_number_str = all_file_nums
         %     save(file_to_save,['R_dropping_' int2str(frame_count)],'-append');
         
         
-%         if my_decision == is_save_region || my_decision == is_update_region
-%             
-%             m_r1_obj{end+1} =  R_dropping.r1_obj ;
-%             m_r1_cnt(end+1) =  R_dropping.r1_cnt;
-%             m_r1_lb(end+1)  =  R_dropping.r1_lb;
-%             
-%             m_r4_obj{end+1} =  R_belt.r4_obj ;
-%             m_r4_cnt(end+1) =  R_belt.r4_cnt;
-%             m_r4_lb(end+1)  =  R_belt.r4_lb;
-%             
-%         end
+        if my_decision == is_save_region || my_decision == is_update_region
+            
+            m_r1_obj{end+1} =  R_dropping.r1_obj ;
+            m_r1_cnt(end+1) =  R_dropping.r1_cnt;
+            m_r1_lb(end+1)  =  R_dropping.r1_lb;
+            
+            m_r4_obj{end+1} =  R_belt.r4_obj ;
+            m_r4_cnt(end+1) =  R_belt.r4_cnt;
+            m_r4_lb(end+1)  =  R_belt.r4_lb;
+            
+        end
         
         if is_write_video
             writeVideo(outputVideo,image);        

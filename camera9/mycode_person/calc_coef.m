@@ -12,7 +12,7 @@ function coef = calc_coef(r_tall, I_d, st)
     end
     
     % peak
-    [pks,locs] = findpeaks(I_d, 'MinPeakHeight', mean(I_d)*2,...
+    [pks,locs] = findpeaks(I_d, 'MinPeakHeight', mean(I_d)*1.5,...
         'MinPeakProminence', mean(I_d));
     
     loc_interest = find(pdist2(locs,locs)> 0.9 * length(r_tall) );

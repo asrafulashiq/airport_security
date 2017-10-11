@@ -12,7 +12,7 @@ r_tall_width = 195;
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 130;
+r_wide_val = 140;
 r_wide_width = 280;
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
@@ -221,7 +221,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val && abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val && abs(min_val_wide-min_val) >= 10
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -237,7 +237,7 @@ else
             end
         elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" && bin_array{i}.count < 150
             
-            lim_b = 10;
+            lim_b = 30;
             r_tall_w = r_tall_bin;
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
