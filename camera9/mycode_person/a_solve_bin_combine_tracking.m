@@ -7,10 +7,10 @@
 global debug;
 debug = true;
 global scale;
-scale = 0.5;
+scale = 1;
 
-show_image = true;
-is_write_video = true;
+show_image = false;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -27,7 +27,7 @@ all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename = fullfile('..',file_number, ['camera9_' file_number '_new.mp4']);
+    input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
     
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_9.mp4');
@@ -37,7 +37,7 @@ for file_number_str = all_file_nums
     
     %% the file for the outputvideo
     if is_write_video
-        output_filename = fullfile('..',file_number, ['_output_' file_number '.avi']);
+        output_filename = fullfile('..',file_number, ['_output_' file_number '_new.avi']);
         outputVideo = VideoWriter(output_filename);
         outputVideo.FrameRate = v.FrameRate;
         open(outputVideo);
@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 1500;
+    start_fr = 300;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -81,7 +81,8 @@ for file_number_str = all_file_nums
     counter = 0;
     im_back = 0.0;
     while hasFrame(v) && counter < 10
-        im_back = im_back + double(readFrame(v));
+        im_frame = readFrame(v);
+        im_back = im_back + double(im_frame);
         counter = counter + 1;
     end
     im_background = im_back / (counter);
@@ -90,6 +91,8 @@ for file_number_str = all_file_nums
     %load('imback.mat','im_background');
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
+    
+    %v =  VideoReader(input_filename)
     
     %%% exp
     %R_belt.r4(3) = R_belt.r4(3) + 45;
@@ -127,18 +130,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
        
-        % Region 1
-        im_r1 = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
-        % Region 1 background subtraction
-        im_r1 = abs(R_dropping.im_r1_p - im_r1) + abs(im_r1 - R_dropping.im_r1_p);
-        im2_b = im2bw(im_r1,0.18);
-        % filter the image with gaussian filter
-        h = fspecial('gaussian',[5,5],2);
-        im2_b = imfilter(im2_b,h);
-        im2_b2 = im2_b;
-        % close operation for the image
-        se = strel('disk',10);
-        im2_b = imclose(im2_b,se);
+        
         
         if my_decision == is_load_region ||  ( my_decision == is_update_region && starting_index == -1 )
             
@@ -171,16 +163,17 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count > 1113
+        if frame_count > 912
            1; 
         end
         
         % tracking the people
-        %[R_dropping,people_seq] = a_peopletracking(im2_b,R_dropping,people_seq);
+        [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-            R_belt,bin_seq,bin_array);
+        %[bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        %    R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
 

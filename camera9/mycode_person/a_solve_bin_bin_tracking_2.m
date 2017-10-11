@@ -1,4 +1,4 @@
-function [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array)
+function [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
 
 global debug;
 global scale;
@@ -8,7 +8,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 10;%threshold for object recognition
+threshold = 20;%threshold for object recognition
 dis_exit_y = 980 * scale;%2401520;
 
 %% Preprocessing
@@ -44,8 +44,10 @@ if debug
     hold on;
 end
 
+I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
+I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
-bin_array = match_template_signal(im_r4, bin_array, loc_something);
+bin_array = match_template_signal(I, bin_array, loc_something);
 
 if debug
     hold off;
