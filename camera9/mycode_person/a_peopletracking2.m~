@@ -43,9 +43,8 @@ end
 % Do detection & tracking first
 
 for i = 1 : size(body_prop, 1)
-    Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
-        'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-        );
+    
+    if body_prop(i).Area 
     
     
 end
