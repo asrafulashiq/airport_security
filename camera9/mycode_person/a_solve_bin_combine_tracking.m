@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 300;
+    start_fr = 730;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -162,7 +162,7 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count > 912
+        if frame_count > 820
            1; 
         end
         
@@ -204,7 +204,7 @@ for file_number_str = all_file_nums
 %             
 %         end
         
-        if is_write_video
+        if is_write_video && show_image
             writeVideo(outputVideo,image);        
         end
         
