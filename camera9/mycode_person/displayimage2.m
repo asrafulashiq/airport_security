@@ -1,12 +1,4 @@
 function image = displayimage2(im_c, R_belt, R_dropping, bin_array, people_array, bin_seq, people_seq)
-% r1_obj = R1.r1_obj;
-% r1_cnt = R1.r1_cnt;
-% r1 = R1.r1;
-% r4_obj = R4.r4_obj;
-% r4_cnt = R4.r4_cnt;
-% r4 = R4.r4;
-% font_size=30;
-
 
 %% decorate text
 font_size = 50;

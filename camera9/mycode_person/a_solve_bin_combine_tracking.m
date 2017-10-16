@@ -131,7 +131,6 @@ for file_number_str = all_file_nums
         im_c = imrotate(im_c, rot_angle);
        
         
-        
         if my_decision == is_load_region ||  ( my_decision == is_update_region && starting_index == -1 )
             
             starting_index = start_fr - start_f;
