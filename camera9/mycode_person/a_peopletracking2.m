@@ -43,7 +43,7 @@ end
 %figure(2); imshow(im_draw);
 
 %% track previous detection
-%%%% TODO
+
 del_index_of_body = [];
 if ~isempty(people_array)
     for i = 1:size(people_array,2)
@@ -53,7 +53,7 @@ if ~isempty(people_array)
         %dist_sorted = sort(dist);
         %if dist_sorted()
         
-        if body_prop(min_arg).Area > 1.5 * people_array{i}.Area
+        if body_prop(min_arg).Area > thres_up * people_array{i}.Area
             % divide area and match
             bbox_matched = match_people_bbox(im_r, im_binary, int32(body_prop(min_arg).BoundingBox), ...
                 people_array{i});
@@ -61,7 +61,6 @@ if ~isempty(people_array)
             if ~isempty(bbox_matched)
                 del_index_of_body = [del_index_of_body; min_arg];
                 people_array{i}.Centroid = ait_centroid(im_binary, bbox_matched);
-                %people_array{i}.Orientation = people_array{i}.Orientation;
                 people_array{i}.BoundingBox = bbox_matched;
                 im_draw = insertShape(im_draw, 'Rectangle', int32(people_array{i}.BoundingBox), 'LineWidth', 10);
             end
