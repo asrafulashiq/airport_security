@@ -92,11 +92,6 @@ for file_number_str = all_file_nums
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
     
-    %v =  VideoReader(input_filename)
-    
-    %%% exp
-    %R_belt.r4(3) = R_belt.r4(3) + 45;
-    %R_belt.r4(4) = R_belt.r4(4) + 45;
 
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -112,8 +107,8 @@ for file_number_str = all_file_nums
     %R_dropping.r1_cnt = 0;
     %R_belt.r4_cnt = 0;
     % object Labels
-    %R_dropping.r1_lb = 0;
-    %R_belt.r4_lb = 0;
+    R_dropping.label = 0;
+    R_belt.label = 0;
     starting_index = -1;
     
     %% the parameter for the start frame and end frame

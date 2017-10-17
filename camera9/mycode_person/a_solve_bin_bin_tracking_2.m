@@ -3,7 +3,7 @@ function [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_bel
 global debug;
 global scale;
 
-r4_lb = R_belt.r4_lb;
+r4_lb = R_belt.label;
 r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 

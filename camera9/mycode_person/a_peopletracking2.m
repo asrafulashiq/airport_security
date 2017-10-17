@@ -38,20 +38,36 @@ end
 %% track previous detection
 %%%% TODO
 
-
+for i = 1 : size(people_array, 2)
+    people_prev = people_array{i};
+    
+    % find nearest bbox which has closest area with previous people;
+    % if no bbox there, find part of bbox to match;
+    % take decision whether new bbox is 'consistant' or 'temporary';
+    % if 'consistant' then update fields of the people struct, and 
+    
+    
+end
+    
 %% initial detection
 % Do detection & tracking first
 
 for i = 1 : size(body_prop, 1)
+    
+    % TODO:::check if bbox area is enugh to detect a person
+    
+    % create new person struct
+    r1_label = r1_label + 1; % new person label added
     Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
         'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-        );
+        'label', r1_label);
+    people_array{end+1} = Person;
     
+    % TODO:::determine whether person is 'consistant' or 'temporary'.
+    % if 'consistant', calculate feature vector; else do nothing.
+    % update image_binary fill 
     
 end
-
-
-
 
 
 end
