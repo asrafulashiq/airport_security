@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 730;
+    start_fr = 1500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -162,9 +162,9 @@ for file_number_str = all_file_nums
             
         end
         
-        if frame_count > 820
+        if frame_count > 1710
            1; 
-        end
+         end
         
         % tracking the people
         [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
