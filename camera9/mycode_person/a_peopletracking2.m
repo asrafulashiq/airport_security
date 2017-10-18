@@ -26,15 +26,15 @@ im_binary = logical(im_closed); %extract people region
 
 cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'ConvexImage'); % extract parameters
 
-im_draw = im_r;
-body_prop = [];
-for i = 1:size(cpro_r1, 1)
-    if cpro_r1(i).Area > limit_area
-        cpro_r1(i).Centroid = ait_centroid(im_binary, int32(cpro_r1(i).BoundingBox));
-        body_prop = [body_prop; cpro_r1(i)];
-        % im_draw = insertShape(im_draw, 'Rectangle', int32(cpro_r1(i).BoundingBox), 'LineWidth', 10);
-    end
-end
+body_prop = cpro_r1([cpro_r1.Area] > limit_area);
+% for i = 1:size(cpro_r1, 1)
+%     if cpro_r1(i).Area > limit_area
+%         cpro_r1(i).Centroid = ait_centroid(im_binary, int32(cpro_r1(i).BoundingBox));
+%         body_prop = [body_prop; cpro_r1(i)];
+%         im_draw = insertShape(im_draw, 'Rectangle', int32(cpro_r1(i).BoundingBox), 'LineWidth', 10);
+%     end
+% end
+
 
 list_bbox = [];
 for i = 1:size(body_prop, 1)
@@ -61,7 +61,7 @@ if ~isempty(people_array)
             
             if ~isempty(bbox_matched)
                 del_index_of_body = [del_index_of_body; min_arg];
-                people_array{i}.Centroid = ait_centroid(im_binary, bbox_matched);
+                people_array{i}.Centroid =  ait_centroid(im_binary, bbox_matched);
                 people_array{i}.BoundingBox = bbox_matched;
                 im_draw = insertShape(im_draw, 'Rectangle', int32(people_array{i}.BoundingBox), 'LineWidth', 10);
             end
@@ -84,6 +84,7 @@ end
 
 %% initial detection
 % Do detection & tracking first
+im_draw = im_r;
 
 for i = 1:size(body_prop, 1)
     

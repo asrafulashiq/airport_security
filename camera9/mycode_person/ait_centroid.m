@@ -1,19 +1,23 @@
 function centroid = ait_centroid(I, bbox)
 
 pic = I(bbox(2): bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
-    
-[~,~,z] = size(pic);          % Checking whether the picture is colored or monochromatic, if colored then converting to gray.
-if (z ~= 1)
-    pic = rgb2gray(pic);
-end
 
+centroid = regionprops(pic, 'Centroid');
 
-im = pic;
-[rows,cols] = size(im);
-r = ones(rows,1)*[1:cols];    % Matrix with each pixel set to its x coordinate
-c = [1:rows]'*ones(1,cols);   %   "     "     "    "    "  "   "  y    "
+centroid = centroid + [bbox(2)  bbox(4)];
 
-area = sum(sum(im));
-mean_r = sum(sum(double(im).*r))/area + bbox(2);
-mean_c = sum(sum(double(im).*c))/area + bbox(1);
-centroid = [mean_c,mean_r];
+% [~,~,z] = size(pic);          % Checking whether the picture is colored or monochromatic, if colored then converting to gray.
+% if (z ~= 1)
+%     pic = rgb2gray(pic);
+% end
+% 
+% 
+% im = pic;
+% [rows,cols] = size(im);
+% r = ones(rows,1)*[1:cols];    % Matrix with each pixel set to its x coordinate
+% c = [1:rows]'*ones(1,cols);   %   "     "     "    "    "  "   "  y    "
+% 
+% area = sum(sum(im));
+% mean_r = sum(sum(double(im).*r))/area + bbox(2);
+% mean_c = sum(sum(double(im).*c))/area + bbox(1);
+% centroid = [mean_c,mean_r];
