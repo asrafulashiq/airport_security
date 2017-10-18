@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 1500;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -92,16 +92,11 @@ for file_number_str = all_file_nums
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
     
-    %v =  VideoReader(input_filename)
-    
-    %%% exp
-    %R_belt.r4(3) = R_belt.r4(3) + 45;
-    %R_belt.r4(4) = R_belt.r4(4) + 45;
 
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
-%     R_dropping.r1_obj = [];
+     R_dropping.r1_obj = [];
 %     R_belt.r4_obj = [];
     % sequence of bin and people
     people_seq = {};
@@ -109,11 +104,12 @@ for file_number_str = all_file_nums
     bin_array={};
     people_array = {};
     % object count for each region
-    %R_dropping.r1_cnt = 0;
+    R_dropping.r1_cnt = 0;
+    R_dropping.r1_lb = 0;
     %R_belt.r4_cnt = 0;
     % object Labels
-    %R_dropping.r1_lb = 0;
-    %R_belt.r4_lb = 0;
+    R_dropping.label = 0;
+    R_belt.label = 0;
     starting_index = -1;
     
     %% the parameter for the start frame and end frame
@@ -130,45 +126,14 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
        
-        
-        if my_decision == is_load_region ||  ( my_decision == is_update_region && starting_index == -1 )
-            
-            starting_index = start_fr - start_f;
-            
-            if starting_index > 0
-                R_dropping.r1_obj = m_r1_obj{starting_index};
-                R_dropping.r1_cnt = m_r1_cnt(starting_index);
-                R_dropping.r1_lb = m_r1_lb(starting_index) ;
-                
-                R_belt.r4_obj = m_r4_obj{starting_index};
-                R_belt.r4_cnt = m_r4_cnt(starting_index);
-                R_belt.r4_lb = m_r4_lb(starting_index);
-            end
-            
-            if my_decision == is_load_region
-                my_decision = is_do_nothing;
-            end
-            
-            if my_decision == is_update_region
-                
-                m_r1_obj = {m_r1_obj{1, 1:starting_index}};
-                m_r4_obj = {m_r1_obj{1, 1:starting_index}};
-                m_r1_cnt = m_r1_cnt(1:starting_index);
-                m_r4_cnt = m_r1_cnt(1:starting_index);
-                m_r1_lb = m_r1_cnt(1:starting_index);
-                m_r4_lb = m_r1_cnt(1:starting_index);
-                
-            end
-            
-        end
-        
-        if frame_count > 1710
+        if frame_count >= 926
            1; 
          end
         
         % tracking the people
-        [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+        %[people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
+        [R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
         %[bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
@@ -184,25 +149,7 @@ for file_number_str = all_file_nums
         end
         
         
-        %%%%% save variables
-        %     eval(['R_dropping_' int2str(frame_count) ' = R_dropping']);
-        %     eval(['R_belt_' int2str(frame_count) ' = R_belt']);
-        %
-        %     save(file_to_save,['R_belt_' int2str(frame_count)],'-append');
-        %     save(file_to_save,['R_dropping_' int2str(frame_count)],'-append');
-        
-        
-%         if my_decision == is_save_region || my_decision == is_update_region
-%             
-%             m_r1_obj{end+1} =  R_dropping.r1_obj ;
-%             m_r1_cnt(end+1) =  R_dropping.r1_cnt;
-%             m_r1_lb(end+1)  =  R_dropping.r1_lb;
-%             
-%             m_r4_obj{end+1} =  R_belt.r4_obj ;
-%             m_r4_cnt(end+1) =  R_belt.r4_cnt;
-%             m_r4_lb(end+1)  =  R_belt.r4_lb;
-%             
-%         end
+      
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);        

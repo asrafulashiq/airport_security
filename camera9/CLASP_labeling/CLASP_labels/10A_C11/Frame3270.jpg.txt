@@ -1,0 +1,2 @@
+% bbGt version=3
+person 1309 388 464 416 0 0 0 0 0 0 0

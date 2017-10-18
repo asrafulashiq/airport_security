@@ -6,6 +6,8 @@ thres_low = 0.4;
 thres_up = 1.5;
 min_allowed_dis = 200;
 limit_area = 20000;
+half_y = 1.9 * size(im_r,1) / 2;
+limit_exit_y = 1100;
 %% Region 1 background subtraction based on chromatic value
 
 im_r_hsv = rgb2hsv(im_r);
@@ -44,17 +46,25 @@ end
 %figure(2); imshow(im_draw);
 
 %% track previous detection
-%%%% TODO
+exit_index_people_array = []; 
 del_index_of_body = [];
 if ~isempty(people_array)
     for i = 1:size(people_array,2)
+        
+        % detect exit
+        if people_array{i}.Centroid(2) > limit_exit_y
+            people_seq{end+1} = people_array{i};
+            exit_index_people_array(end+1) = i;
+            continue;
+        end
         % calculate minimum distance body from people.Centroid to body(i).Centroid
         dist = pdist2(double(people_array{i}.BoundingBox(1:2)),double(list_bbox(:,1:2)));
         [min_dis, min_arg] = min(dist);
         %dist_sorted = sort(dist);
         %if dist_sorted()
         
-        if body_prop(min_arg).Area > 1.5 * people_array{i}.Area && people_array{i}.state ~= "temp_disappear"
+        
+        if body_prop(min_arg).Area > 1.3 * people_array{i}.Area && people_array{i}.state ~= "temp_disappear"
             % divide area and match
             bbox_matched = match_people_bbox(im_r, im_binary, body_prop(min_arg).BoundingBox, ...
                 people_array{i});
@@ -63,7 +73,6 @@ if ~isempty(people_array)
                 del_index_of_body = [del_index_of_body; min_arg];
                 people_array{i}.Centroid =  ait_centroid(im_binary, bbox_matched);
                 people_array{i}.BoundingBox = bbox_matched;
-                im_draw = insertShape(im_draw, 'Rectangle', int32(people_array{i}.BoundingBox), 'LineWidth', 10);
             end
             continue;
         end
@@ -78,9 +87,11 @@ if ~isempty(people_array)
         people_array{i}.Centroid = body_prop(min_arg).Centroid;
         people_array{i}.Orientation = body_prop(min_arg).Orientation;
         people_array{i}.BoundingBox = int32(body_prop(min_arg).BoundingBox);
-        im_draw = insertShape(im_draw, 'Rectangle', int32(people_array{i}.BoundingBox), 'LineWidth', 10);
     end
 end
+
+% delete exit people
+people_array(exit_index_people_array) = [];
 
 %% initial detection
 % Do detection & tracking first
@@ -91,20 +102,32 @@ for i = 1:size(body_prop, 1)
     if find(del_index_of_body == i, 1)
         continue;
     end
-    color_val = get_color_val(im_r, int32(body_prop(i).BoundingBox), im_binary );
-    Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
-        'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-        'state', "unspec", 'color_val', color_val);
     
-    people_array{end+1} = Person;
-    im_draw = insertShape(im_draw, 'Rectangle', int32(body_prop(i).BoundingBox), 'LineWidth', 10);
-    
+    % check exit
+    if body_prop(i).Centroid(2) < half_y
+            
+        color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
+        Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
+            'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
+            'state', "unspec", 'color_val', color_val);
+        
+        people_array{end+1} = Person;
+        
+    end
 end
 
 if size(people_array,2) > 2
     1;
 end
 
-figure(2); imshow(im_draw);
+
+im_draw = im_r;
+for i = 1:size(people_array, 2)
+    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 10);
+    
+end
+
+figure(2); imshow(im_draw); 
+drawnow;
 
 end
