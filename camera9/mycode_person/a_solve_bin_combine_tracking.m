@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 900;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -126,46 +126,14 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
        
-        
-        if my_decision == is_load_region ||  ( my_decision == is_update_region && starting_index == -1 )
-            
-            starting_index = start_fr - start_f;
-            
-            if starting_index > 0
-                R_dropping.r1_obj = m_r1_obj{starting_index};
-                R_dropping.r1_cnt = m_r1_cnt(starting_index);
-                R_dropping.r1_lb = m_r1_lb(starting_index) ;
-                
-                R_belt.r4_obj = m_r4_obj{starting_index};
-                R_belt.r4_cnt = m_r4_cnt(starting_index);
-                R_belt.r4_lb = m_r4_lb(starting_index);
-            end
-            
-            if my_decision == is_load_region
-                my_decision = is_do_nothing;
-            end
-            
-            if my_decision == is_update_region
-                
-                m_r1_obj = {m_r1_obj{1, 1:starting_index}};
-                m_r4_obj = {m_r1_obj{1, 1:starting_index}};
-                m_r1_cnt = m_r1_cnt(1:starting_index);
-                m_r4_cnt = m_r1_cnt(1:starting_index);
-                m_r1_lb = m_r1_cnt(1:starting_index);
-                m_r4_lb = m_r1_cnt(1:starting_index);
-                
-            end
-            
-        end
-        
         if frame_count >= 926
            1; 
          end
         
         % tracking the people
-        [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
-        %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
+        %[people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
+        [R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
         %[bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...

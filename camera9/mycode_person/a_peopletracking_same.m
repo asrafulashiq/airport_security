@@ -39,7 +39,7 @@ limit_area = 10000;
 dis_enter = 200;%130;
 dis_enter_x = 60;
 dis_exit_x=200;
-dis_exit_y= 1100;%420;
+dis_exit_y= 1600;%420;
 split_num_y = 3;
 split_num_x = 5;
 dis1=100;
@@ -177,7 +177,7 @@ if (pcnt_r1 ~= 0)
         for i = 1:r1_cnt
             true_y=R_dropping.r1(3)+r1_obj(i,2);
             true_x=R_dropping.r1(1)+r1_obj(i,1);
-            if (true_y>=dis_exit_y || true_y<(1.0e+03)*(0.0055*(true_x)-1.4730)+dis1)
+            if (true_y>=dis_exit_y) %|| true_y<(1.0e+03)*(0.0055*(true_x)-1.4730)+dis1)
                 people_seq = [people_seq;r1_obj(i,:)];
                 r1_obj(i:end-1,:) = r1_obj(i+1:end,:);
                 r1_cnt = r1_cnt-1;
@@ -212,7 +212,7 @@ if (pcnt_r1 ~= 0)
             %if (true_y>=(1.0e+03)*(0.0055*(true_x)-1.4730)+dis1 && temp_r1(i,2)<dis_enter)
                 r1_cnt = 1;
                 r1_lb = r1_lb+1;
-                r1_obj(1,:) = [temp_r1(temp_r1(:,3)==max(temp_r1(:,3)),1:3) r1_lb 1];
+                r1_obj(i,:) = [temp_r1(temp_r1(:,3)==max(temp_r1(:,3)),1:3) r1_lb 1];
             %end
         end
     end
@@ -223,7 +223,7 @@ R_dropping.r1_lb = r1_lb;
 
 im_show = im_r;
 for i = 1:size(r1_obj,1)
-    im_show = insertShape(im_show, 'circle', [r1_obj(1) r1_obj(2) 100], 'LineWidth', 10);
+    im_show = insertShape(im_show, 'circle', [r1_obj(i,1) r1_obj(i,2) 100], 'LineWidth', 10);
 end
 
 figure(2); imshow(im_show );
