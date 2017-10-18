@@ -1,4 +1,4 @@
-function bbox_matched = match_people_bbox(I, I_mask, bbox_all, img_struct)
+function bbox_matched = match_people_bbox(I, I_mask, img_struct)
 
 x_lim = 5;  
 y_lim = 5; 

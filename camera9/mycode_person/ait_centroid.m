@@ -2,9 +2,9 @@ function centroid = ait_centroid(I, bbox)
 
 pic = I(bbox(2): bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
 
-centroid = regionprops(pic, 'Centroid');
-
-centroid = centroid + [bbox(2)  bbox(4)];
+reg = regionprops(pic, 'Centroid','Area');
+reg = reg([reg.Area]==max([reg.Area]));
+centroid = reg.Centroid + double([bbox(2)  bbox(4)]);
 
 % [~,~,z] = size(pic);          % Checking whether the picture is colored or monochromatic, if colored then converting to gray.
 % if (z ~= 1)

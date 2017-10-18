@@ -6,6 +6,8 @@ thres_low = 0.4;
 thres_up = 1.5;
 min_allowed_dis = 200;
 limit_area = 20000;
+limit_max_width = 400;
+limit_max_height = 400;
 half_y = 1.9 * size(im_r,1) / 2;
 limit_exit_y = 1100;
 %% Region 1 background subtraction based on chromatic value
@@ -21,9 +23,9 @@ im_filtered(im_filtered < 50) = 0;
 % close operation for the image
 se = strel('disk',10);
 im_closed = imclose(im_filtered,se);
-
-im_binary = logical(im_closed); %extract people region
-
+im_eroded = imerode(im_closed, se);
+%im_binary = logical(im_closed); %extract people region
+im_binary = logical(im_eroded);
 %% blob analysis
 
 cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'ConvexImage'); % extract parameters
@@ -46,7 +48,7 @@ end
 %figure(2); imshow(im_draw);
 
 %% track previous detection
-exit_index_people_array = []; 
+exit_index_people_array = [];
 del_index_of_body = [];
 if ~isempty(people_array)
     for i = 1:size(people_array,2)
@@ -57,17 +59,17 @@ if ~isempty(people_array)
             exit_index_people_array(end+1) = i;
             continue;
         end
-        % calculate minimum distance body from people.Centroid to body(i).Centroid
+        % calculate minimum distance body_prop(i) from people.Centroid to body_prop(i)(i).Centroid
         dist = pdist2(double(people_array{i}.BoundingBox(1:2)),double(list_bbox(:,1:2)));
         [min_dis, min_arg] = min(dist);
         %dist_sorted = sort(dist);
         %if dist_sorted()
         
         
-        if body_prop(min_arg).Area > 1.3 * people_array{i}.Area && people_array{i}.state ~= "temp_disappear"
+        if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
+                %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
             % divide area and match
-            bbox_matched = match_people_bbox(im_r, im_binary, body_prop(min_arg).BoundingBox, ...
-                people_array{i});
+            bbox_matched = match_people_bbox(im_r, im_binary, people_array{i});
             
             if ~isempty(bbox_matched)
                 del_index_of_body = [del_index_of_body; min_arg];
@@ -93,6 +95,28 @@ end
 % delete exit people
 people_array(exit_index_people_array) = [];
 
+% check if area is too big
+
+for i = 1:size(people_array, 2)
+    if people_array{i}.BoundingBox(3)>limit_max_width || people_array{i}.BoundingBox(4)>limit_max_height
+        centre_rec =  [  people_array{i}.BoundingBox(1)+people_array{i}.BoundingBox(3)/2 ...
+            people_array{i}.BoundingBox(2)+people_array{i}.BoundingBox(4)/2  ];
+        
+        if people_array{i}.BoundingBox(3) > limit_max_width
+            people_array{i}.BoundingBox(3) = limit_max_width;
+            people_array{i}.BoundingBox(1) = centre_rec(1) - limit_max_width / 2;
+        end
+        
+        if people_array{i}.BoundingBox(4) > limit_max_height
+            people_array{i}.BoundingBox(4) = limit_max_height;
+            people_array{i}.BoundingBox(2) = centre_rec(2) - limit_max_height / 2;
+        end
+        people_array{i}.BoundingBox = int32(people_array{i}.BoundingBox);
+        people_array{i}.Area = sum(sum(imcrop(im_binary, people_array{i}.BoundingBox)));
+        %color_val = get_color_val(im_r, people_array{i}.BoundingBox, im_binary );       
+    end
+end
+
 %% initial detection
 % Do detection & tracking first
 im_draw = im_r;
@@ -103,9 +127,25 @@ for i = 1:size(body_prop, 1)
         continue;
     end
     
-    % check exit
+    % check entrance
     if body_prop(i).Centroid(2) < half_y
-            
+        
+        limit_flag = false;
+        centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
+        if body_prop(i).BoundingBox(3) > limit_max_width
+            body_prop(i).BoundingBox(3) = limit_max_width;
+            body_prop(i).BoundingBox(1) = centre_rec(1) - limit_max_width / 2;
+            limit_flag = true;
+        end
+        if body_prop(i).BoundingBox(4) > limit_max_height
+            body_prop(i).BoundingBox(4) = limit_max_height;
+            body_prop(i).BoundingBox(2) = centre_rec(2) - limit_max_height / 2;
+            limit_flag = true;
+        end
+        if limit_flag % area overloaded
+            body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
+            body_prop(i).Area = sum(sum(imcrop(im_binary, body_prop(i).BoundingBox)));
+        end
         color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
@@ -127,7 +167,7 @@ for i = 1:size(people_array, 2)
     
 end
 
-figure(2); imshow(im_draw); 
+figure(2); imshow(im_draw);
 drawnow;
 
 end
