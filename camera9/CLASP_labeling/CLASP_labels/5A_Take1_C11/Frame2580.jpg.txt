@@ -1,0 +1,2 @@
+% bbGt version=3
+perron 0 544 603 356 0 0 0 0 0 0 0

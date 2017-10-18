@@ -34,6 +34,7 @@ for x = x1:x2
 end
 
 [min_val,idx]=min(ind_array(:));
+disp(min_val);
 [x_min_index,y_min_index]=ind2sub(size(ind_array),idx);
 
 x_min = x_min_index + x1 - 1;
