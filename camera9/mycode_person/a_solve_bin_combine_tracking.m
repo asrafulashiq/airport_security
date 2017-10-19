@@ -22,7 +22,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "10A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 780;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -112,6 +112,8 @@ for file_number_str = all_file_nums
     R_belt.label = 0;
     starting_index = -1;
     
+    R_dropping.prev_body = [];
+    
     %% the parameter for the start frame and end frame
     end_f = v.Duration * v.FrameRate ; %15500;
     v.CurrentTime = start_fr / 30;%v.FrameRate ;
@@ -126,12 +128,12 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 855
+        if frame_count >= 563
             1;
         end
         
         % tracking the people
-        [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
+        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
             R_belt,people_seq,people_array, bin_array);
         %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         

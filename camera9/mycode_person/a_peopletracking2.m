@@ -1,4 +1,4 @@
-function [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
+function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
     R_belt,people_seq,people_array, bin_array)
 %% region 1 extraction
 im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -19,7 +19,7 @@ im_fore = abs(im_r_hsv(:,:,2)-im_p_hsv(:,:,2)) + abs(im_p_hsv(:,:,2) - im_r_hsv(
 im_fore = uint8(im_fore*255);
 
 im_filtered = imgaussfilt(im_fore, 6);
-im_filtered(im_filtered < 50) = 0;
+im_filtered(im_filtered < 40) = 0;
 % close operation for the image
 se = strel('disk',10);
 im_closed = imclose(im_filtered,se);
@@ -113,7 +113,7 @@ for i = 1:size(people_array, 2)
         end
         people_array{i}.BoundingBox = int32(people_array{i}.BoundingBox);
         people_array{i}.Area = sum(sum(imcrop(im_binary, people_array{i}.BoundingBox)));
-        %color_val = get_color_val(im_r, people_array{i}.BoundingBox, im_binary );       
+        %color_val = get_color_val(im_r, people_array{i}.BoundingBox, im_binary );
     end
 end
 
@@ -167,7 +167,19 @@ for i = 1:size(people_array, 2)
     
 end
 
-figure(2); imshow(im_draw);
-drawnow;
+figure(1); imshow(im_draw);
+
+
+%% some test image
+if ~isempty(R_dropping.prev_body)
+    
+    %im_diff = (abs(double(im_r_hsv(:,:,2)) - double(R_dropping.prev_body)));
+    im_diff = abs(im_binary - R_dropping.prev_body);
+    figure(2); imshow(im_diff,[]);
+    
+end
+%R_dropping.prev_body = im_r_hsv(:,:,2);
+R_dropping.prev_body = im_binary;
+    drawnow;
 
 end
