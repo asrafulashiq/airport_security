@@ -11,6 +11,7 @@ limit_max_width = 400;
 limit_max_height = 400;
 half_y = 1.9 * size(im_r,1) / 2;
 limit_exit_y = 1100;
+limit_exit_x = 250;
 threshold_img = 50;
 %% Region 1 background subtraction based on chromatic value
 
@@ -29,6 +30,18 @@ im_closed = imclose(im_filtered,se);
 im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 %im_binary = logical(im_eroded);
+
+%% calculate difference image
+im_diff = [];
+if ~isempty(R_dropping.prev_body)
+    
+    im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
+    im_diff(norm(im_diff) < 30) = 0;
+    im_diff = double(im_diff);
+    %im_diff = abs(im_binary - R_dropping.prev_body);
+    im_diff = mat2gray(im_diff);
+end
+
 %% blob analysis
 
 cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'ConvexImage'); % extract parameters
@@ -53,13 +66,15 @@ end
 %% track previous detection
 exit_index_people_array = [];
 del_index_of_body = [];
-if ~isempty(people_array)
+if ~isempty(people_array) && ~isempty(list_bbox)
     for i = 1:size(people_array,2)
         
         % detect exit
-        if people_array{i}.Centroid(2) > limit_exit_y
+        if people_array{i}.Centroid(2) > limit_exit_y || (people_array{i}.Centroid(1) > limit_exit_x )
+                 % && people_array{i}.Centroid(2) > half_y)
             people_seq{end+1} = people_array{i};
             exit_index_people_array(end+1) = i;
+            disp('exit......');
             continue;
         end
         % calculate minimum distance body_prop(i) from people.Centroid to body_prop(i)(i).Centroid
@@ -72,7 +87,7 @@ if ~isempty(people_array)
         if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
                 %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
             % divide area and match
-            bbox_matched = match_people_bbox(im_r, im_binary, people_array{i});
+            bbox_matched = match_people_bbox(im_r, im_binary, people_array{i}, im_diff);
             
             if ~isempty(bbox_matched)
                 del_index_of_body = [del_index_of_body; min_arg];
@@ -177,12 +192,8 @@ figure(1); imshow(im_draw);
 if ~isempty(R_dropping.prev_body)
     
     %im_diff = (abs(double(im_r_hsv(:,:,2)) - double(R_dropping.prev_body)));
-    im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
-    im_diff(norm(im_diff) < 30) = 0;
-    im_diff = double(im_diff);
-    %im_diff = abs(im_binary - R_dropping.prev_body);
-    figure(2); imshow(im_diff,[]);
     
+    figure(2); imshow(im_diff,[]);
 end
 % R_dropping.prev_body = im_r_hsv(:,:,2);
 %R_dropping.prev_body = im_binary;
@@ -190,6 +201,6 @@ R_dropping.prev_body = im_r;
 
 figure(3);imshow(im_binary);
 
-    drawnow;
+drawnow;
 
 end
