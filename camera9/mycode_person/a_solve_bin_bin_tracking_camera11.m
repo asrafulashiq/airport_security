@@ -1,4 +1,4 @@
-function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
+function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
 
 global debug;
 global scale;
@@ -8,8 +8,8 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 20; %threshold for object recognition
-dis_exit_y = 1460 * scale;%2401520;
+threshold = 10; %threshold for object recognition
+dis_exit_y = 1110 * scale;
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -50,16 +50,13 @@ if debug
     hold on;
 end
 
-
-bin_array = match_template_signal(I, bin_array, loc_something);
+I = im_r4;
+bin_array = match_template_signal_camera11(I, bin_array, loc_something);
 
 if debug
     hold off;
     drawnow;
 end
-
-
-
 
 %% bin processing
 total_bins = size(bin_array,2);
@@ -89,14 +86,15 @@ for counter = 1: total_bins
         r1_edge = [];
         
         for j = 1:size(people_array, 2)
-            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)])  + [R_dropping.r1(1) R_dropping.r1(3)];
+            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)]) ...
+                + [R_dropping.r1(1) R_dropping.r1(3)];
             r1_edge = [r1_edge; centr];
         end
         
         if ~isempty(people_array)
             dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
             bin_belong_index =  dis_b_p == min(dis_b_p);
-            if min(dis_b_p) > limit_max_dist
+            if min(dis_b_p) < limit_max_dist
                 belongs_to = -1;
             else
                 belongs_to = people_array{bin_belong_index}.label;

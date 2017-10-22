@@ -1,20 +1,20 @@
-function bin_array =  match_template_signal(I, bin_array, loc_something)
+function bin_array =  match_template_signal_camera11(I, bin_array, loc_something)
 global debug;
 global scale;
 
 obj_num = size(bin_array,2);
-thr = 0.7;
+thr = 0.8;
 % create rectangular tall pulse
 
 
 %%
-r_tall_val = 160;
-r_tall_width = floor(190 * scale);
+r_tall_val = 120;
+r_tall_width = floor(130 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 140;
-r_wide_width = floor(320 * scale);
+r_wide_val = 90;
+r_wide_width = floor(160 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -172,7 +172,7 @@ else
         for j = loc_to_match(1): loc_to_match(2)- length(r_bin) + 1
             % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
             I_d = calc_intens(I, [ j j+length(r_bin)-1 ]);
-            coef = calc_coef(r_bin, I_d, bin_array{i}.std);
+            coef = calc_coef_c11(r_bin, I_d, bin_array{i}.std);
             coef_aray = [ coef_aray coef ];
             loc_array = [loc_array j];
         end
@@ -207,7 +207,7 @@ else
                 for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_wide) + 1
                     % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
                     I_d = calc_intens(I, [ j j+length(r_wide)-1 ]);
-                    coef = calc_coef(r_wide, I_d, bin_array{i}.std);
+                    coef = calc_coef_c11(r_wide, I_d, bin_array{i}.std);
                     coef_aray_wide = [ coef_aray_wide coef ];
                     loc_array_wide = [loc_array_wide j];
                 end
@@ -245,7 +245,7 @@ else
                 for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_tall_w) + 1
                     % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
                     I_d = calc_intens(I, [ j j+length(r_tall_w)-1 ]);
-                    coef = calc_coef(r_tall_w, I_d, bin_array{i}.std);
+                    coef = calc_coef_c11(r_tall_w, I_d, bin_array{i}.std);
                     coef_aray_tall = [ coef_aray_tall coef ];
                     loc_array_tall = [loc_array_tall j];
                 end
@@ -338,7 +338,7 @@ else
     loc_2 = min_;
     if loc_2 > loc_something(1)
         
-        bins = match_template_signal( I, {}, [loc_something(1) loc_2] );
+        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2] );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end

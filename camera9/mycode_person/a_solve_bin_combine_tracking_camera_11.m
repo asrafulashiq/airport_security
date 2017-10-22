@@ -10,7 +10,7 @@ global scale;
 scale = 1;
 
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -22,31 +22,34 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "10A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
+    input_filename = fullfile('..',file_number, ['camera11.mp4']);
     
     if ~exist(input_filename)
-        input_filename = fullfile('..',file_number, 'Camera_9.mp4');
+        input_filename = fullfile('..',file_number, 'Camera_11.mp4');
+        if ~exist(input_filename)
+           error('file does not exist'); 
+        end
     end
     
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
     if is_write_video
-        output_filename = fullfile('..',file_number, ['_output_' file_number '_comb.avi']);
+        output_filename = fullfile('..',file_number, ['_output11_' file_number '.avi']);
         outputVideo = VideoWriter(output_filename);
         outputVideo.FrameRate = v.FrameRate;
         open(outputVideo);
     end
     
     %% file to save variables
-    file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
+    file_to_save = fullfile('..',file_number, ['camera11_' file_number '_vars.mat']);
     
-    start_fr = 300;
+    start_fr = 1300;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -59,24 +62,18 @@ for file_number_str = all_file_nums
         save(file_to_save, 'start_f'); % creating file_to_save
         m_r1_obj = {};  m_r4_obj = {};
         m_r1_cnt = [];  m_r4_cnt = [];
-        m_r1_lb = [];   m_r4_lb = [];
-        
+        m_r1_lb = [];   m_r4_lb = [];       
     end
     
-    
-    
     %% region setting,find region position
-    
-    load(fullfile('..','Experi1A','r1.mat'));
-    load(fullfile('..','Experi1A','r4.mat'));
-    % load('region_pos2.mat');
+   
     
     % Region1: droping bags
-    R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
+    R_dropping.r1 = [570 1080 286 1920] * scale; %r1;%[103 266 61 436];
     % Region4: Belt
-    R_belt.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    R_belt.r4 = [230 550 150 1920] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
-    rot_angle = 102;
+    rot_angle = 90;
     %% Region background
     counter = 0;
     im_back = 0.0;
@@ -128,17 +125,17 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 670
+        if frame_count >= 1470
             1;
         end
         
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
         %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
             R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
@@ -146,7 +143,7 @@ for file_number_str = all_file_nums
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
             %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
-            image = displayimage2(im_c, R_belt, R_dropping, bin_array, ...
+            image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
                 people_array, bin_seq, people_seq);
         end
         

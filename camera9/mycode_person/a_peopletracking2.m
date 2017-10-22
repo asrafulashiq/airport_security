@@ -6,7 +6,7 @@ thres_low = 0.4;
 thres_up = 1.5;
 min_allowed_dis = 200;
 limit_area = 20000;
-limit_init_area = 30000;
+limit_init_area = 35000;
 limit_max_width = 400;
 limit_max_height = 400;
 half_y = 1.6 * size(im_r,1) / 2;
@@ -189,7 +189,7 @@ for i = 1:size(people_array, 2)
     
 end
 
-figure(2); imshow(im_draw);
+%figure(2); imshow(im_draw);
 
 
 %% some test image
