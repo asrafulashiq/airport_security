@@ -8,13 +8,13 @@ thr = 0.7;
 
 
 %%
-r_tall_val = 100;
-r_tall_width = floor(210 * scale);
+r_tall_val = 160;
+r_tall_width = floor(190 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 80;
-r_wide_width = floor(310 * scale);
+r_wide_val = 140;
+r_wide_width = floor(320 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -83,8 +83,8 @@ if obj_num == 0
     %%% draw
     if debug
         plot( min_loc:loc_end, r_tall );
-        disp("min loc :"+min_loc);
-        disp("min value :"+min_val);
+        %disp("min loc :"+min_loc);
+        %disp("min value :"+min_val);
     end
     
     

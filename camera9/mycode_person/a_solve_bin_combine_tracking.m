@@ -5,7 +5,7 @@
 
 %% control variable
 global debug;
-debug = true;
+debug = false;
 global scale;
 scale = 1;
 
@@ -22,7 +22,7 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "10A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -46,7 +46,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 1700;
+    start_fr = 2000;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -108,8 +108,8 @@ for file_number_str = all_file_nums
     R_dropping.r1_lb = 0;
     %R_belt.r4_cnt = 0;
     % object Labels
-    R_dropping.label = 0;
-    R_belt.label = 0;
+    R_dropping.label = 1;
+    R_belt.label = 1;
     starting_index = -1;
     
     R_dropping.prev_body = [];
@@ -138,7 +138,7 @@ for file_number_str = all_file_nums
         %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
-        %[bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
         %    R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));

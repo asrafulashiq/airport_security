@@ -1,9 +1,9 @@
-function [bbox_matched, min_val] = match_people_bbox(I, I_mask, img_struct, im_diff)
+function [bbox_, min_val, centroid] = match_people_bbox(I, I_mask, img_struct, im_diff)
 
 x_lim = 5;
 y_lim = 5;
 threshold = 0.7;
-alpha = 2;
+alpha = 1;
 
 bbox = img_struct.BoundingBox;
 ref_color_val = img_struct.color_val;
@@ -47,7 +47,18 @@ x_end  = min(x_min+bbox(3)-1, size(I,2));
 y_end = min(y_min+bbox(4)-1, size(I,1));
 width = x_end - x_min + 1;
 height = y_end - y_min + 1;
-
 bbox_matched = [x_min y_min width height];
+
+centroid = ait_centroid(I_mask, bbox_matched);
+
+x = max(centroid(1) - width / 2, 1);
+y = max(centroid(2) - height / 2, 1);
+x_ = min(centroid(1) + width / 2, size(I, 2));
+y_ = min(centroid(2) + height / 2, size(I, 1));
+
+wid = x_ - x + 1;
+hei = y_ - y + 1;
+
+bbox_ = [x y wid hei];
 
 end

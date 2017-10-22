@@ -21,28 +21,43 @@ text_im = insertText(text_im, [b_strt_x  b_strt_y], 'B-seq', 'AnchorPoint', 'Lef
 text_im = insertText(text_im, [p_strt_x  p_strt_y], 'P-seq', 'AnchorPoint', 'LeftBottom', ... 
     'FontSize', font_size, 'BoxOpacity', 0.3);
 
-
+offsetx = 30;
+offsety = 30;
 %%% annotate main image
 %% plot bin
 for i=1:size(bin_array,2)
     if bin_array{i}.in_flag==1
         
-        bounding_box = [ bin_array{i}.BoundingBox(1)+R_belt.r4(1) ...
-                         bin_array{i}.BoundingBox(2)+R_belt.r4(3) ...
-                         bin_array{i}.BoundingBox(3) ...
-                         bin_array{i}.BoundingBox(4) ];
+        bounding_box = [ bin_array{i}.BoundingBox(1)+R_belt.r4(1) + 3*offsetx ...
+                         bin_array{i}.BoundingBox(2)+R_belt.r4(3) + offsety...
+                         bin_array{i}.BoundingBox(3)-4*offsetx ...
+                         bin_array{i}.BoundingBox(4)-2*offsety ];
         
         im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', ...
                             'Opacity', 0.3);
         im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 2, 'Color', 'red');
        
-        
+        text_ = sprintf('b:%d\np:%d',bin_array{i}.label, bin_array{i}.belongs_to);
+        im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
         
     end
 end
 
+%% draw people
+for i = 1:size(people_array, 2)
+    bounding_box = [ people_array{i}.BoundingBox(1)+R_dropping.r1(1)+offsetx ...
+                     people_array{i}.BoundingBox(2)+R_dropping.r1(3)+offsety ...
+                     people_array{i}.BoundingBox(3)-2*offsetx ...
+                     people_array{i}.BoundingBox(4)-2*offsety ];
+    im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
+    im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
+    text_ = sprintf('p:%d', people_array{i}.label);
+    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
+  
+end
 
-%% insert text
+
+%% insert text 
 for i = 1:size(bin_seq, 2)
     
 end

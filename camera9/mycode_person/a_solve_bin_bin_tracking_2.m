@@ -1,4 +1,4 @@
-function [bin_seq, bin_array] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
+function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
 
 global debug;
 global scale;
@@ -38,14 +38,18 @@ end
 
 loc_something = [ loc(1) loc(end) ];
 
-if debug
-    figure(2);
-    plot(1:size(im_r4,1), calc_intens(im_r4,[]));
-    hold on;
-end
+
 
 I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
 I(loc,:) = rgb2gray(im_actual(loc,:,:));
+
+
+if debug
+    figure(2);
+    plot(1:size(I,1), calc_intens(I,[]));
+    hold on;
+end
+
 
 bin_array = match_template_signal(I, bin_array, loc_something);
 
@@ -68,7 +72,7 @@ for counter = 1: total_bins
        continue;
     end
     
-    bin_array{i}.belongs_to = 1;
+    %bin_array{i}.belongs_to = 1;
     
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
@@ -80,18 +84,28 @@ for counter = 1: total_bins
             continue;
         end
         
-        r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
-        r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
-        r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
-        dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)],'euclidean');
-        bin_belong = find( dis_b_p == min(dis_b_p) );
-        belongs_to = r1_obj(bin_belong(1,1),4);
+        r1_edge = [];
         
-        r4_lb=r4_lb+1;
+        for j = 1:size(people_array, 2)
+            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)])  + [R_dropping.r1(1) R_dropping.r1(3)];
+            r1_edge = [r1_edge; centr];
+        end
+%         r1_edge=r1_obj(:,1:2)+[R_dropping.r1(1) R_dropping.r1(3)];
+%         r1_edge(:,1)=r1_edge(:,1)-sqrt(r1_obj(:,3));
+%         r1_edge(r1_edge(:,1)<R_dropping.r1(1),1)=R_dropping.r1(1);
+        dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+        bin_belong_index =  dis_b_p == min(dis_b_p) ;
+        %belongs_to = r1_obj(bin_belong(1,1),4);
+        belongs_to = people_array{bin_belong_index}.label;
+        
+        %r4_lb=r4_lb+1;
+        
         %r4_cnt=r4_cnt+1;
         
         bin_array{i}.belongs_to = belongs_to;
-        bin_array{i}.label = r4_lb;
+        bin_array{i}.label = R_belt.label;
+        
+        R_belt.label = R_belt.label + 1;
         
         i = i+1; % go to next bin in bin_array
         
@@ -126,25 +140,6 @@ for counter = 1: total_bins
     
 end
 
-% r4_obj = [];
-% for i=1:size(bin_array,2)
-%     if bin_array{i}.in_flag==1
-%         bin = double([ bin_array{i}.Centroid(1) bin_array{i}.Centroid(2) bin_array{i}.Area ...
-%             bin_array{i}.label 1 bin_array{i}.belongs_to ]);
-%         r4_obj = [r4_obj; bin];
-%     end
-% end
-
-% if r4_cnt ~= size(r4_obj,1)
-%     r4_cnt = size(r4_obj,1);
-%    %error('smething is wrong'); 
-% end
-% 
-% im_color = im_c;
-% R_belt.r4_obj = r4_obj;
-% R_belt.r4_cnt = r4_cnt;
-% R_belt.r4_lb = r4_lb;
-% R_dropping.r1_obj = r1_obj;
 
 end
 
