@@ -51,7 +51,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 90
+        if coef > 50
             continue;
         end
         coef_aray = [ coef_aray coef ];
