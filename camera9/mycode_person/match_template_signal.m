@@ -3,17 +3,17 @@ global debug;
 global scale;
 
 obj_num = size(bin_array,2);
-thr = 0.7;
+thr = 0.8;
 % create rectangular tall pulse
 
 
 %%
 r_tall_val = 160;
-r_tall_width = floor(190 * scale);
+r_tall_width = floor(200 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 140;
+r_wide_val = 130;
 r_wide_width = floor(320 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
@@ -107,8 +107,8 @@ else
         r_bin = r_tall_bin;
         
         
-        lim = 20;
-        lim_b = 5;
+        lim = int32(20 * scale);
+        lim_b = int32(5 * scale);
         loc_to_match = [];
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
@@ -198,7 +198,7 @@ else
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_wide)
                 if loc_to_match_w(2)-loc_to_match_w(1) < length(r_wide)
-                    r_wide = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val*0.8 );
+                    r_wide = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val);  %*0.8 );
                     
                 end
                 

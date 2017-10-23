@@ -1,7 +1,8 @@
 function image = displayimage2(im_c, R_belt, R_dropping, bin_array, people_array, bin_seq, people_seq)
-
+global scale;
 %% decorate text
-font_size = 50;
+font_size = 50 * scale;
+font_size_im = 40 * scale;
 text_im=uint8(ones(size(im_c, 1), floor(size(im_c, 2) * 0.6), 3) * 255);
 
 t_width = size(text_im, 2);
@@ -37,8 +38,8 @@ for i=1:size(bin_array,2)
                             'Opacity', 0.3);
         im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 2, 'Color', 'red');
        
-        text_ = sprintf('b:%d\np:%d',bin_array{i}.label, bin_array{i}.belongs_to);
-        im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
+        text_ = sprintf('bin:%d\nperson:%d',bin_array{i}.label, bin_array{i}.belongs_to);
+        im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
         
     end
 end
@@ -51,17 +52,21 @@ for i = 1:size(people_array, 2)
                      people_array{i}.BoundingBox(4)-2*offsety ];
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
-    text_ = sprintf('p:%d', people_array{i}.label);
-    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
+    text_ = sprintf('person:%d', people_array{i}.label);
+    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
   
 end
 
-
-%% insert text 
+%% people seq
 for i = 1:size(bin_seq, 2)
-    
+    text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
+        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);
 end
 
+for i = 1:size(people_seq, 2)
+    text_im = insertText(text_im, [p_strt_x p_strt_y+i*t_pad_y], sprintf('p%d', people_seq{i}.label), ...
+        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);    
+end
 
 %% plot 
 figure(1);
@@ -70,65 +75,5 @@ drawnow;
 
 F = getframe(gcf);
 image=F.cdata;
-
-% %hold on;
-% 
-% % wintx = 35;
-% % winty = 25;
-% 
-% 
-% 
-% if r4_cnt>=1
-%     for i=1:r4_cnt
-%         px = r4_obj(i,1)+r4(1);
-%         py = r4_obj(i,2)+r4(3);
-%         plot(px,py,'+','color',[ 1 1 1 ],'linewidth',2);
-%         text(px+6,py+6,['b' num2str(r4_obj(i,4))],'color',[ 1 1 1 ],'FontSize',font_size);
-%         text(px+6,py-15,['p' num2str(r4_obj(i,6))],'color',[ 1 1 0 ],'FontSize',font_size);
-%         plot(px + [wintx+.5 -(wintx+.5) -(wintx+.5) wintx+.5 wintx+.5],py + [winty+.5 winty+.5 -(winty+.5) -(winty+.5)  winty+.5],'-','color',[ 1 1 1 ],'linewidth',2);
-%     end
-% end
-% 
-% wintx = 30;
-% winty = 30;
-% 
-% if r1_cnt >= 1
-%     for i = 1:r1_cnt
-%         px = r1_obj(i,1) + r1(1);
-%         py = r1_obj(i,2) + r1(3);
-%         plot(px,py,'+','color',[ 1 1 1 ],'linewidth',2);
-%         text(px+6,py+6,['p' num2str(r1_obj(i,4))],'color',[1 1 1],'FontSize',font_size);
-%         plot(px + [wintx+.5 -(wintx+.5) -(wintx+.5) wintx+.5 wintx+.5],py + [winty+.5 winty+.5 -(winty+.5) -(winty+.5)  winty+.5],'-','color',[ 1 1 1 ],'linewidth',2);
-%     end
-% end
-% 
-% %%show text
-% tx=size(im_c,2)+30;
-% ty=50;
-% text(tx,ty,'p-seq','color',[0 0 0],'FontSize',font_size);
-% for i=1:size(people_seq,1)
-%     text(tx,ty+i*18,['p' num2str(people_seq(i,4))],'color',[0 0 0],'FontSize',font_size);
-% end
-% tx=size(im_c,2)+90;
-% text(tx,ty,'b-seq','color',[0 0 0],'FontSize',font_size);
-% for i=1:size(bin_seq,1)
-%     if i>=22
-%         text(tx+60,ty+(i-22)*18,['b' num2str(bin_seq(i,4)) ' p' num2str(bin_seq(i,6))],'color',[0 0 0],'FontSize',font_size);
-%     else
-%         text(tx,ty+i*18,['b' num2str(bin_seq(i,4)) ' p' num2str(bin_seq(i,6))],'color',[0 0 0],'FontSize',font_size);
-%     end
-% end
-% %% draw separate line
-% lx=[266, 351];
-% ly=[1 472];
-% dis1=100;
-% plot(lx,(1.0e+03)*(0.0055*(lx)-1.4730)+dis1,'r-');
-% plot([1 size(im_c,2)],[420 420],'r-');
-% %%draw now
-% drawnow;
-% set(gcf, 'position', [0 0 size([im_c text_im],2)*2 size([im_c text_im],1)*2]);
-% hold off;
-% F = getframe(gcf);
-% image=F.cdata;
 
 end

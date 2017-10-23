@@ -89,7 +89,7 @@ for counter = 1: total_bins
         r1_edge = [];
         
         for j = 1:size(people_array, 2)
-            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)])  + [R_dropping.r1(1) R_dropping.r1(3)];
+            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)])  + double([R_dropping.r1(1) R_dropping.r1(3)]);
             r1_edge = [r1_edge; centr];
         end
         

@@ -7,7 +7,9 @@
 global debug;
 debug = false;
 global scale;
-scale = 1;
+scale = 0.5;
+global debug_people;
+debug_people = true;
 
 show_image = true;
 is_write_video = true;
@@ -16,10 +18,9 @@ is_save_region = 1; % flag to save region data to matfile in a completely new fa
 is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
-my_decision = 0;
+my_decision = 1;
 
 %% load video data
-% % %for mac sys
 % file for input video
 
 all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
@@ -46,7 +47,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 400;
+    start_fr = 500;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -57,9 +58,6 @@ for file_number_str = all_file_nums
     elseif my_decision == is_save_region
         start_f = start_fr; % starting frame for saving
         save(file_to_save, 'start_f'); % creating file_to_save
-        m_r1_obj = {};  m_r4_obj = {};
-        m_r1_cnt = [];  m_r4_cnt = [];
-        m_r1_lb = [];   m_r4_lb = [];
         
     end
     
@@ -128,18 +126,17 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 670
+        if frame_count >= 273
             1;
         end
         
         % tracking the people
         [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
             R_belt,people_seq,people_array, bin_array);
-        %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-            R_belt,bin_seq,bin_array, people_array);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        %    R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
         
@@ -151,7 +148,8 @@ for file_number_str = all_file_nums
         end
         
         
-        
+        warning('off','last');
+
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
@@ -168,8 +166,7 @@ for file_number_str = all_file_nums
             start_f = start_fr;
         end
         
-        save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
-            'm_r4_lb', 'start_f');
+        save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
     end
     
     if is_write_video

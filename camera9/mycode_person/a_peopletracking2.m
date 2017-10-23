@@ -1,20 +1,22 @@
 function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
     R_belt,people_seq,people_array, bin_array)
 %% region 1 extraction
+global scale;
+global debug_people;
 im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
 thres_low = 0.4;
 thres_up = 1.5;
-min_allowed_dis = 200;
-limit_area = 20000;
-limit_init_area = 35000;
-limit_max_width = 400;
-limit_max_height = 400;
+min_allowed_dis = 200 * scale;
+limit_area = 20000 * scale^2;
+limit_init_area = 35000 *  scale^2;
+limit_max_width = 400 *  scale;
+limit_max_height = 400 * scale;
 half_y = 1.6 * size(im_r,1) / 2;
-limit_exit_y1 = 1050;
-limit_exit_x1 = 300;
-limit_exit_y2 = 800;
-limit_exit_x2 = 300;
-threshold_img = 50;
+limit_exit_y1 = 1050 * scale;
+limit_exit_x1 = 300 * scale;
+limit_exit_y2 = 800 * scale;
+limit_exit_x2 = 300 * scale;
+threshold_img = 50 ;
 %% Region 1 background subtraction based on chromatic value
 
 im_r_hsv = rgb2hsv(im_r);
@@ -193,18 +195,19 @@ end
 
 
 %% some test image
-if ~isempty(R_dropping.prev_body)
+if ~isempty(R_dropping.prev_body) && debug_people
+    figure(2); imshow(im_draw);
     
-    %im_diff = (abs(double(im_r_hsv(:,:,2)) - double(R_dropping.prev_body)));
+    im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
     
-    %figure(3); imshow(im_diff,[]);
+    figure(3); imshow(rgb2gray(im_diff),[]);
+    figure(4);imshow(im_binary);
+    drawnow;
+
 end
 % R_dropping.prev_body = im_r_hsv(:,:,2);
 %R_dropping.prev_body = im_binary;
 R_dropping.prev_body = im_r;
 
-%figure(3);imshow(im_binary);
-
-drawnow;
 
 end

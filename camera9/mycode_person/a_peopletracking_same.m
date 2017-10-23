@@ -23,7 +23,7 @@ im_binary = logical(im_closed); %extract people region
 
 %% blob analysis
 
-cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'ConvexImage'); % extract parameters
+cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox'); % extract parameters
 
 
 % R_dropping structure
