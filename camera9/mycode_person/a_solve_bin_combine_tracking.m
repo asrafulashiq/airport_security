@@ -126,7 +126,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 273
+        if frame_count >= 561
             1;
         end
         
