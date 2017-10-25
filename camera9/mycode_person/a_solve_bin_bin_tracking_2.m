@@ -8,10 +8,10 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 10; %threshold for object recognition
+threshold = 20; %threshold for object recognition
 dis_exit_y = 1000 * scale;%2401520;
 if scale==0.5
-   dis_exit_y = 490; 
+   dis_exit_y = 450; 
 end
 
 %% Preprocessing
@@ -30,8 +30,12 @@ imr4t = im_r4;
 pt2 = [];
 stp2 = 10;
 
-for i = 1: (size(imr4t,1)-stp2)
-    pt2(i) = mean( mean( imr4t(i:i+stp2,:) ) );
+% for i = 1: (size(imr4t,1)-stp2)
+%     pt2(i) = mean( mean( imr4t(i:i+stp2,:) ) );
+% end
+
+for i = 1: (size(imr4t,1))
+    pt2(i) = mean( mean( imr4t(i,:) ) );
 end
 
 loc = find( pt2 > threshold);
@@ -78,7 +82,7 @@ for counter = 1: total_bins
         continue;
     end
     
-    
+    bin_array{i}.belongs_to = 1;
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
         centroid = bin_array{i}.Centroid;

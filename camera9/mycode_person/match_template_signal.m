@@ -8,12 +8,12 @@ thr = 0.8;
 
 
 %%
-r_tall_val = 160;
+r_tall_val = 170;
 r_tall_width = floor(200 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 130;
+r_wide_val = 140;
 r_wide_width = floor(320 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
@@ -51,7 +51,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 50
+        if coef > 80
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -214,7 +214,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val %&& abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val + 20 %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
