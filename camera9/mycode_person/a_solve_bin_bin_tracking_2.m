@@ -9,7 +9,10 @@ im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
 threshold = 20; %threshold for object recognition
-dis_exit_y = 1460 * scale;%2401520;
+dis_exit_y = 100 * scale;%2401520;
+if scale==0.5
+   dis_exit_y = 500; 
+end
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -65,7 +68,7 @@ end
 total_bins = size(bin_array,2);
 i = 1;
 
-limit_max_dist = 330;
+limit_max_dist = 200*scale;
 
 for counter = 1: total_bins
     

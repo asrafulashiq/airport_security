@@ -7,16 +7,21 @@ im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),
 thres_low = 0.4;
 thres_up = 1.5;
 min_allowed_dis = 200 * scale;
-limit_area = 20000 * scale^2;
+limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
-limit_max_width = 400 *  scale;
-limit_max_height = 400 * scale;
+limit_max_width = 420 *  scale;
+limit_max_height = 420 * scale;
 half_y = 1.6 * size(im_r,1) / 2;
-limit_exit_y1 = 1050 * scale;
-limit_exit_x1 = 300 * scale;
-limit_exit_y2 = 800 * scale;
-limit_exit_x2 = 300 * scale;
+limit_exit_y1 = 1070 * scale;
+limit_exit_x1 = 250 * scale;
+limit_exit_y2 = 600 * scale;
+limit_exit_x2 = 210 * scale;
 threshold_img = 50 ;
+
+critical_exit_x = 0.5 * size(im_r, 2);
+critical_exit_y = 0.4 * size(im_r, 1);
+
+exit_vanishing_area = 30000 * scale^2;
 %% Region 1 background subtraction based on chromatic value
 
 im_r_hsv = rgb2hsv(im_r);
@@ -63,8 +68,9 @@ body_prop = cpro_r1([cpro_r1.Area] > limit_area);
 list_bbox = [];
 for i = 1:size(body_prop, 1)
     body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
+    list_bbox = [list_bbox; body_prop(i).Centroid];
     body_prop(i).Centroid = body_prop(i).Centroid';
-    list_bbox = [list_bbox; body_prop(i).BoundingBox];
+    
 end
 %figure(2); imshow(im_draw);
 
@@ -76,7 +82,8 @@ if ~isempty(people_array) && ~isempty(list_bbox)
     for i = 1:size(people_array,2)
         % detect exit
         if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
-                ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 )
+                ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
+                people_array{i}.Area < exit_vanishing_area && people_array{i}.critical_del > 10)
             % && people_array{i}.Centroid(2) > half_y)
             people_seq{end+1} = people_array{i};
             exit_index_people_array(end+1) = i;
@@ -85,12 +92,30 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         end
     end
     
+    if people_array{i}.Centroid(1) > critical_exit_x && people_array{i}.Centroid(2) > critical_exit_y
+       
+        if isempty(people_array{i}.critical_del) 
+            people_array{i}.prev_centroid = people_array{i}.Centroid;
+            people_array{i}.critical_del = 0;
+        else
+            if people_array{i}.Centroid(1) > people_array{i}.prev_centroid(1)
+               people_array{i}.critical_del = people_array{i}.critical_del + 1;
+            else
+                people_array{i}.critical_del = people_array{i}.critical_del - 1;
+            end
+        end
+    else
+        if ~isempty(people_array{i}.critical_del)
+            people_array{i}.critical_del = [];
+        end
+    end
+    
     people_array(exit_index_people_array) = [];
     people_array_struct = [people_array{:}];
     % determine minimum distance
     min_dis_vector = [];
     for i = 1:size(people_array,2)
-        dist = pdist2(double(people_array{i}.BoundingBox(1:2)),double(list_bbox(:,1:2)));
+        dist = pdist2(double(people_array{i}.Centroid'),double(list_bbox));
         [min_dis, min_arg] = min(dist);
         min_dis_vector = [min_dis_vector; min_dis min_arg];
     end
@@ -126,6 +151,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
             people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
             people_array{prev_index}.BoundingBox = body_prop(min_arg).BoundingBox;
             people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
+            people_array{prev_index}.Area = body_prop(min_arg).Area;
         else
             % more than one bounding box matched
             %
@@ -244,7 +270,8 @@ for i = 1:size(body_prop, 1)
     end
     
     % check entrance
-    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area
+    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
+            body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1 
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
@@ -265,7 +292,8 @@ for i = 1:size(body_prop, 1)
         color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-            'state', "unspec", 'color_val', color_val, 'label', R_dropping.label);
+            'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, ...
+            'critical_del', [], 'prev_centroid',[]);
         R_dropping.label = R_dropping.label + 1;
         people_array{end+1} = Person;
         
