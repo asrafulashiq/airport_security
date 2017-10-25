@@ -18,6 +18,10 @@ limit_exit_y2 = 600 * scale;
 limit_exit_x2 = 210 * scale;
 threshold_img = 50 ;
 
+thres_critical_del = 10;
+thres_temp_count_low = 15;
+thres_temp_count_high = 100;
+
 critical_exit_x = 0.5 * size(im_r, 2);
 critical_exit_y = 0.4 * size(im_r, 1);
 
@@ -83,23 +87,33 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         % detect exit
         if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
                 ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
-                people_array{i}.Area < exit_vanishing_area && people_array{i}.critical_del > 10)
+                people_array{i}.Area < exit_vanishing_area && people_array{i}.critical_del > thres_critical_del)
+            
             % && people_array{i}.Centroid(2) > half_y)
             people_seq{end+1} = people_array{i};
             exit_index_people_array(end+1) = i;
             disp('exit......');
             continue;
         end
+        if people_array{i}.state=="temporary_vanishing"
+            if (people_array{i}.Centroid(1) > limit_exit_x2 && people_array{i}.temp_count > thres_temp_count_low) || ...
+                    (people_array{i}.Centroid(1) < limit_exit_x2 && people_array{i}.temp_count > thres_temp_count_high)
+                people_seq{end+1} = people_array{i};
+                exit_index_people_array(end+1) = i;
+                disp('exit......');
+                continue;
+            end
+        end
     end
     
     if people_array{i}.Centroid(1) > critical_exit_x && people_array{i}.Centroid(2) > critical_exit_y
-       
-        if isempty(people_array{i}.critical_del) 
+        
+        if isempty(people_array{i}.critical_del)
             people_array{i}.prev_centroid = people_array{i}.Centroid;
             people_array{i}.critical_del = 0;
         else
             if people_array{i}.Centroid(1) > people_array{i}.prev_centroid(1)
-               people_array{i}.critical_del = people_array{i}.critical_del + 1;
+                people_array{i}.critical_del = people_array{i}.critical_del + 1;
             else
                 people_array{i}.critical_del = people_array{i}.critical_del - 1;
             end
@@ -111,129 +125,144 @@ if ~isempty(people_array) && ~isempty(list_bbox)
     end
     
     people_array(exit_index_people_array) = [];
+    
+    
     people_array_struct = [people_array{:}];
     % determine minimum distance
     min_dis_vector = [];
-    for i = 1:size(people_array,2)
-        dist = pdist2(double(people_array{i}.Centroid'),double(list_bbox));
-        [min_dis, min_arg] = min(dist);
-        min_dis_vector = [min_dis_vector; min_dis min_arg];
-    end
-    
-    % resolve conflict
-    vect = unique(min_dis_vector(:,2),'stable');
-    count_el = zeros(1,length(vect));
-    for tmp_i = 1:size(vect)
-        count_el(tmp_i) = sum( min_dis_vector(:,2) == vect(tmp_i) );
-    end
-    
-    for i = 1:length(vect)
-        if count_el(i) == 1
-            % only one bounding box match
-            prev_index = min_dis_vector(:,2) == vect(i);
-            min_arg = vect(i);
-            
-            if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
-                    %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
-                % divide area and match
-                [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{prev_index}, im_diff);
-                
-                if ~isempty(bbox_matched)
-                    del_index_of_body = [del_index_of_body; min_arg];
-                    people_array{prev_index}.Centroid = centroid'; %ait_centroid(im_binary, bbox_matched);
-                    people_array{prev_index}.BoundingBox = bbox_matched;
-                end
-                continue;
-            end
-            
-            del_index_of_body = [del_index_of_body; min_arg];
-            people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
-            people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
-            people_array{prev_index}.BoundingBox = body_prop(min_arg).BoundingBox;
-            people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
-            people_array{prev_index}.Area = body_prop(min_arg).Area;
-        else
-            % more than one bounding box matched
-            %
-            x_c = body_prop(vect(i)).Centroid(1); 
-            y_c = body_prop(vect(i)).Centroid(2);
-            L = body_prop(vect(i)).MajorAxisLength;
-            theta = -deg2rad(body_prop(vect(i)).Orientation);
-            if theta < 0
-               theta = theta + pi; 
-            end
-            
-            prev_ind = find(min_dis_vector(:,2) == vect(i));
-            prev_people = [people_array_struct(prev_ind)];
-            list_centroid = [prev_people.Centroid];
-            [~,I] = sort(list_centroid(2,:), 'descend');
-            
-            kappa = [prev_people.Area] / sum([prev_people.Area]);
-            
-            offset = 0;
-            for j = 1:size(prev_ind)
-                index = I(j);
-                r = L / 2 * (1 - kappa(index)) - offset;
-                xtmp = x_c + r * cos(theta);
-                ytmp = y_c + r * sin(theta);
-                
-                cent = [xtmp ytmp]';
-                people_array{prev_ind(index)}.Centroid = cent;
-                
-                % update bounding box
-                width = people_array{prev_ind(index)}.BoundingBox(3);
-                height = people_array{prev_ind(index)}.BoundingBox(4);
-                x = max(cent(1) - width / 2, 1);
-                y = max(cent(2) - height / 2, 1);
-                x_ = min(cent(1) + width / 2, size(im_r, 2));
-                y_ = min(cent(2) + height / 2, size(im_r, 1));
-
-                wid = x_ - x + 1;
-                hei = y_ - y + 1;
-
-                bbox = [x y wid hei];
-                people_array{prev_ind(index)}.BoundingBox = bbox;
-                
-                offset = offset + L * kappa(index);
-            end
-            del_index_of_body = [del_index_of_body; vect(i)];
-            
+    if ~isempty(people_array)
+        
+        dist = pdist2(double([people_array_struct.Centroid]'), double(list_bbox));
+        for i = 1:size(people_array,2)
+            dist_ = dist(i,:);
+            [min_dis, min_arg] = min(dist_);
+            min_dis_vector = [min_dis_vector; min_dis min_arg];
         end
+        
+        % resolve conflict
+        vect = unique(min_dis_vector(:,2),'stable');
+        count_el = zeros(1,length(vect));
+        for tmp_i = 1:size(vect)
+            count_el(tmp_i) = sum( min_dis_vector(:,2) == vect(tmp_i) );
+        end
+        
+        for i = 1:length(vect)
+            if count_el(i) == 1
+                % only one bounding box match
+                prev_index = min_dis_vector(:,2) == vect(i);
+                min_arg = vect(i);
+                
+                if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
+                        %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
+                    % divide area and match
+                    [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{prev_index}, im_diff);
+                    
+                    if ~isempty(bbox_matched)
+                        del_index_of_body = [del_index_of_body; min_arg];
+                        people_array{prev_index}.Centroid = centroid'; %ait_centroid(im_binary, bbox_matched);
+                        people_array{prev_index}.BoundingBox = bbox_matched;
+                        people_array{prev_index}.temp_count = 0;
+                    end
+                    continue;
+                end
+                
+                del_index_of_body = [del_index_of_body; min_arg];
+                people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
+                people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
+                people_array{prev_index}.BoundingBox = body_prop(min_arg).BoundingBox;
+                people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
+                people_array{prev_index}.Area = body_prop(min_arg).Area;
+                people_array{prev_index}.temp_count = 0;
+            else
+                % more than one bounding box matched
+                
+                x_c = body_prop(vect(i)).Centroid(1);
+                y_c = body_prop(vect(i)).Centroid(2);
+                L = body_prop(vect(i)).MajorAxisLength;
+                theta = -deg2rad(body_prop(vect(i)).Orientation);
+                if theta < 0
+                    theta = theta + pi;
+                end
+                
+                prev_ind = find(min_dis_vector(:,2) == vect(i));
+                prev_people = [people_array_struct(prev_ind)];
+                list_centroid = [prev_people.Centroid];
+                [~,I] = sort(list_centroid(2,:), 'descend');
+                
+                thres_area = 0.9;
+                if length(prev_ind) == 2 && body_prop(vect(i)).Area < thres_area * sum([prev_people.Area])
+                    % assuming two objects
+                    [~, min_tmp_index] = min(min_dis_vector(prev_ind,1));
+                    
+                    % set matching to nearest body
+                    del_index_of_body = [del_index_of_body; vect(i)];
+                    people_array{min_tmp_index}.Centroid = body_prop(vect(i)).Centroid;
+                    people_array{min_tmp_index}.Orientation = body_prop(vect(i)).Orientation;
+                    people_array{min_tmp_index}.BoundingBox = body_prop(vect(i)).BoundingBox;
+                    people_array{min_tmp_index}.temp_count = 0;
+                    %people_array{min_tmp_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
+                    %people_array{min_tmp_index}.Area = body_prop(min_arg).Area;
+                    
+                    [~, other_index] = max(min_dis_vector(prev_ind,1));
+                    [other_sorted_distance, index_vector] = sort(dist(other_index,:));
+                    if length(index_vector) > 1
+                        other_matched_index = index_vector(2);
+                        if isempty(find( min_dis_vector(:,2) == other_matched_index, 1 )) && other_sorted_distance(2) < min_allowed_dis
+                            people_array{other_index}.Centroid = body_prop(other_matched_index).Centroid;
+                            people_array{other_index}.Orientation = body_prop(other_matched_index).Orientation;
+                            people_array{other_index}.BoundingBox = body_prop(other_matched_index).BoundingBox;
+                            del_index_of_body = [del_index_of_body; other_matched_index];
+                            people_array{other_index}.temp_count = 0;
+                        else
+                            % temporary vanishing
+                            people_array{other_index}.state = "temporary_vanishing";
+                            people_array{other_index}.temp_count = people_array{other_index}.temp_count+1;
+                        end
+                    else
+                        % temporary vanishing
+                        people_array{other_index}.state = "temporary_vanishing";
+                        people_array{other_index}.temp_count = people_array{other_index}.temp_count+1;
+                    end
+                    
+                else
+                    
+                    kappa = [prev_people.Area] / sum([prev_people.Area]);
+                    
+                    offset = 0;
+                    for j = 1:size(prev_ind)
+                        index = I(j);
+                        r = L / 2 * (1 - kappa(index)) - offset;
+                        xtmp = x_c + r * cos(theta);
+                        ytmp = y_c + r * sin(theta);
+                        
+                        cent = [xtmp ytmp]';
+                        people_array{prev_ind(index)}.Centroid = cent;
+                        
+                        % update bounding box
+                        width = people_array{prev_ind(index)}.BoundingBox(3);
+                        height = people_array{prev_ind(index)}.BoundingBox(4);
+                        x = max(cent(1) - width / 2, 1);
+                        y = max(cent(2) - height / 2, 1);
+                        x_ = min(cent(1) + width / 2, size(im_r, 2));
+                        y_ = min(cent(2) + height / 2, size(im_r, 1));
+                        
+                        wid = x_ - x + 1;
+                        hei = y_ - y + 1;
+                        
+                        bbox = [x y wid hei];
+                        people_array{prev_ind(index)}.BoundingBox = bbox;
+                        
+                        offset = offset + L * kappa(index);
+                    end
+                    
+                    del_index_of_body = [del_index_of_body; vect(i)];
+                end
+                
+            end
+        end
+        
     end
     
-    %     for i = 1:size(people_array,2)
-    %
-    %
-    %         % calculate minimum distance body_prop(i) from people.Centroid to body_prop(i)(i).Centroid
-    %
-    %         %dist_sorted = sort(dist);
-    %         %if dist_sorted()
-    %
-    %
-    %         if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
-    %                 %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
-    %             % divide area and match
-    %             [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{i}, im_diff);
-    %
-    %             if ~isempty(bbox_matched)
-    %                 del_index_of_body = [del_index_of_body; min_arg];
-    %                 people_array{i}.Centroid = centroid; %ait_centroid(im_binary, bbox_matched);
-    %                 people_array{i}.BoundingBox = bbox_matched;
-    %             end
-    %             continue;
-    %         end
-    %
-    %         if min_dis > min_allowed_dis && size(people_array, 2) ~= size(body_prop, 1)
-    %             %%% temporary gown away
-    %             people_array{i}.state = "temp_disappear";
-    %             continue;
-    %         end
-    %
-    %         del_index_of_body = [del_index_of_body; min_arg];
-    %         people_array{i}.Centroid = body_prop(min_arg).Centroid;
-    %         people_array{i}.Orientation = body_prop(min_arg).Orientation;
-    %         people_array{i}.BoundingBox = body_prop(min_arg).BoundingBox;
-    %     end
 end
 
 % delete exit people
@@ -260,6 +289,7 @@ for i = 1:size(people_array, 2)
     end
 end
 
+
 %% initial detection
 % Do detection & tracking first
 im_draw = im_r;
@@ -272,7 +302,7 @@ for i = 1:size(body_prop, 1)
     
     % check entrance
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
-            body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1 
+            body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
@@ -294,7 +324,7 @@ for i = 1:size(body_prop, 1)
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
             'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, ...
-            'critical_del', [], 'prev_centroid',[]);
+            'critical_del', [], 'prev_centroid',[], 'temp_count', 0);
         R_dropping.label = R_dropping.label + 1;
         people_array{end+1} = Person;
         
@@ -315,7 +345,7 @@ end
 
 %figure(2); imshow(im_draw);
 
-% sort people 
+% sort people
 % if ~isempty(people_array)
 %     people_array_struct = [people_array{:}];
 %     list_centroid = [people_array_struct.Centroid];
@@ -332,10 +362,44 @@ if ~isempty(R_dropping.prev_body) && debug_people
     figure(4);imshow(im_binary);
     drawnow;
     
-end 
+end
 % R_dropping.prev_body = im_r_hsv(:,:,2);
 %R_dropping.prev_body = im_binary;
 R_dropping.prev_body = im_r;
 
 
 end
+
+%     for i = 1:size(people_array,2)
+%
+%
+%         % calculate minimum distance body_prop(i) from people.Centroid to body_prop(i)(i).Centroid
+%
+%         %dist_sorted = sort(dist);
+%         %if dist_sorted()
+%
+%
+%         if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
+%                 %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
+%             % divide area and match
+%             [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{i}, im_diff);
+%
+%             if ~isempty(bbox_matched)
+%                 del_index_of_body = [del_index_of_body; min_arg];
+%                 people_array{i}.Centroid = centroid; %ait_centroid(im_binary, bbox_matched);
+%                 people_array{i}.BoundingBox = bbox_matched;
+%             end
+%             continue;
+%         end
+%
+%         if min_dis > min_allowed_dis && size(people_array, 2) ~= size(body_prop, 1)
+%             %%% temporary gown away
+%             people_array{i}.state = "temp_disappear";
+%             continue;
+%         end
+%
+%         del_index_of_body = [del_index_of_body; min_arg];
+%         people_array{i}.Centroid = body_prop(min_arg).Centroid;
+%         people_array{i}.Orientation = body_prop(min_arg).Orientation;
+%         people_array{i}.BoundingBox = body_prop(min_arg).BoundingBox;
+%     end
