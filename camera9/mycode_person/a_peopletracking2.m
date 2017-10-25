@@ -155,7 +155,8 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         else
             % more than one bounding box matched
             %
-            x_c = body_prop(vect(i)).Centroid(1); y_c = body_prop(vect(i)).Centroid(2);
+            x_c = body_prop(vect(i)).Centroid(1); 
+            y_c = body_prop(vect(i)).Centroid(2);
             L = body_prop(vect(i)).MajorAxisLength;
             theta = -deg2rad(body_prop(vect(i)).Orientation);
             if theta < 0
