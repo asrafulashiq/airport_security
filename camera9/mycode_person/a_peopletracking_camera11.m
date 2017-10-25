@@ -1,9 +1,9 @@
-function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
+function [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
     R_belt,people_seq,people_array, bin_array)
 %% region 1 extraction
 global scale;
 global debug_people;
-im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
+im_r = im_c(R_dropping.r1(3):(R_dropping.r1(4)),R_dropping.r1(1):R_dropping.r1(2),:);
 thres_low = 0.4;
 thres_up = 1.5;
 min_allowed_dis = 200 * scale;
@@ -11,11 +11,11 @@ limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
 limit_max_width = 420 *  scale;
 limit_max_height = 420 * scale;
-half_y = 1.6 * size(im_r,1) / 2;
-limit_exit_y1 = 1070 * scale;
-limit_exit_x1 = 250 * scale;
-limit_exit_y2 = 600 * scale;
-limit_exit_x2 = 210 * scale;
+half_y = 1250 * scale; %1.8 * size(im_r,1) / 2;
+limit_exit_y1 = 1450 * scale;
+limit_exit_x1 = 10 * scale;
+limit_exit_y2 = 1450 * scale;
+limit_exit_x2 = 10 * scale;
 threshold_img = 50 ;
 
 thres_critical_del = 6;
@@ -77,7 +77,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
     
     for i = 1:size(people_array,2)
         % detect exit
-        if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
+        if ( people_array{i}.Centroid(2) > limit_exit_y1) || ...   %&& people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
                 ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
                 people_array{i}.Area < exit_vanishing_area && (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del))
             
@@ -181,7 +181,10 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 prev_ind = find(min_dis_vector(:,2) == vect(i));
                 prev_people = [people_array_struct(prev_ind)];
                 list_centroid = [prev_people.Centroid];
-                [~,I] = sort(list_centroid(2,:), 'descend');
+                theta_t = theta - pi / 2;
+                perpend_point_y = (list_centroid(2,:)*cos(theta_t)^2 + y_c*sin(theta_t)^2 + x_c*cos(theta_t)*sin(theta_t) - list_centroid(1,:)*cos(theta_t)*sin(theta_t));    
+                
+                [~,I] = sort(perpend_point_y, 'descend');
                 
                 thres_area = 0.9;
                 if length(prev_ind) == 2 && body_prop(vect(i)).Area < thres_area * sum([prev_people.Area])
@@ -296,7 +299,7 @@ for i = 1:size(body_prop, 1)
     
     % check entrance
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
-            body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1
+       body_prop(i).Centroid(2) < limit_exit_y1 % && body_prop(i).Centroid(1) < limit_exit_x1
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];

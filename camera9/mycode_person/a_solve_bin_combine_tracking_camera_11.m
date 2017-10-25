@@ -7,7 +7,7 @@
 global debug;
 debug = false;
 global scale;
-scale = 1;
+scale = 0.5;
 
 show_image = true;
 is_write_video = false;
@@ -22,12 +22,12 @@ my_decision = 0;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "10A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename = fullfile('..',file_number, ['camera11.mp4']);
+    input_filename = fullfile('..',file_number, 'camera11.mp4');
     
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_11.mp4');
@@ -49,7 +49,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera11_' file_number '_vars.mat']);
     
-    start_fr = 1300;
+    start_fr = 4000;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -68,8 +68,8 @@ for file_number_str = all_file_nums
     %% region setting,find region position
    
     
-    % Region1: droping bags
-    R_dropping.r1 = [570 1080 286 1920] * scale; %r1;%[103 266 61 436];
+    % Region1: droping bags 1920
+    R_dropping.r1 = [570 1080 286 1800] * scale; %r1;%[103 266 61 436];
     % Region4: Belt
     R_belt.r4 = [230 550 150 1920] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
@@ -125,18 +125,18 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 1470
+        if frame_count >= 4169
             1;
         end
         
         % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array);
+        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array);
         %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-            R_belt,bin_seq,bin_array, people_array);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+        %    R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
         
