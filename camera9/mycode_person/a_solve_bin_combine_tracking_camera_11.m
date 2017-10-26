@@ -49,7 +49,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera11_' file_number '_vars.mat']);
     
-    start_fr = 4000;
+    start_fr = 300;
     
     if my_decision == is_update_region
         load(file_to_save);
