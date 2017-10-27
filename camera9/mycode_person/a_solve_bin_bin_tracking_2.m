@@ -47,9 +47,10 @@ loc_something = [ loc(1) loc(end) ];
 
 
 
-I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
-I(loc,:) = rgb2gray(im_actual(loc,:,:));
+%I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
+%I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
+I = im_r4;
 
 if debug
     figure(2);
@@ -57,7 +58,6 @@ if debug
     hold on;
 end
 
-I = im_r4;
 bin_array = match_template_signal(I, bin_array, loc_something);
 
 if debug

@@ -8,13 +8,13 @@ thr = 0.8;
 
 
 %%
-r_tall_val = 170;
-r_tall_width = floor(200 * scale);
+r_tall_val = 120;
+r_tall_width = floor(220 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 160;
-r_wide_width = floor(320 * scale);
+r_wide_val =100;
+r_wide_width = floor(300 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -76,7 +76,7 @@ if obj_num == 0
     if debug
         plot( min_loc:loc_end, r_tall );
         %disp("min loc :"+min_loc);
-        %disp("min value :"+min_val);
+        disp("min value :"+min_val);
     end
     
     
@@ -189,10 +189,17 @@ else
         min_loc = loc_array(min_index);
         loc_end = min_loc + length(r_bin)-1;
         
+        if debug
+           disp('min val :');
+           disp(min_val);
+        end
+        
         %%% check wide
         if bin_array{i}.state=="empty" && bin_array{i}.bin_or == "tall" && bin_array{i}.count < 150
             
             lim_b = r_wide_width - r_tall_width;
+            lim = 50;
+            r_wide_val = bin_array{i}.r_val;
             r_wide = create_rect(r_wide_width, 5, r_wide_val);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
@@ -214,7 +221,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val  %&& abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val+6  %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -252,7 +259,7 @@ else
                 
                 if ~isempty(coef_aray_tall)
                     [ min_val_t , min_index_t] = min(coef_aray_tall);
-                    if min_val_t < min_val && abs(min_val_t-min_val) >= 10
+                    if min_val_t < min_val && abs(min_val_t-min_val) >= 4
                         min_index = min_index_t;
                         r_bin = r_tall_w;
                         

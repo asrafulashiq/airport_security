@@ -5,7 +5,7 @@
 
 %% control variable
 global debug;
-debug = false;
+debug = true;
 global scale;
 scale = 0.5;
 global debug_people;
@@ -47,7 +47,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 300;
+    start_fr = 1060;
     
     if my_decision == is_update_region
         load(file_to_save);
