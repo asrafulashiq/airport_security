@@ -56,6 +56,9 @@ if obj_num == 0
           intended_bin
           
        end
+    else
+        r_val = r_tall_val;
+       
     end
     
     if abs(loc_something(2) - loc_something(1)) <= thr * r_width
