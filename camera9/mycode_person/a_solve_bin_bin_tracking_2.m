@@ -8,7 +8,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 20; %threshold for object recognition
+threshold = 15; %threshold for object recognition
 dis_exit_y = 1000 * scale;%2401520;
 if scale==0.5
    dis_exit_y = 480; 

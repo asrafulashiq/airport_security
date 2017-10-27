@@ -51,7 +51,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 80
+        if coef > 50
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -145,8 +145,8 @@ else
 %                     bin_array{i}.bin_or = "tall";
 %                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
                 end
-                
-                error('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
+                bin_array{i}.destroy = true;
+                disp('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
             end
             
         end
