@@ -4,8 +4,8 @@ function coef = calc_coef(r_tall, I_d, st)
 diff_ = zeros(1,length(r_tall));
 
 for i = 1:length(r_tall)
-    if I_d(i) > r_tall(i)
-        diff_(i) = abs(I_d(i)-r_tall(i))  ;
+    if I_d(i) < r_tall(i)
+        diff_(i) = 3 * abs(I_d(i)-r_tall(i))  ;
     else
         diff_(i) = abs(I_d(i)-r_tall(i))  ;
     end

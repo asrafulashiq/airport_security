@@ -57,7 +57,7 @@ for i = 1:size(people_array, 2)
   
 end
 
-%% people seq
+%% text
 for i = 1:size(bin_seq, 2)
     text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
         'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);

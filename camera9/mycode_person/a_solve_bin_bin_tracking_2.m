@@ -10,7 +10,7 @@ im_r4_p = R_belt.im_r4_p;
 %% Set up parameters
 threshold = 15; %threshold for object recognition
 dis_exit_y = 1000 * scale;%2401520;
-if scale==0.5
+if scale == 0.5
    dis_exit_y = 480; 
 end
 
@@ -45,8 +45,6 @@ end
 
 loc_something = [ loc(1) loc(end) ];
 
-
-
 I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
 I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
@@ -64,9 +62,6 @@ if debug
     hold off;
     drawnow;
 end
-
-
-
 
 %% bin processing
 total_bins = size(bin_array,2);
@@ -114,9 +109,15 @@ for counter = 1: total_bins
         
         bin_array{i}.belongs_to = belongs_to;
         bin_array{i}.label = R_belt.label;
+        
         if bin_array{i}.belongs_to ~= -1
             R_belt.label = R_belt.label + 1;
         end
+        
+        if debug
+            bin_array{i}.belongs_to = 1;
+        end
+        
         i = i+1; % go to next bin in bin_array
         
         %%% detect exiting

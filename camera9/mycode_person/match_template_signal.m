@@ -8,13 +8,13 @@ thr = 0.8;
 
 
 %%
-r_tall_val = 120;
+r_tall_val = 160;
 r_tall_width = floor(220 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val =110;
-r_wide_width = floor(290 * scale);
+r_wide_val =140;
+r_wide_width = floor(280 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -45,13 +45,17 @@ if obj_num == 0
         r_tall = r_tall * r_tall_val;
     end
     
-    
+    limit_std = 30;
     for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
         I_d = calc_intens(I, [ i i+length(r_tall)-1 ]);
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 50
+        if std(I_d) > limit_std
+           continue; 
+        end
+        
+        if coef > 50 
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -199,7 +203,7 @@ else
             
             lim_b = r_wide_width - r_tall_width;
             lim = 50;
-            r_wide_val = bin_array{i}.r_val;
+            r_wide_val = bin_array{i}.r_val * 0.9;
             r_wide = create_rect(r_wide_width, 5, r_wide_val);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
@@ -221,7 +225,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val+6  %&& abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val  %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -243,7 +247,7 @@ else
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_tall_w)
                 if loc_to_match_w(2)-loc_to_match_w(1) < length(r_tall_w)
-                    r_tall_w = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val*0.8 );
+                    r_tall_w = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val );
                     
                 end
                 
@@ -259,7 +263,7 @@ else
                 
                 if ~isempty(coef_aray_tall)
                     [ min_val_t , min_index_t] = min(coef_aray_tall);
-                    if min_val_t < min_val && abs(min_val_t-min_val) >= 4
+                    if min_val_t < min_val && abs(min_val_t-min_val) >= 10
                         min_index = min_index_t;
                         r_bin = r_tall_w;
                         
@@ -281,7 +285,7 @@ else
         
         %% state calculation
         
-        if min_val > 50 && bin_array{i}.state ~= "unspec"
+        if min_val > 40 && bin_array{i}.state ~= "unspec"
             bin_array{i}.state = "unspec";
         end
         

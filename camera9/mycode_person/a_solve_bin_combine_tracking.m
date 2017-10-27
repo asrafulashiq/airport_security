@@ -5,7 +5,7 @@
 
 %% control variable
 global debug;
-debug = true;
+debug = false;
 global scale;
 scale = 0.5;
 global debug_people;
@@ -47,7 +47,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 1740;
+    start_fr = 300;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -149,9 +149,10 @@ for file_number_str = all_file_nums
         if is_write_video && show_image
             writeVideo(outputVideo,image);
         end
-        
+        disp('-------------');
         disp(frame_count);
-        
+        disp('-------------');
+
         frame_count = frame_count + 1;
         
     end

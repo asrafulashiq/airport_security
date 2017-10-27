@@ -104,46 +104,33 @@ for counter = 1: total_bins
             r1_edge = [r1_edge; centr];
         end
         
-        if bin_array{i}.label == -1
-            bin_array{i}.label = R_belt.label;
-            R_belt.label = R_belt.label + 1;
-        end
-        
-        if bin_array{i}.belongs_to == -1
-            if ~isempty(people_array)
-                dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
-                bin_belong_index =  dis_b_p == min(dis_b_p);
-                if min(dis_b_p) > limit_max_dist
-                    belongs_to = -1;
-                else
-                    belongs_to = people_array{bin_belong_index}.label;
-                    % check matching
-                    intended_bin = [];
-                    % find associated previous bin
-                    for counter_i = 1:numel(R_c9.bin_seq)
-                        if R_c9.bin_seq{counter}.label == bin_array{i}.label
-                            intended_bin = R_c9.bin_seq{counter_i};
-                            break;
-                        end
-                    end
-                    to_match = intended_bin.belongs_to;
-                    if to_match == belongs_to
-                        bin_array{i}.match = "right";
-                    else
-                        bin_array{i}.match = "wrong";
-                    end
-                end
-            else
+        if ~isempty(people_array)
+            dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+            bin_belong_index =  dis_b_p == min(dis_b_p);
+            if min(dis_b_p) < limit_max_dist
                 belongs_to = -1;
+            else
+                belongs_to = people_array{bin_belong_index}.label;
+                
+                % check matching
+                to_match = R_c9.bin_seq{bin_array{i}.label}.belongs_to;
+                if to_match == 
+                
             end
-            bin_array{i}.belongs_to = belongs_to;
+        else
+            belongs_to = -1;
         end
         
+        bin_array{i}.belongs_to = belongs_to;
+        bin_array{i}.label = R_belt.label;
+        %         if bin_array{i}.belongs_to ~= -1
+        R_belt.label = R_belt.label + 1;
         
         if debug
             bin_array{i}.belongs_to = 1;
         end
         
+        %         end
         i = i+1; % go to next bin in bin_array
         
         %%% detect exiting

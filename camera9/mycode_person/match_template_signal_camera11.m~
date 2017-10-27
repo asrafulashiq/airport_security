@@ -25,8 +25,6 @@ if obj_num == 0
     coef_aray = [];
     loc_array = [];
     
-    bin_or = "tall";
-    
     r_width = r_tall_width;
     
     if isempty(loc_something)
@@ -57,7 +55,6 @@ if obj_num == 0
           st = intended_bin.std;
           if intended_bin.bin_or == "wide"
              r_width = r_wide_width; 
-             bin_or = "wide";
           end
           
           intended_bin
@@ -122,13 +119,16 @@ if obj_num == 0
         'image',I( min_loc : loc_end , : ), ...
         'belongs_to', -1, ...
         'label', -1, ...
-        'in_flag', 1, 'r_val', r_val, 'bin_or',bin_or, ...
+        'in_flag', 1, 'r_val', r_val, 'bin_or',"tall", ...
         'state', "empty", 'count', 1, ...
-        'std', std( calc_intens(I, [min_loc loc_end]) ,1), ...
-        'match', "unspec");
+        'std', std( calc_intens(I, [min_loc loc_end]) ,1) ...
+        );
     
     bin_array{end+1} = Bin;
-   
+    
+    %     figure(4); imshow(I(min_loc:min_loc+59,:));
+    %
+    %      x = [];  
 else
     
     %loc_something = [ 1  size(I,1) ];
@@ -249,7 +249,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val  && abs(min_val_wide - min_val) >= 5
+                    if min_val_wide < min_val  && abs(min_val_wide - min_val) >= 10
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -287,7 +287,7 @@ else
                 
                 if ~isempty(coef_aray_tall)
                     [ min_val_t , min_index_t] = min(coef_aray_tall);
-                    if min_val_t < min_val && abs(min_val_t-min_val) >= 5
+                    if min_val_t < min_val && abs(min_val_t-min_val) >= 10
                         min_index = min_index_t;
                         r_bin = r_tall_w;
                         

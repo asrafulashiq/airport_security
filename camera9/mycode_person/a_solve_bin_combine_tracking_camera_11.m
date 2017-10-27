@@ -5,14 +5,14 @@
 
 %% control variable
 global debug;
-debug = true;
+debug = false;
 global scale;
 scale = 0.5;
 global associate;
-associate = false;
+associate = true;
 
 show_image = true;
-is_write_video = false;
+is_write_video = true;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -20,7 +20,7 @@ is_update_region = 3; % flag to update region data from respective matfile
 
 my_decision = 0;
 global k_distort;
-k_distort = -0.22;
+k_distort = -0.24;
 
 %% load video data
 % % %for mac sys
@@ -64,19 +64,18 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 1500;
+    start_fr = 1340;
     
-    if my_decision == is_update_region
-        load(file_to_save);
-        
-    elseif my_decision == is_load_region
-        load(file_to_save); % start_f will load here
-        
-    elseif my_decision == is_save_region
-        start_f = start_fr; % starting frame for saving
-        save(file_to_save, 'start_f'); % creating file_to_save
-        
-    end
+%     if my_decision == is_update_region
+%         load(file_to_save);
+%         
+%     elseif my_decision == is_load_region
+%         load(file_to_save); % start_f will load here
+%         
+%     elseif my_decision == is_save_region
+%         start_f = start_fr; % starting frame for saving
+%         save(file_to_save, 'start_f'); % creating file_to_save        
+%     end
     
     %% region setting,find region position
    
@@ -130,7 +129,7 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 3; 
+       R_belt.label = 1; 
     end
     
     R_dropping.prev_body = [];
@@ -149,16 +148,18 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 4169
+        if frame_count >= 1380
             1;
         end
         
         im_c = lensdistort(im_c, k_distort);
         
+        if R_dropping.label == 7
+            R_dropping.label = 8;
+        end
         % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array);
-        %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
+        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
@@ -173,8 +174,8 @@ for file_number_str = all_file_nums
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
             %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
-            %image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
-            %    people_array, bin_seq, people_seq);
+            image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
+                people_array, bin_seq, people_seq);
         end
         
         
@@ -190,14 +191,14 @@ for file_number_str = all_file_nums
         
     end
     
-    if my_decision == is_save_region || my_decision == is_update_region
-        if my_decision == is_save_region
-            start_f = start_fr;
-        end
-        
-        save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
-            'm_r4_lb', 'start_f');
-    end
+%     if my_decision == is_save_region || my_decision == is_update_region
+%         if my_decision == is_save_region
+%             start_f = start_fr;
+%         end
+%         
+% %         save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
+% %             'm_r4_lb', 'start_f');
+%     end
     
     if is_write_video
         close(outputVideo);
