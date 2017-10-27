@@ -13,8 +13,8 @@ r_tall_width = floor(220 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val =100;
-r_wide_width = floor(300 * scale);
+r_wide_val =110;
+r_wide_width = floor(290 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -51,7 +51,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
-        if coef > 80
+        if coef > 50
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -145,8 +145,8 @@ else
 %                     bin_array{i}.bin_or = "tall";
 %                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
                 end
-                
-                error('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
+                bin_array{i}.destroy = true;
+                disp('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
             end
             
         end

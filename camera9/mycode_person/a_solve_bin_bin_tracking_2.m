@@ -8,7 +8,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 20; %threshold for object recognition
+threshold = 15; %threshold for object recognition
 dis_exit_y = 1000 * scale;%2401520;
 if scale==0.5
    dis_exit_y = 480; 
@@ -47,10 +47,10 @@ loc_something = [ loc(1) loc(end) ];
 
 
 
-%I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
-%I(loc,:) = rgb2gray(im_actual(loc,:,:));
+I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
+I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
-I = im_r4;
+%I = im_r4;
 
 if debug
     figure(2);
