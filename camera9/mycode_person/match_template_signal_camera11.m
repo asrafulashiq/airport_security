@@ -1,20 +1,20 @@
-function bin_array =  match_template_signal_camera11(I, bin_array, loc_something)
+function bin_array =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9)
 global debug;
 global scale;
+global associate;
 
 obj_num = size(bin_array,2);
-thr = 0.8;
+thr = 0.9;
 % create rectangular tall pulse
-
 
 %%
 r_tall_val = 120;
-r_tall_width = floor(130 * scale);
+r_tall_width = floor(190 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 90;
-r_wide_width = floor(160 * scale);
+r_wide_val = 110;
+r_wide_width = floor(250 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -25,33 +25,58 @@ if obj_num == 0
     coef_aray = [];
     loc_array = [];
     
+    r_width = r_tall_width;
+    
     if isempty(loc_something)
         loc_something = [1 size(I,1)/2];
     end
     
-    if loc_something(2) > size(I,1)*.6
-        loc_something(2) = size(I,1)*.6;
+    if loc_something(2) > size(I,1)*.5
+        loc_something(2) = size(I,1)*.5;
+    end
+    st = 0; % standard deviation
+    %loc_end = loc_something(2) - length(r_tall) + 1;
+    if associate
+       intended_label = R_belt.label;
+       intended_bin = [];     
+       % find associated previous bin
+       for counter = 1:numel(R_c9.bin_seq)
+            if R_c9.bin_seq{counter}.label == intended_label
+                intended_bin = R_c9.bin_seq{counter};
+                break;
+            end
+       end
+       if ~isempty(intended_bin)
+          r_val = intended_bin.r_val;
+          st = intended_bin.std;
+          if intended_bin.bin_or == "wide"
+             r_width = r_wide_width; 
+          end
+          
+          intended_bin
+          
+       end
     end
     
-    %loc_end = loc_something(2) - length(r_tall) + 1;
-    
-    if abs(loc_something(2) - loc_something(1)) <= thr * length(r_tall)
+    if abs(loc_something(2) - loc_something(1)) <= thr * r_width
         return;
     end
     
-    if abs(loc_something(2) - loc_something(1))> thr * length(r_tall) && loc_something(2)-loc_something(1) < length(r_tall)
-        r_tall = ones(1, int64(loc_something(2) - loc_something(1)+1) );
-        r_tall(1:3) = 0; r_tall(end-2:end) = 0;
-        r_tall = r_tall * r_tall_val;
+    if abs(loc_something(2) - loc_something(1)) > thr * r_width && loc_something(2)-loc_something(1) < r_width
+        r_ = ones(1, int64(loc_something(2) - loc_something(1)+1) );
+        r_(1:3) = 0; r_(end-2:end) = 0;
+        r_ = r_ * r_val;
+    else
+       r_ = create_rect(r_width, 5, r_val);
     end
     
     
-    for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
-        I_d = calc_intens(I, [ i i+length(r_tall)-1 ]);
+    for i = loc_something(1): ( loc_something(2) -  length(r_) + 1 )
+        I_d = calc_intens(I, [ i i+length(r_)-1 ]);
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
-        coef = calc_coef_w(r_tall, I_d);
+        coef = calc_coef_c11(r_, I_d, st);
         
-        if coef > 90
+        if coef > 30
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -67,14 +92,14 @@ if obj_num == 0
     [ min_val , min_index] = min(coef_aray);
     min_loc = loc_array(min_index);
     
-    loc_end = min_loc + length(r_tall)-1;
+    loc_end = min_loc + length(r_)-1;
     height = loc_end - min_loc + 1;
-    T_ = I( min_loc: min_loc+length(r_tall)-1, : );
-    Loc = [  size(I,2)/2  min_loc+length(r_tall)/2-1 ];
+    T_ = I( min_loc: min_loc+length(r_)-1, : );
+    Loc = [  size(I,2)/2  min_loc+length(r_)/2-1 ];
     
     %%% draw
     if debug
-        plot( min_loc:loc_end, r_tall );
+        plot( min_loc:loc_end, r_ );
         %disp("min loc :"+min_loc);
         %disp("min value :"+min_val);
     end
@@ -87,7 +112,7 @@ if obj_num == 0
         'image',I( min_loc : loc_end , : ), ...
         'belongs_to', -1, ...
         'label', -1, ...
-        'in_flag', 1, 'r_val', r_tall_val, 'bin_or',"tall", ...
+        'in_flag', 1, 'r_val', r_val, 'bin_or',"tall", ...
         'state', "empty", 'count', 1, ...
         'std', std( calc_intens(I, [min_loc loc_end]) ,1) ...
         );
@@ -96,8 +121,7 @@ if obj_num == 0
     
     %     figure(4); imshow(I(min_loc:min_loc+59,:));
     %
-    %      x = [];
-    
+    %      x = [];  
 else
     
     %loc_something = [ 1  size(I,1) ];
@@ -107,8 +131,8 @@ else
         r_bin = r_tall_bin;
         
         
-        lim = 20;
-        lim_b = 5;
+        lim = int32(20 * scale);
+        lim_b = int32(5 * scale);
         loc_to_match = [];
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
@@ -190,15 +214,19 @@ else
         loc_end = min_loc + length(r_bin)-1;
         
         %%% check wide
-        if bin_array{i}.state=="empty" && bin_array{i}.bin_or == "tall" && bin_array{i}.count < 150
+        if bin_array{i}.bin_or == "tall" && ...
+                bin_array{i}.count < 150 && bin_array{i}.count >= 2
             
             lim_b = r_wide_width - r_tall_width;
+            
+            r_wide_val = bin_array{i}.r_val;
+            
             r_wide = create_rect(r_wide_width, 5, r_wide_val);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_wide)
                 if loc_to_match_w(2)-loc_to_match_w(1) < length(r_wide)
-                    r_wide = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val*0.8 );
+                    r_wide = create_rect( loc_to_match_w(2) - loc_to_match_w(1)+1, 3, r_val);  %*0.8 );
                     
                 end
                 
@@ -214,7 +242,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val %&& abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val  %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         
@@ -336,9 +364,9 @@ else
     end
     
     loc_2 = min_;
-    if loc_2 > loc_something(1)
+    if loc_2 > loc_something(1) + r_tall_width * thr
         
-        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2] );
+        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9 );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end

@@ -13,7 +13,7 @@ r_tall_width = floor(200 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val = 140;
+r_wide_val = 160;
 r_wide_width = floor(320 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
@@ -214,7 +214,7 @@ else
                 
                 if ~isempty(coef_aray_wide)
                     [ min_val_wide , min_index_wide] = min(coef_aray_wide);
-                    if min_val_wide < min_val + 20 %&& abs(min_val_wide-min_val) >= 15
+                    if min_val_wide < min_val  %&& abs(min_val_wide-min_val) >= 15
                         min_index = min_index_wide;
                         r_bin = r_wide;
                         

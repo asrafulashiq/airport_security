@@ -1,9 +1,11 @@
 function image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, people_array, bin_seq, people_seq)
-
+global scale;
 %% decorate text
-font_size = 50;
+global k_distort;
+im_c = lensdistort(im_c, k_distort);
+font_size = 50 * scale;
 text_im=uint8(ones(size(im_c, 1), floor(size(im_c, 2) * 0.6), 3) * 255);
-
+font_size_im = 40 * scale;
 t_width = size(text_im, 2);
 t_height = size(text_im, 1);
 
@@ -38,7 +40,7 @@ for i=1:size(bin_array,2)
         im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 2, 'Color', 'red');
        
         text_ = sprintf('b:%d\np:%d',bin_array{i}.label, bin_array{i}.belongs_to);
-        im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
+        im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
         
     end
 end
@@ -52,7 +54,7 @@ for i = 1:size(people_array, 2)
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
     text_ = sprintf('p:%d', people_array{i}.label);
-    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', 40);
+    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
   
 end
 

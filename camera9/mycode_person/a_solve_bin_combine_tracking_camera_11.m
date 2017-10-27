@@ -5,9 +5,11 @@
 
 %% control variable
 global debug;
-debug = false;
+debug = true;
 global scale;
 scale = 0.5;
+global associate;
+associate = true;
 
 show_image = true;
 is_write_video = false;
@@ -17,6 +19,8 @@ is_load_region = 2; % flag to load region data from respective matfile
 is_update_region = 3; % flag to update region data from respective matfile
 
 my_decision = 0;
+global k_distort;
+k_distort = -0.22;
 
 %% load video data
 % % %for mac sys
@@ -47,9 +51,20 @@ for file_number_str = all_file_nums
     end
     
     %% file to save variables
-    file_to_save = fullfile('..',file_number, ['camera11_' file_number '_vars.mat']);
+    file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
     
-    start_fr = 300;
+    R_c9 = [];
+    if associate   % load camera 9 information
+       load(file_to_save);
+       R_c9.bin_seq = bin_seq;
+       R_c9.frame_count = frame_count;
+       R_c9.people_seq = people_seq;
+       R_c9.R_belt = R_belt;
+       R_c9.R_dropping = R_dropping;
+       R_c9.start_fr = start_fr;
+    end
+    
+    start_fr = 1910;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -60,23 +75,24 @@ for file_number_str = all_file_nums
     elseif my_decision == is_save_region
         start_f = start_fr; % starting frame for saving
         save(file_to_save, 'start_f'); % creating file_to_save
-        m_r1_obj = {};  m_r4_obj = {};
-        m_r1_cnt = [];  m_r4_cnt = [];
-        m_r1_lb = [];   m_r4_lb = [];       
+        
     end
     
     %% region setting,find region position
    
     
-    % Region1: droping bags 1920
+    % Region1: droping bags 
     R_dropping.r1 = [570 1080 286 1800] * scale; %r1;%[103 266 61 436];
     % Region4: Belt
-    R_belt.r4 = [230 550 150 1920] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    R_belt.r4 = [230 550 150-140 1920] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
     rot_angle = 90;
     %% Region background
     counter = 0;
     im_back = 0.0;
+    
+    
+    
     while hasFrame(v) && counter < 10
         im_frame = readFrame(v);
         im_back = im_back + double(im_frame);
@@ -89,9 +105,13 @@ for file_number_str = all_file_nums
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
     
+    im_background = lensdistort(im_background, k_distort); % solve radial distortion
+    
     
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
+    %R_dropping.im_r1_p = lensdistort(R_dropping.im_r1_p, k_distort);
+    
     % object information for each region
     R_dropping.r1_obj = [];
     %     R_belt.r4_obj = [];
@@ -108,6 +128,10 @@ for file_number_str = all_file_nums
     R_dropping.label = 1;
     R_belt.label = 1;
     starting_index = -1;
+    
+    if associate
+       R_belt.label = 3; 
+    end
     
     R_dropping.prev_body = [];
     
@@ -129,22 +153,28 @@ for file_number_str = all_file_nums
             1;
         end
         
+        im_c = lensdistort(im_c, k_distort);
+        
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
         %[R_dropping,people_seq] = a_peopletracking_same(im_c,R_dropping,people_seq);
         
         % tracking the bin
-        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-        %    R_belt,bin_seq,bin_array, people_array);
+        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+            R_belt,bin_seq,bin_array, people_array, R_c9);
+        
+%         figure(3);
+%         imshow(im_c);
+%         drawnow;
         
         title(num2str(frame_count));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
             %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
-            image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
-                people_array, bin_seq, people_seq);
+            %image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
+            %    people_array, bin_seq, people_seq);
         end
         
         

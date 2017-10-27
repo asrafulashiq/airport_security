@@ -27,6 +27,9 @@ coef = mean( diff_ );
 std_id = std(I_d,1);
 
 wt = 1;
+if st == 0
+    return;
+end
 coef = coef + wt * abs(st - std_id);
 
 end

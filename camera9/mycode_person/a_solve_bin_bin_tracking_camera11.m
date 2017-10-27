@@ -1,7 +1,9 @@
-function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
+function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array, R_c9)
 
 global debug;
 global scale;
+global associate;
+%global k_distort;
 
 r4_lb = R_belt.label;
 r4 = R_belt.r4;
@@ -9,7 +11,7 @@ im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
 threshold = 10; %threshold for object recognition
-dis_exit_y = 1110 * scale;
+dis_exit_y = 1600 * scale;
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -21,14 +23,15 @@ im_background = rgb2gray(im_r4_p);
 % im_r4 = uint8(abs(im_actual - im_r4_p));
 im_r4 = abs(im_r4_p - im_actual) + abs(im_actual - im_r4_p);
 im_r4 = rgb2gray(im_r4);
+%im_r4 = lensdistort(im_r4, k_distort);
 
 imr4t = im_r4;
 
 pt2 = [];
 stp2 = 10;
 
-for i = 1: (size(imr4t,1)-stp2)
-    pt2(i) = mean( mean( imr4t(i:i+stp2,:) ) );
+for i = 1: (size(imr4t,1))
+    pt2(i) = ( mean( imr4t(i,:) ) );
 end
 
 loc = find( pt2 > threshold);
@@ -43,15 +46,15 @@ loc_something = [ loc(1) loc(end) ];
 I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
 I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
-
+I = im_r4;
 if debug
     figure(2);
     plot(1:size(I,1), calc_intens(I,[]));
     hold on;
 end
 
-I = im_r4;
-bin_array = match_template_signal_camera11(I, bin_array, loc_something);
+
+bin_array = match_template_signal_camera11(I, bin_array, loc_something, R_belt,R_c9);
 
 if debug
     hold off;
@@ -62,7 +65,7 @@ end
 total_bins = size(bin_array,2);
 i = 1;
 
-limit_max_dist = 330;
+limit_max_dist = 200 * scale;
 
 for counter = 1: total_bins
     
@@ -72,7 +75,12 @@ for counter = 1: total_bins
         continue;
     end
     
+    if debug
+       I = insertShape(I, 'Rectangle', bin_array{i}.BoundingBox, 'LineWidth', 3, 'Color', 'red');
+    end
     
+    %bin_array{i}.belongs_to = 1;
+
     %%% detect new bin and assign person
     if bin_array{i}.belongs_to == -1 % if no person is assigned
         centroid = bin_array{i}.Centroid;
@@ -105,29 +113,39 @@ for counter = 1: total_bins
         
         bin_array{i}.belongs_to = belongs_to;
         bin_array{i}.label = R_belt.label;
-        if bin_array{i}.belongs_to ~= -1
-            R_belt.label = R_belt.label + 1;
+%         if bin_array{i}.belongs_to ~= -1
+        R_belt.label = R_belt.label + 1;
+        
+        if debug
+            bin_array{i}.belongs_to = 1;
         end
+        
+%         end
         i = i+1; % go to next bin in bin_array
         
         %%% detect exiting
     elseif bin_array{i}.Centroid(2) >= dis_exit_y
-        if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
-            if bin_array{i}.in_flag ~= 0
-                bin_array{i}.in_flag = 0;
-                bin_seq{end+1} = bin_array{i};
-            end
-            i = i + 1;
-        else
+%         if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
+%             if bin_array{i}.in_flag ~= 0
+%                 bin_array{i}.in_flag = 0;
+%                 bin_seq{end+1} = bin_array{i};
+%             end
+%             i = i + 1;
+%         else
             if bin_array{i}.in_flag ~= 0
                 bin_seq{end+1} = bin_array{i};
             end
             bin_array(i) = [];
             disp('delete');
-        end
+%         end
     else
         i = i+1;
     end
+end
+
+if debug
+   figure(1); imshow(I); 
+   drawnow;
 end
 
 end
