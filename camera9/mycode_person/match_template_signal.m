@@ -13,8 +13,8 @@ r_tall_width = floor(220 * scale);
 r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
-r_wide_val =100;
-r_wide_width = floor(300 * scale);
+r_wide_val =110;
+r_wide_width = floor(290 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;

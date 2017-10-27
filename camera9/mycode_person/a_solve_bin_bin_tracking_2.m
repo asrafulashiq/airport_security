@@ -47,10 +47,10 @@ loc_something = [ loc(1) loc(end) ];
 
 
 
-%I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
-%I(loc,:) = rgb2gray(im_actual(loc,:,:));
+I = uint8(zeros(size(im_actual,1), size(im_actual,2)));
+I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
-I = im_r4;
+%I = im_r4;
 
 if debug
     figure(2);
