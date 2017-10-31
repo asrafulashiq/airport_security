@@ -5,13 +5,13 @@
 
 %% control variable
 global debug;
-debug = true;
+debug = false;
 global scale;
 scale = 0.5;
 global associate;
 associate = true;
 
-show_image = false;
+show_image = true;
 is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
@@ -64,7 +64,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 2000;
+    start_fr = 3500;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -129,7 +129,7 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 5; 
+       R_belt.label = 7; 
     end
     
     R_dropping.prev_body = [];
@@ -158,12 +158,12 @@ for file_number_str = all_file_nums
             R_dropping.label = 8;
         end
         % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array);
+        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-            R_belt,bin_seq,bin_array, people_array, R_c9);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+        %    R_belt,bin_seq,bin_array, people_array, R_c9);
         
 %         figure(3);
 %         imshow(im_c);
@@ -179,7 +179,7 @@ for file_number_str = all_file_nums
         end
         
         
-        
+        warning('off', 'last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);

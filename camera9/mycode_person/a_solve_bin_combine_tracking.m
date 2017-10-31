@@ -5,7 +5,7 @@
 
 %% control variable
 global debug;
-debug = true;
+debug = false;
 global scale;
 scale = 0.5;
 global debug_people;
@@ -38,7 +38,7 @@ for file_number_str = all_file_nums
     
     %% the file for the outputvideo
     if is_write_video
-        output_filename = fullfile('..',file_number, ['_output_' file_number '_comb1.avi']);
+        output_filename = fullfile('..',file_number, ['_output_' file_number '_comb.avi']);
         outputVideo = VideoWriter(output_filename);
         outputVideo.FrameRate = v.FrameRate;
         open(outputVideo);
@@ -47,7 +47,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_fr = 3300;
+    start_fr = 300;
     
     if my_decision == is_update_region
         load(file_to_save);

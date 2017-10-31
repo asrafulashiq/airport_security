@@ -14,7 +14,7 @@ r_tall_bin = create_rect(r_tall_width, 5, r_tall_val);
 
 % create rectangular wide pulse
 r_wide_val = 110;
-r_wide_width = floor(250 * scale);
+r_wide_width = floor(240 * scale);
 r_wide = create_rect(r_wide_width, 5, r_wide_val);
 
 r_tall = r_tall_bin;
@@ -38,6 +38,7 @@ if obj_num == 0
     end
     st = 0; % standard deviation
     %loc_end = loc_something(2) - length(r_tall) + 1;
+    r_val = r_tall_val;
     if associate
        intended_label = R_belt.label;
       
@@ -54,6 +55,8 @@ if obj_num == 0
           if r_val > 120
              r_val = r_val * 0.6; 
           elseif r_val > 100
+              r_val = r_val * 0.8;
+          elseif r_val > 70
               r_val = r_val * 0.8;
           end
           st = intended_bin.std;
@@ -88,7 +91,7 @@ if obj_num == 0
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_c11(r_, I_d, st);
         
-        if coef > 35
+        if coef > 36
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -349,6 +352,7 @@ else
         %%% draw
         if debug
             plot( min_loc:loc_end, r_bin );
+            fprintf('%d :\n', i);
             disp("min loc :"+min_loc);
             disp("min value :"+min_val);
         end
