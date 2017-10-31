@@ -55,7 +55,7 @@ if obj_num == 0
            continue; 
         end
         
-        if coef > 50 
+        if coef > 60 
             continue;
         end
         coef_aray = [ coef_aray coef ];
@@ -103,8 +103,8 @@ if obj_num == 0
     %      x = [];
     
 else
-    
-    %loc_something = [ 1  size(I,1) ];
+        
+    loc_something_actual = loc_something;
     
     for i = 1:obj_num
         
@@ -160,6 +160,9 @@ else
         loc_array = [];
         r_val = bin_array{i}.r_val;
        
+        if isfield(bin_array{i},'destroy') && bin_array{i}.destroy == true
+           continue; 
+        end
         
         %r_bin = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val );
         
@@ -285,7 +288,7 @@ else
         
         %% state calculation
         
-        if min_val > 40 && bin_array{i}.state ~= "unspec"
+        if min_val > 20 && bin_array{i}.state ~= "unspec"
             bin_array{i}.state = "unspec";
         end
         
@@ -346,8 +349,12 @@ else
         end
     end
     
+    if isinf(min_)
+        error('minimum is infinite');
+    end
+    
     loc_2 = min_;
-    if loc_2 > loc_something(1)
+    if loc_2 >= loc_something(1) + r_tall_width * thr
         
         bins = match_template_signal( I, {}, [loc_something(1) loc_2] );
         if ~isempty(bins)
@@ -355,6 +362,32 @@ else
         end
     end
     
+    %%% also search below of bin 
+    if numel(bin_array) >= 1
+        
+        strt_m = bin_array{end}.BoundingBox(2) + bin_array{end}.BoundingBox(4) - 1;
+        end_m = -1;
+        
+        if numel(bin_array) >= 2
+            end_m = bin_array{end-1}.BoundingBox(2);
+        else
+            end_m = loc_something_actual(2);
+        end
+        bins = [];
+        if end_m >= strt_m + r_tall_width * thr
+             bins = match_template_signal( I, {}, [strt_m end_m] );   
+        end
+        
+        if ~isempty(bins)
+            %bin_array = {bin_array{:} bins{:}};
+            if numel(bin_array) > 1
+               bin_array = { bin_array{1:end-1} bins{:} bin_array{end} }; 
+            else
+                bin_array = { bins{:} bin_array{:}};
+            end
+        end
+        
+    end
 end
 
 end

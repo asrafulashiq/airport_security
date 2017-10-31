@@ -53,6 +53,8 @@ if obj_num == 0
           r_val = intended_bin.r_val ;
           if r_val > 120
              r_val = r_val * 0.6; 
+          elseif r_val > 100
+              r_val = r_val * 0.8;
           end
           st = intended_bin.std;
           if intended_bin.bin_or == "wide"
@@ -309,7 +311,7 @@ else
         
         %% state calculation
         
-        if min_val > 50 && bin_array{i}.state ~= "unspec"
+        if min_val > 30 && bin_array{i}.state ~= "unspec"
             bin_array{i}.state = "unspec";
         end
         
