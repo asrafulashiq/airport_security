@@ -167,6 +167,9 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
                 people_array{prev_index}.Area = body_prop(min_arg).Area;
                 people_array{prev_index}.temp_count = 0;
+                new_features = get_features(im_r, body_prop(min_arg).BoundingBox, im_binary);
+                people_array{prev_index}.features = 0.5 * new_features + 0.5 * people_array{prev_index}.features;
+                
             else
                 % more than one bounding box matched
                 
@@ -314,11 +317,13 @@ for i = 1:size(body_prop, 1)
             body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
             body_prop(i).Area = sum(sum(imcrop(im_binary, body_prop(i).BoundingBox)));
         end
+        
         color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
+        features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
             'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, ...
-            'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0);
+            'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
         R_dropping.label = R_dropping.label + 1;
         people_array{end+1} = Person;
         

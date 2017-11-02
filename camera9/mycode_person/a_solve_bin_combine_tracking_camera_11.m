@@ -148,7 +148,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 1380
+        if frame_count >= 3573
             1;
         end
         
@@ -184,6 +184,10 @@ for file_number_str = all_file_nums
         if is_write_video && show_image
             writeVideo(outputVideo,image);
         end
+        
+        
+        % some experiment
+        
         
         disp(frame_count);
         

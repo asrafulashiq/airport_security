@@ -121,7 +121,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 3660
+        if frame_count >= 440
             1;
         end
         
@@ -130,8 +130,8 @@ for file_number_str = all_file_nums
             R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-           R_belt,bin_seq,bin_array, people_array);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        %   R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
         

@@ -9,7 +9,7 @@ mask = uint8(mask_all(bbox(2): bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1, :))
 % 
 % color_val = [r_mean, g_mean, b_mean];
 
-im_total = double( 0.33 * img(:,:,1) + 0.33 * img(:,:,2) + 0.33 * img(:,:,3) );
+%im_total = double( 0.33 * img(:,:,1) + 0.33 * img(:,:,2) + 0.33 * img(:,:,3) );
 %black_indices = find(im_total < 30);
 
 num_bins = 255;
