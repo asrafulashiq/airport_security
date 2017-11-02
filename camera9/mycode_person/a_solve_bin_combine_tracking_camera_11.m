@@ -5,7 +5,9 @@
 
 %% control variable
 global debug;
+global debug_people
 debug = false;
+debug_people = false;
 global scale;
 scale = 0.5;
 global associate;
@@ -56,7 +58,7 @@ for file_number_str = all_file_nums
     end
     
     %% file to save variables
-    file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
+    file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
     R_c9 = [];
     if associate   % load camera 9 information
@@ -69,7 +71,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 3500;
+    start_fr = 1400;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -203,9 +205,20 @@ for file_number_str = all_file_nums
             
             Y = [];
             for i = 1:numel(R_c9.people_seq)
-                Y = [Y; R_c9.people_seq(i).features(:)'];
+                Y = [Y; R_c9.people_seq{i}.features(:)'];
                 
             end
+            
+            dd = pdist2(X, Y);
+            fprintf(f_test, '\ncounter : %d\n------------\n', frame_count);
+            for i = 1:size(dd, 1) 
+                fprintf(f_test, '%d : \n',i );
+                for j = 1:size(dd, 2)
+                     fprintf(f_test, '%d: %.2f  ', j, dd(i,j));                            
+                end
+                fprintf(f_test, '\n\n');
+            end
+            
         end
         
         

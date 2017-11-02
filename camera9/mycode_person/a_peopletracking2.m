@@ -160,6 +160,12 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     continue;
                 end
                 
+                if dist(prev_index, min_arg) > min_allowed_dis
+                    
+                    people_array{prev_index}.state = "temporary_vanishing";
+                    people_array{prev_index}.temp_count = people_array{prev_index}.temp_count+1;
+                    continue;
+                end
                 del_index_of_body = [del_index_of_body; min_arg];
                 people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
                 people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
@@ -203,7 +209,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     [~, other_index] = max(min_dis_vector(prev_ind,1));
                     [other_sorted_distance, index_vector] = sort(dist(other_index,:));
                     if length(index_vector) > 1
-                         other_matched_index = index_vector(2);
+                        other_matched_index = index_vector(2);
                         if isempty(find( min_dis_vector(:,2) == other_matched_index, 1 )) && other_sorted_distance(2) < min_allowed_dis
                             people_array{other_index}.Centroid = body_prop(other_matched_index).Centroid;
                             people_array{other_index}.Orientation = body_prop(other_matched_index).Orientation;
