@@ -11,6 +11,11 @@ scale = 0.5;
 global associate;
 associate = true;
 
+%% some test
+
+f_test = fopen('f_test.txt', 'at');
+
+%%
 show_image = true;
 is_write_video = false;
 is_do_nothing = 0;
@@ -186,7 +191,18 @@ for file_number_str = all_file_nums
         end
         
         
-        % some experiment
+        % some experiment here
+        if numel(people_array) > 0
+           
+            X = [];
+            for i = 1:numel(people_array)
+                
+                X = [X; people_array{i}.features(:)'];
+            
+            end
+            
+            
+        end
         
         
         disp(frame_count);
