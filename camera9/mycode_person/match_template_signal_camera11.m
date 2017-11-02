@@ -176,8 +176,10 @@ else
 %                     bin_array{i}.bin_or = "tall";
 %                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
                 end
-                
-                error('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
+                bin_array{i}.destroy = true;
+                disp('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
+                break;
+                %error('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
             end
             
         end
@@ -187,6 +189,9 @@ else
         loc_array = [];
         r_val = bin_array{i}.r_val;
        
+        if bin_array{i}.destroy==true
+           continue; 
+        end
         
         %r_bin = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val );
         

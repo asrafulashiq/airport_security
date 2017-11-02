@@ -151,6 +151,7 @@ else
                 end
                 bin_array{i}.destroy = true;
                 disp('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
+                
             end
             
         end

@@ -10,7 +10,7 @@ im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
 threshold = 10; %threshold for object recognition
-dis_exit_y = 1100 * scale;
+dis_exit_y = 900 * scale;
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -70,7 +70,7 @@ end
 total_bins = size(bin_array,2);
 i = 1;
 
-limit_max_dist = 300 * scale;
+limit_max_dist = 350 * scale;
 
 for counter = 1: total_bins
     
@@ -121,7 +121,7 @@ for counter = 1: total_bins
                     intended_bin = [];
                     % find associated previous bin
                     for counter_i = 1:numel(R_c9.bin_seq)
-                        if R_c9.bin_seq{counter}.label == bin_array{i}.label
+                        if R_c9.bin_seq{counter_i}.label == bin_array{i}.label
                             intended_bin = R_c9.bin_seq{counter_i};
                             break;
                         end
