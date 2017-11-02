@@ -9,14 +9,14 @@ t_width = size(text_im, 2);
 t_height = size(text_im, 1);
 
 t_pad_x = t_width * 0.05;
-t_pad_y = t_height * 0.1;
+t_pad_y = t_height * 0.03;
 
 b_strt_x = t_pad_x;
 b_strt_y = t_pad_y;
 p_strt_x = t_width / 2 + t_pad_x;
 p_strt_y = t_pad_y;
 
-font_box_height = font_size * 1.3;
+%font_box_height = font_size * 1.3;
 text_im = insertText(text_im, [b_strt_x  b_strt_y], 'B-seq', 'AnchorPoint', 'LeftBottom', ...
     'FontSize', font_size, 'BoxOpacity', 0.3);
 text_im = insertText(text_im, [p_strt_x  p_strt_y], 'P-seq', 'AnchorPoint', 'LeftBottom', ... 

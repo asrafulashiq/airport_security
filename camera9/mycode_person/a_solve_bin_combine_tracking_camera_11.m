@@ -11,8 +11,13 @@ scale = 0.5;
 global associate;
 associate = true;
 
+%% some test
+
+f_test = fopen('f_test.txt', 'at');
+
+%%
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -26,7 +31,7 @@ k_distort = -0.24;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "7A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -64,7 +69,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 1340;
+    start_fr = 3500;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -129,7 +134,7 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 1; 
+       R_belt.label = 7; 
     end
     
     R_dropping.prev_body = [];
@@ -148,7 +153,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 1380
+        if frame_count >= 3573
             1;
         end
         
@@ -162,8 +167,8 @@ for file_number_str = all_file_nums
             R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-            R_belt,bin_seq,bin_array, people_array, R_c9);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+        %    R_belt,bin_seq,bin_array, people_array, R_c9);
         
 %         figure(3);
 %         imshow(im_c);
@@ -179,11 +184,30 @@ for file_number_str = all_file_nums
         end
         
         
-        
+        warning('off', 'last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
         end
+        
+        
+        % some experiment here
+        if numel(people_array) > 0
+           
+            X = [];
+            for i = 1:numel(people_array)
+                
+                X = [X; people_array{i}.features(:)'];
+            
+            end
+            
+            Y = [];
+            for i = 1:numel(R_c9.people_seq)
+                Y = [Y; R_c9.people_seq(i).features(:)'];
+                
+            end
+        end
+        
         
         disp(frame_count);
         

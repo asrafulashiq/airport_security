@@ -78,8 +78,9 @@ if ~isempty(people_array) && ~isempty(list_bbox)
     for i = 1:size(people_array,2)
         % detect exit
         if ( people_array{i}.Centroid(2) > limit_exit_y1) % || ...   %&& people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
-               % ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
-               % people_array{i}.Area < exit_vanishing_area && (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del))
+
+            % ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
+            % people_array{i}.Area < exit_vanishing_area && (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del))
             
             % && people_array{i}.Centroid(2) > half_y)
             people_seq{end+1} = people_array{i};
@@ -167,6 +168,8 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
                 people_array{prev_index}.Area = body_prop(min_arg).Area;
                 people_array{prev_index}.temp_count = 0;
+                new_features = get_features(im_r, body_prop(min_arg).BoundingBox, im_binary);
+                people_array{prev_index}.features = 0.5 * new_features + 0.5 * people_array{prev_index}.features;
             else
                 % more than one bounding box matched
                 
@@ -182,7 +185,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 prev_people = [people_array_struct(prev_ind)];
                 list_centroid = [prev_people.Centroid];
                 theta_t = theta - pi / 2;
-                perpend_point_y = (list_centroid(2,:)*cos(theta_t)^2 + y_c*sin(theta_t)^2 + x_c*cos(theta_t)*sin(theta_t) - list_centroid(1,:)*cos(theta_t)*sin(theta_t));    
+                perpend_point_y = (list_centroid(2,:)*cos(theta_t)^2 + y_c*sin(theta_t)^2 + x_c*cos(theta_t)*sin(theta_t) - list_centroid(1,:)*cos(theta_t)*sin(theta_t));
                 
                 [~,I] = sort(perpend_point_y, 'descend');
                 
@@ -203,7 +206,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     [~, other_index] = max(min_dis_vector(prev_ind,1));
                     [other_sorted_distance, index_vector] = sort(dist(other_index,:));
                     if length(index_vector) > 1
-                         other_matched_index = index_vector(2);
+                        other_matched_index = index_vector(2);
                         if isempty(find( min_dis_vector(:,2) == other_matched_index, 1 )) && other_sorted_distance(2) < min_allowed_dis
                             people_array{other_index}.Centroid = body_prop(other_matched_index).Centroid;
                             people_array{other_index}.Orientation = body_prop(other_matched_index).Orientation;
@@ -299,7 +302,7 @@ for i = 1:size(body_prop, 1)
     
     % check entrance
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
-       body_prop(i).Centroid(2) < limit_exit_y1 % && body_prop(i).Centroid(1) < limit_exit_x1
+            body_prop(i).Centroid(2) < limit_exit_y1 % && body_prop(i).Centroid(1) < limit_exit_x1
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
@@ -318,10 +321,12 @@ for i = 1:size(body_prop, 1)
             body_prop(i).Area = sum(sum(imcrop(im_binary, body_prop(i).BoundingBox)));
         end
         color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
+        features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
+        
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
             'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, ...
-            'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0);
+            'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
         R_dropping.label = R_dropping.label + 1;
         people_array{end+1} = Person;
         
