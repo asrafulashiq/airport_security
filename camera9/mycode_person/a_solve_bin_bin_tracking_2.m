@@ -19,11 +19,11 @@ im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
 
 im_all = rgb2gray(im_actual);
 im_background = rgb2gray(im_r4_p);
-%im_r4 = 2 * abs(im_all-im_background);
+im_r4 = abs(im_all-im_background) + abs(im_background - im_all);
 
 % im_r4 = uint8(abs(im_actual - im_r4_p));
-im_r4 = abs(im_r4_p - im_actual) + abs(im_actual - im_r4_p);
-im_r4 = rgb2gray(im_r4);
+%im_r4 = abs(im_r4_p - im_actual) + abs(im_actual - im_r4_p);
+%im_r4 = rgb2gray(im_r4);
 
 imr4t = im_r4;
 

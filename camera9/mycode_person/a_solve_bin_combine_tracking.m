@@ -23,7 +23,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = "6A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["5A_take1","6A","9A","10A","5A_take1"];
 
 for file_number_str = all_file_nums
     
@@ -66,6 +66,10 @@ for file_number_str = all_file_nums
     
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
+    
+    % camera 10 area
+    R_dropping.r_c10 = uint32([1300 1800 377 930] * scale);
+    
     % Region4: Belt
     R_belt.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_belt.r4 = r4;
@@ -73,6 +77,22 @@ for file_number_str = all_file_nums
     %% Region background
     counter = 0;
     im_back = 0.0;
+    
+    % read camera 10 background
+    file_c10 = fullfile('..',file_number, 'camera10.mp4');
+    v10 = VideoReader(file_c10);
+    im_back_10 = 0;
+    while hasFrame(v10) && counter < 5
+        im_frame = readFrame(v10);
+        im_back_10 = im_back_10 + double(im_frame);
+        counter = counter + 1;
+    end
+    im_background_c10 = im_back_10 / (counter);
+    im_background_c10 = uint8(im_background_c10);
+    im_background_c10 = imresize(im_background_c10, scale);
+    
+    counter = 0;
+    % background reading
     while hasFrame(v) && counter < 10
         im_frame = readFrame(v);
         im_back = im_back + double(im_frame);
@@ -90,6 +110,9 @@ for file_number_str = all_file_nums
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
     R_dropping.r1_obj = [];
+    R_dropping.im_back_c10 = im_background_c10;
+    R_dropping.exit_from_9 = {};
+    R_dropping.v10 = v10;
     %     R_belt.r4_obj = [];
     % sequence of bin and people
     people_seq = {};
@@ -121,13 +144,13 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 440
+        if frame_count >= 1670
             1;
         end
         
         % tracking the people
         [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+            R_belt,people_seq,people_array, bin_array, v.CurrentTime);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...

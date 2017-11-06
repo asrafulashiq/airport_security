@@ -3,7 +3,7 @@ function [bbox_, min_val, centroid] = match_people_bbox(I, I_mask, img_struct, i
 x_lim = 5;
 y_lim = 5;
 threshold = 0.7;
-alpha = 1;
+alpha = 5;
 
 bbox = img_struct.BoundingBox;
 ref_color_val = img_struct.color_val;

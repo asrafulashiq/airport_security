@@ -3,35 +3,26 @@ show_image = true;
 my_decision = 0;
 is_write_video = false;
 
-scale = 1;
+scale = 0.5;
 
-start_fr = 600;
+start_fr = 2000;
 
 
 %% load video data
 % % %for mac sys
 % file for input video
 
-all_file_nums = "10A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
+    input_filename = fullfile('..',file_number, ['camera10.mp4']);
     
-    if ~exist(input_filename)
-        input_filename = fullfile('..',file_number, 'Camera_9.mp4');
-    end
     
     v = VideoReader(input_filename);
     
-    %% the file for the outputvideo
-    if is_write_video
-        output_filename = fullfile('..',file_number, ['_output_' file_number '_new.avi']);
-        outputVideo = VideoWriter(output_filename);
-        outputVideo.FrameRate = v.FrameRate;
-        open(outputVideo);
-    end
+    
     
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars.mat']);
@@ -39,11 +30,8 @@ for file_number_str = all_file_nums
     %% region setting,find region position
     
     % Region1: droping bags
-    R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
-    % Region4: Belt
-    R_belt.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
-    %R_belt.r4 = r4;
-    rot_angle = 102;
+    R.r = uint32([1300 1800 377 930] * scale); %r1;%[103 266 61 436];
+    
     %% Region background
     counter = 0;
     im_back = 0.0;
@@ -55,18 +43,12 @@ for file_number_str = all_file_nums
     im_background = im_back / (counter);
     im_background = uint8(im_background);
     
-    %load('imback.mat','im_background');
     im_background = imresize(im_background, scale);
-    im_background = imrotate(im_background, rot_angle);
+    %im_background = imrotate(im_background, rot_angle);
     
     
-    R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
-    R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
+    R.im_back = im_background(R.r(3):R.r(4),R.r(1):R.r(2),:);
     
-    people_seq = {};
-    bin_seq = {};
-    bin_array={};
-    people_array = {};
     
     starting_index = -1;
     
@@ -76,12 +58,13 @@ for file_number_str = all_file_nums
     
     %% Start tracking and baggage association
     frame_count = start_fr;
+    v.CurrentTime = 105;
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
         im_c = imresize(img,scale);%original image
-        im_c = imrotate(im_c, rot_angle);
+        %im_c = imrotate(im_c, rot_angle);
         
         if frame_count > 912
             1;
@@ -94,47 +77,43 @@ for file_number_str = all_file_nums
 %         [people_seq, people_array] = a_peopletracking2(im_c,R_dropping,...
 %             R_belt,people_seq,people_array, bin_array);
         
-        im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
+        im_r = im_c(R.r(3):R.r(4),R.r(1):R.r(2),:);
         
         %% Region 1 background subtraction
         
-        %im_fore = abs(R_dropping.im_r1_p - im_r) + abs(im_r - R_dropping.im_r1_p);
-        %im2_b = im2bw(im_fore,0.18);
-        
+        threshold = 130;
         im_r_hsv = rgb2hsv(im_r);
-        im_p_hsv = rgb2hsv(R_dropping.im_r1_p);
+        im_p_hsv = rgb2hsv(R.im_back);
         
-        im_fore = abs(im_r_hsv(:,:,2)-im_p_hsv(:,:,2)) + abs(im_p_hsv(:,:,2) - im_r_hsv(:,:,2));
+        im_fore = abs(im_r_hsv(:,:,3)-im_p_hsv(:,:,3)) + abs(im_p_hsv(:,:,3) - im_r_hsv(:,:,3));
         %im_fore(im_fore < 0.2) = 0;
+        
         im_fore = uint8(im_fore*255);
-        % filter the image with gaussian filter
-        %h = fspecial('gaussian',[5,5],2);
-        %im2_b = imfilter(im2_b,h);
-        %im2_b2 = im2_b;
+        im_fore(im_fore < threshold) = 0;
         im_filtered = imgaussfilt(im_fore, 6);
         im_filtered(im_filtered < 50) = 0;
-        % close operation for the image
         se = strel('disk',10);
         im_closed = imclose(im_filtered,se);
         
         im_binary = logical(im_closed); %extract people region
 
-        cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'ConvexImage'); % extract parameters
+        cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox'); % extract parameters
         im_draw = im_r;
-        body_prop = [];
+       body_prop = [];
         for i = 1:size(cpro_r1, 1)
-           if cpro_r1(i).Area > 10000
+           if cpro_r1(i).Area > 5000
             body_prop = [body_prop; cpro_r1(i)];
             im_draw = insertShape(im_draw, 'Rectangle', int32(cpro_r1(i).BoundingBox), 'LineWidth', 10);
            end
         end
              
         %im_hsv = rgb2hsv(im_r);
-        figure(2); imshow(im_draw);drawnow;       
+        figure(2); imshow(im_draw);  
+        title(sprintf('%d',frame_count));
+        xlabel('x');
+        drawnow;
         
-        if is_write_vide2o
-            writeVideo(outputVideo,image);
-        end
+       
         
         disp(frame_count);
         
