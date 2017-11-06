@@ -165,12 +165,12 @@ for file_number_str = all_file_nums
             R_dropping.label = 8;
         end
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-        %    R_belt,bin_seq,bin_array, people_array, R_c9);
+        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+            R_belt,bin_seq,bin_array, people_array, R_c9);
         
 %         figure(3);
 %         imshow(im_c);
