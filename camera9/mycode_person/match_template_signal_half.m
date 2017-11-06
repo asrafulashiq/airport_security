@@ -47,7 +47,7 @@ if obj_num == 0
     
     limit_std = 30;
     for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
-        I_d = calc_intens(I(:, 1:int32(size(I,2)/2)), [ i i+length(r_tall)-1 ]);
+        I_d = calc_intens(I(:, 1:int32(size(I,2)*0.7)), [ i i+length(r_tall)-1 ]);
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         

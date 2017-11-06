@@ -11,7 +11,7 @@ im_r4_p = R_belt.im_r4_p;
 threshold = 15; %threshold for object recognition
 dis_exit_y = 1000 * scale;%2401520;
 if scale == 0.5
-   dis_exit_y = 480; 
+    dis_exit_y = 480;
 end
 
 %% Preprocessing
@@ -122,19 +122,19 @@ for counter = 1: total_bins
         
         %%% detect exiting
     elseif bin_array{i}.Centroid(2) >= dis_exit_y
-        if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
-            if bin_array{i}.in_flag ~= 0
-                bin_array{i}.in_flag = 0;
-                bin_seq{end+1} = bin_array{i};
-            end
-            i = i + 1;
-        else
-            if bin_array{i}.in_flag ~= 0
-                bin_seq{end+1} = bin_array{i};
-            end
-            bin_array(i) = [];
-            disp('delete');
-        end
+        %         if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
+        %             if bin_array{i}.in_flag ~= 0
+        %                 bin_array{i}.in_flag = 0;
+        %                 bin_seq{end+1} = bin_array{i};
+        %             end
+        %             i = i + 1;
+        %         else
+        %             if bin_array{i}.in_flag ~= 0
+        %                 bin_seq{end+1} = bin_array{i};
+        %             end
+        bin_array(i) = [];
+        disp('delete');
+        %         end
     else
         i = i+1;
     end
