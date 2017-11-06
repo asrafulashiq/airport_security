@@ -52,11 +52,11 @@ I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
 if debug
     figure(2);
-    plot(1:size(I,1), calc_intens(I,[]));
+    plot(1:size(I,1), calc_intens(I(:, 1:int32(size(I,2)/2)),[]));
     hold on;
 end
 
-bin_array = match_template_signal(I, bin_array, loc_something);
+bin_array = match_template_signal_half(I, bin_array, loc_something);
 
 if debug
     hold off;

@@ -5,7 +5,7 @@
 
 %% control variable
 global debug;
-debug = false;
+debug = true;
 global scale;
 scale = 0.5;
 global debug_people;
@@ -23,7 +23,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["5A_take1","6A","9A","10A","5A_take1"];
+all_file_nums = ["9A","10A","5A_take1"];
 
 for file_number_str = all_file_nums
     
@@ -144,13 +144,13 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 1670
+        if frame_count >= 530
             1;
         end
         
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array, v.CurrentTime);
+        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array, v.CurrentTime);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
