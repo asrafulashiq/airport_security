@@ -4,8 +4,6 @@ function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropp
 global scale;
 global debug_people;
 im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
-thres_low = 0.4;
-thres_up = 1.5;
 min_allowed_dis = 200 * scale;
 limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
@@ -16,7 +14,7 @@ limit_exit_y1 = 1070 * scale;
 limit_exit_x1 = 250 * scale;
 limit_exit_y2 = 600 * scale;
 limit_exit_x2 = 210 * scale;
-threshold_img = 70 ;
+threshold_img = 70;
 
 thres_critical_del = 6;
 thres_temp_count_low = 15;

@@ -67,7 +67,7 @@ end
 total_bins = size(bin_array,2);
 i = 1;
 
-limit_max_dist = 200*scale;
+limit_max_dist = 280*scale;
 
 for counter = 1: total_bins
     
@@ -84,6 +84,7 @@ for counter = 1: total_bins
         centroid = centroid';
         
         if centroid(2) > dis_exit_y
+            bin_seq{end+1} = bin_array{i};
             bin_array(i) = [];
             continue;
         end
@@ -95,24 +96,34 @@ for counter = 1: total_bins
             r1_edge = [r1_edge; centr];
         end
         
-        if ~isempty(people_array)
-            dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
-            bin_belong_index =  dis_b_p == min(dis_b_p);
-            if min(dis_b_p) > limit_max_dist
-                belongs_to = -1;
+        if ~isempty(people_array) && bin_array{i}.count >= 20
+            
+            last_people = people_array{end};
+            dist_to_last = pdist2( double([people_array{end}.BoundingBox(1) people_array{end}.Centroid(2)])  + double([R_dropping.r1(1) R_dropping.r1(3)]), ...
+                double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+            if dist_to_last <= limit_max_dist
+                belongs_to = people_array{end}.label;
             else
-                belongs_to = people_array{bin_belong_index}.label;
+                
+                dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+                bin_belong_index =  dis_b_p == min(dis_b_p);
+                if min(dis_b_p) > limit_max_dist
+                    belongs_to = -1;
+                else
+                    belongs_to = people_array{bin_belong_index}.label;
+                end
             end
         else
             belongs_to = -1;
         end
         
         bin_array{i}.belongs_to = belongs_to;
-        bin_array{i}.label = R_belt.label;
         
-        if bin_array{i}.belongs_to ~= -1
+        if bin_array{i}.label == -1
+            bin_array{i}.label = R_belt.label;
             R_belt.label = R_belt.label + 1;
         end
+        
         
         if debug
             bin_array{i}.belongs_to = 1;
@@ -122,19 +133,19 @@ for counter = 1: total_bins
         
         %%% detect exiting
     elseif bin_array{i}.Centroid(2) >= dis_exit_y
-        %         if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
-        %             if bin_array{i}.in_flag ~= 0
-        %                 bin_array{i}.in_flag = 0;
-        %                 bin_seq{end+1} = bin_array{i};
-        %             end
-        %             i = i + 1;
-        %         else
-        %             if bin_array{i}.in_flag ~= 0
-        %                 bin_seq{end+1} = bin_array{i};
-        %             end
-        bin_array(i) = [];
-        disp('delete');
-        %         end
+        if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
+            if bin_array{i}.in_flag ~= 0
+                bin_array{i}.in_flag = 0;
+                bin_seq{end+1} = bin_array{i};
+            end
+            i = i + 1;
+        else
+            if bin_array{i}.in_flag ~= 0
+                bin_seq{end+1} = bin_array{i};
+            end
+            bin_array(i) = [];
+            disp('delete');
+        end
     else
         i = i+1;
     end

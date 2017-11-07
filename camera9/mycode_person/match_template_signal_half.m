@@ -111,8 +111,8 @@ else
         r_bin = r_tall_bin;
         
         
-        lim = int32(20 * scale);
-        lim_b = int32(5 * scale);
+        lim = int32(40 * scale);
+        lim_b = int32(10 * scale);
         loc_to_match = [];
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"

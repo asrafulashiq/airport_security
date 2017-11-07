@@ -23,7 +23,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","9A","10A","5A_take1"];
+all_file_nums = ["6A"];
 
 for file_number_str = all_file_nums
     

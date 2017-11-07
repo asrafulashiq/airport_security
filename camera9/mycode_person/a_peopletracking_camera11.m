@@ -16,7 +16,7 @@ limit_exit_y1 = 1300 * scale;
 limit_exit_x1 = 10 * scale;
 limit_exit_y2 = 1300 * scale;
 limit_exit_x2 = 10 * scale;
-threshold_img = 50 ;
+threshold_img = 70 ;
 
 thres_critical_del = 6;
 thres_temp_count_low = 15;
