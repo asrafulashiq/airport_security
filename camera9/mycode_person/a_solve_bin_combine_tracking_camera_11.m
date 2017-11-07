@@ -6,8 +6,8 @@
 %% control variable
 global debug;
 global debug_people
-debug = false;
-debug_people = false;
+debug = true;
+debug_people = true;
 global scale;
 scale = 0.5;
 global associate;
@@ -33,7 +33,7 @@ k_distort = -0.24;
 % % %for mac sys
 % file for input video
 
-all_file_nums = "9A";%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["7A","9A","10A","7A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -51,7 +51,7 @@ for file_number_str = all_file_nums
     
     %% the file for the outputvideo
     if is_write_video
-        output_filename = fullfile('..',file_number, ['_output11_' file_number '.avi']);
+        output_filename = fullfile('..',file_number, ['output11_' file_number '.avi']);
         outputVideo = VideoWriter(output_filename);
         outputVideo.FrameRate = v.FrameRate;
         open(outputVideo);
@@ -71,7 +71,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 1400;
+    start_fr = 2000;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -169,8 +169,8 @@ for file_number_str = all_file_nums
             R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
-        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
-        %    R_belt,bin_seq,bin_array, people_array, R_c9);
+        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
+            R_belt,bin_seq,bin_array, people_array, R_c9);
         
 %         figure(3);
 %         imshow(im_c);
