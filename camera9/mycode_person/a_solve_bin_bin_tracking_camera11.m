@@ -74,11 +74,11 @@ limit_max_dist = 350 * scale;
 
 for counter = 1: total_bins
     
-    if isfield(bin_array{i},'destroy')
-        bin_array(i) = [];
-        %r4_cnt = r4_cnt - 1;
-        continue;
-    end
+%     if isfield(bin_array{i},'destroy')
+%         bin_array(i) = [];
+%         r4_cnt = r4_cnt - 1;
+%         continue;
+%     end
     
     if debug
         I = insertShape(I, 'Rectangle', bin_array{i}.BoundingBox, 'LineWidth', 3, 'Color', 'red');

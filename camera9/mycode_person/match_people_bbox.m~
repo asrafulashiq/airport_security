@@ -53,8 +53,7 @@ centroid = ait_centroid(I_mask, bbox_matched);
 
 if isempty(centroid)
     
-    bbox_ = [];
-    return 
+    
 end
 
 x = max(centroid(1) - width / 2, 1);
