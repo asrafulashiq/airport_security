@@ -224,8 +224,7 @@ else
             continue;
         end
         
-        
-        
+       
         [ min_val , min_index] = min(coef_aray);
         min_loc = loc_array(min_index);
         loc_end = min_loc + length(r_bin)-1;

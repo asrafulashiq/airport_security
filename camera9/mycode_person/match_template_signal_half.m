@@ -243,10 +243,10 @@ else
                     end
                 end
             end
-        elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" && bin_array{i}.count < 150
+        elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" %&& bin_array{i}.count < 150
             
             lim_b = 10;
-            r_tall_w = r_tall_bin;
+            r_tall_w = create_rect(r_tall_width, 5, r_val); %r_tall_bin;
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_tall_w)
@@ -299,7 +299,7 @@ else
                 bin_array{i}.recent_unspec = [];
                 bin_array{i}.recent_unspec(end+1) = min_val;
             else
-                bin_array{i}.recent_unspec
+                %bin_array{i}.recent_unspec
                 bin_array{i}.recent_unspec( end+1 ) = min_val;
                 if length(bin_array{i}.recent_unspec) > 5
                     std_unspec = std(bin_array{i}.recent_unspec(end-4:end), 1);

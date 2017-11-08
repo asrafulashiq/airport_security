@@ -30,7 +30,6 @@ global k_distort;
 k_distort = -0.24;
 
 %% load video data
-% % %for mac sys
 % file for input video
 
 all_file_nums = ["7A","9A","10A","7A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
@@ -165,8 +164,8 @@ for file_number_str = all_file_nums
             R_dropping.label = 8;
         end
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
