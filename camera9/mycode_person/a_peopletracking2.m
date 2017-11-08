@@ -14,7 +14,11 @@ limit_exit_y1 = 1070 * scale;
 limit_exit_x1 = 250 * scale;
 limit_exit_y2 = 600 * scale;
 limit_exit_x2 = 210 * scale;
-threshold_img = 70;
+threshold_img = 60;
+
+if debug_people
+    half_y = 1.6 * size(im_r,1) / 2;
+end
 
 thres_critical_del = 6;
 thres_temp_count_low = 15;
@@ -35,7 +39,7 @@ im_fore = uint8(im_fore*255);
 im_filtered = imgaussfilt(im_fore, 6);
 im_filtered(im_filtered < threshold_img) = 0;
 % close operation for the image
-se = strel('disk',10);
+se = strel('disk',15);
 im_closed = imclose(im_filtered,se);
 %im_eroded = imerode(im_closed, se);
 im_binary = logical(im_closed); %extract people region
@@ -84,8 +88,9 @@ if ~isempty(people_array) && ~isempty(list_bbox)
             continue;
         end
         if people_array{i}.state=="temporary_vanishing"
-            if (people_array{i}.Centroid(1) > limit_exit_x2 && people_array{i}.temp_count > thres_temp_count_low) || ...
-                    (people_array{i}.Centroid(1) < limit_exit_x2 && people_array{i}.temp_count > thres_temp_count_high)
+            if (people_array{i}.Centroid(1) > limit_exit_x1 && people_array{i}.temp_count > thres_temp_count_low) || ...
+                    (people_array{i}.Centroid(1) > limit_exit_x2 && people_array{i}.temp_count > thres_temp_count_high) ...
+                    || (people_array{i}.temp_count > 400)
                 people_seq{end+1} = people_array{i};
                 exit_index_people_array(end+1) = i;
                 disp('exit......');
@@ -122,6 +127,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         for i = 1:size(people_array,2)
             dist_ = dist(i,:);
             [min_dis, min_arg] = min(dist_);
+            
             min_dis_vector = [min_dis_vector; min_dis min_arg];
         end
         
@@ -138,8 +144,8 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 prev_index = min_dis_vector(:,2) == vect(i);
                 min_arg = vect(i);
                 
-                if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height ...
-                        %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
+                if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height
+                    %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
                     % divide area and match
                     [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{prev_index}, im_diff);
                     
@@ -152,7 +158,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     continue;
                 end
                 
-                if dist(prev_index, min_arg) > min_allowed_dis || body_prop(min_arg).Area <  0.3 * people_array{prev_index}.Area 
+                if dist(prev_index, min_arg) > min_allowed_dis || body_prop(min_arg).Area <  0.3 * people_array{prev_index}.Area
                     people_array{prev_index}.state = "temporary_vanishing";
                     people_array{prev_index}.temp_count = people_array{prev_index}.temp_count+1;
                     continue;
@@ -180,6 +186,22 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 end
                 
                 prev_ind = find(min_dis_vector(:,2) == vect(i));
+                prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= min_allowed_dis);
+                
+                if length(prev_ind) == 1
+                    
+                    del_index_of_body = [del_index_of_body; vect(i)];
+                    people_array{prev_ind}.Centroid = body_prop(vect(i)).Centroid;
+                    people_array{prev_ind}.Orientation = body_prop(vect(i)).Orientation;
+                    people_array{prev_ind}.BoundingBox = body_prop(vect(i)).BoundingBox;
+                    people_array{prev_ind}.color_val = get_color_val(im_r, body_prop(vect(i)).BoundingBox, im_binary);
+                    people_array{prev_ind}.Area = body_prop(vect(i)).Area;
+                    people_array{prev_ind}.temp_count = 0;
+                    new_features = get_features(im_r, body_prop(vect(i)).BoundingBox, im_binary);
+                    people_array{prev_ind}.features = 0.5 * new_features + 0.5 *  people_array{prev_ind}.features;
+                    continue;
+                end
+                
                 prev_people = [people_array_struct(prev_ind)];
                 list_centroid = [prev_people.Centroid];
                 [~,I] = sort(list_centroid(2,:), 'descend');
@@ -328,9 +350,6 @@ for i = 1:size(body_prop, 1)
     end
 end
 
-if size(people_array,2) > 2
-    1;
-end
 
 
 %% check exit from c9
@@ -387,7 +406,7 @@ for i = 1:numel(R_dropping.exit_from_9)
                     % found
                     flag_found = 1;
                     if debug_people
-                       im_draw_10 = insertShape(im_draw_10, 'Rectangle', int32(cpro_r1(i).BoundingBox), 'LineWidth', 10); 
+                        im_draw_10 = insertShape(im_draw_10, 'Rectangle', int32(cpro_r1(i).BoundingBox), 'LineWidth', 10);
                     end
                     
                     break;
@@ -441,16 +460,16 @@ if ~isempty(people_array)
     people_array = {people_array{I}};
 end
 %% some test image
-% if ~isempty(R_dropping.prev_body) && debug_people
-%     figure(2); imshow(im_draw);
-%
-%     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
-%
-%     figure(3); imshow(im_diff,[]);
-%     figure(4);imshow(im_binary);
-%     drawnow;
-%
-% end
+if ~isempty(R_dropping.prev_body) && debug_people
+    %figure(2); imshow(im_draw);
+    
+    %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
+    
+    figure(3); imshow(im_diff,[]);
+    figure(4);imshow(im_binary);
+    drawnow;
+    
+end
 
 R_dropping.prev_body = im_r;
 
