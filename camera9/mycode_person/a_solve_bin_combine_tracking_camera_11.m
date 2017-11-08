@@ -7,7 +7,7 @@
 global debug;
 global debug_people
 debug = true;
-debug_people = true;
+debug_people = false;
 global scale;
 scale = 0.5;
 global associate;
@@ -19,7 +19,7 @@ f_test = fopen('f_test.txt', 'at');
 
 %%
 show_image = true;
-is_write_video = false;
+is_write_video = true;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["7A","9A","10A","7A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["6A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -70,7 +70,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 2000;
+    start_fr = 2350;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -135,7 +135,7 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 7; 
+       R_belt.label = 1; 
     end
     
     R_dropping.prev_body = [];
@@ -160,12 +160,12 @@ for file_number_str = all_file_nums
         
         im_c = lensdistort(im_c, k_distort);
         
-        if R_dropping.label == 7
-            R_dropping.label = 8;
-        end
+%         if R_dropping.label == 7
+%             R_dropping.label = 8;
+%         end
         % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array);
+        [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
@@ -192,33 +192,33 @@ for file_number_str = all_file_nums
         end
         
         
-        % some experiment here
-        if numel(people_array) > 0
-           
-            X = [];
-            for i = 1:numel(people_array)
-                
-                X = [X; people_array{i}.features(:)'];
-            
-            end
-            
-            Y = [];
-            for i = 1:numel(R_c9.people_seq)
-                Y = [Y; R_c9.people_seq{i}.features(:)'];
-                
-            end
-            
-            dd = pdist2(X, Y);
-            fprintf(f_test, '\ncounter : %d\n------------\n', frame_count);
-            for i = 1:size(dd, 1) 
-                fprintf(f_test, '%d : \n',i );
-                for j = 1:size(dd, 2)
-                     fprintf(f_test, '%d: %.2f  ', j, dd(i,j));                            
-                end
-                fprintf(f_test, '\n\n');
-            end
-            
-        end
+%         % some experiment here
+%         if numel(people_array) > 0
+%            
+%             X = [];
+%             for i = 1:numel(people_array)
+%                 
+%                 X = [X; people_array{i}.features(:)'];
+%             
+%             end
+%             
+%             Y = [];
+%             for i = 1:numel(R_c9.people_seq)
+%                 Y = [Y; R_c9.people_seq{i}.features(:)'];
+%                 
+%             end
+%             
+%             dd = pdist2(X, Y);
+%             fprintf(f_test, '\ncounter : %d\n------------\n', frame_count);
+%             for i = 1:size(dd, 1) 
+%                 fprintf(f_test, '%d : \n',i );
+%                 for j = 1:size(dd, 2)
+%                      fprintf(f_test, '%d: %.2f  ', j, dd(i,j));                            
+%                 end
+%                 fprintf(f_test, '\n\n');
+%             end
+%             
+%         end
         
         
         disp(frame_count);

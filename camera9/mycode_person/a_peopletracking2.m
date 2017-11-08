@@ -77,7 +77,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         % detect exit from camera 9
         if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
                 ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
-                people_array{i}.Area < exit_vanishing_area && (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del))
+                (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del)) % people_array{i}.Area < exit_vanishing_area 
             
             % && people_array{i}.Centroid(2) > half_y)
             %people_seq{end+1} = people_array{i};
@@ -186,7 +186,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 end
                 
                 prev_ind = find(min_dis_vector(:,2) == vect(i));
-                prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= min_allowed_dis);
+                prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= 500*scale);
                 
                 if length(prev_ind) == 1
                     
