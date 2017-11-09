@@ -186,7 +186,10 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 end
                 
                 prev_ind = find(min_dis_vector(:,2) == vect(i));
-                prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= min_allowed_dis);
+                
+                max_dis = 400 * scale;
+                
+                prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= max_dis);
                 
                 if length(prev_ind) == 1
                     

@@ -6,7 +6,7 @@
 %% control variable
 global debug;
 global debug_people
-debug = true;
+debug = false;
 debug_people = false;
 global scale;
 scale = 0.5;
@@ -15,7 +15,7 @@ associate = true;
 
 %% some test
 
-f_test = fopen('f_test.txt', 'at');
+%f_test = fopen('f_test.txt', 'at');
 
 %%
 show_image = true;
@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["9A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -70,7 +70,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 2350;
+    start_fr = 3570;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -94,7 +94,7 @@ for file_number_str = all_file_nums
     rot_angle = 90;
     %% Region background
     counter = 0;
-    im_back = 0.0;
+    im_back = 0;
     
     
     
@@ -135,7 +135,8 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 1; 
+       R_belt.label = 4;
+       R_dropping.label = 4;
     end
     
     R_dropping.prev_body = [];
