@@ -9,7 +9,7 @@ debug = false;
 global scale;
 scale = 0.5;
 global debug_people;
-debug_people = true;
+debug_people = false;
 
 show_image = true;
 is_write_video = true;
@@ -24,7 +24,7 @@ my_decision = 1;
 % file for input video
 
 
-all_file_nums = ["10A"];
+all_file_nums = ["6A"];
 
 for file_number_str = all_file_nums
     
@@ -49,7 +49,7 @@ for file_number_str = all_file_nums
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
 
-    start_fr = 1700;
+    start_fr = 400;
     
     if my_decision == is_update_region
         load(file_to_save);
