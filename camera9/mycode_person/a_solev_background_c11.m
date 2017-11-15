@@ -39,9 +39,7 @@ for file_number_str = all_file_nums
     
     v = VideoReader(input_filename);
     
-   
-    
-    start_fr = 2400;
+    start_fr = 2760;
 
     
     %% region setting,find region position
@@ -102,22 +100,30 @@ for file_number_str = all_file_nums
         im_g = rgb2gray(im_actual);
        
         %corners = detectHarrisFeatures(im_g,'ROI', ROI);
-        
-        [lb, center] = adaptcluster_kmeans(im_actual);
-        
+              
         
         %flow = estimateFlow(opticFlow, im_g);
         
         figure(1);
         imshow(im_actual);
-        hold on;
+        %hold on;
 
         %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',10);
         
-        plot(corners);
+        %plot(corners);
         
+        K = stdfilt(im_g, true(5));
+        K = mat2gray(K);
+        K(K<0.1) = 0;
+        %K = edge(K, 'sobel');
+        
+        Kb = logical(K);
+        %Kt = edge(Kb, 'sobel');
+        
+        figure(2);
+        imshow(Kb);
         hold off;
-
+       
         
 
         drawnow;

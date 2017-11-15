@@ -22,7 +22,6 @@ for file_number_str = all_file_nums
     file_number = char(file_number_str); % convert to character array
     input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
     
-    
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
@@ -35,7 +34,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 2800;
+    start_fr = 2920;
     
     
     %% region setting,find region position
@@ -111,40 +110,47 @@ for file_number_str = all_file_nums
         im_c = imrotate(im_c, rot_angle);
         
         r4 = R_belt.r4;
-        im_actual = im_c(r4(3)-30:r4(4),r4(1):r4(2)+30,:);
+        %r1 = R_dropping.r1;
+        im_actual = im_c(r4(3):r4(4),r4(1)+10:r4(2),:);
         %im_actual = im_c;
         
         im_g = rgb2gray(im_actual);
-       
+        
         %corners = detectMinEigenFeatures(im_g,'FilterSize', 75);%detectHarrisFeatures(im_g, 'FilterSize', 25);
-        
-        corners = detectFASTFeatures(im_g);
-        
-        %[lb, center] = adaptcluster_kmeans(im_actual);
-        
-        
+        %corners = detectFASTFeatures(im_g);
         %flow = estimateFlow(opticFlow, im_g);
         
         figure(1);
         imshow(im_actual);
-        hold on;
-       %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        %hold on;
+        %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         
-        plot(corners);
+        K = stdfilt(im_g, true(5));
+        K = mat2gray(K);
+        K(K<0.3) = 0;
+        Ka = K;
+        K = edge(K, 'sobel');
+        
+        Kb = logical(K);
+        
+        BW2 = bwareaopen(Kb, 200);
+        
+        figure(2); 
+        imshow(BW2);
+        
+        crn = detectHarrisFeatures(BW2);
+        hold on;
+        plot(crn);
         
         hold off;
-
-        
-
         drawnow;
         
-       
+   
+        
         title(num2str(frame_count));
         
-        
-        
         warning('off','last');
-  
+        
         disp('-------------');
         disp(frame_count);
         disp('-------------');
@@ -152,8 +158,6 @@ for file_number_str = all_file_nums
         frame_count = frame_count + 1;
         
     end
-    
-    
     
     if is_write_video
         close(outputVideo);
