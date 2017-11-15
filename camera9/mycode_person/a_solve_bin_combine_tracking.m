@@ -5,14 +5,14 @@
 
 %% control variable
 global debug;
-debug = false;
+debug = true;
 global scale;
 scale = 0.5;
 global debug_people;
-debug_people = true;
+debug_people = false;
 
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -24,7 +24,7 @@ my_decision = 1;
 % file for input video
 
 
-all_file_nums = ["10A"];
+all_file_nums = ["EXP_1A"];
 
 for file_number_str = all_file_nums
     
@@ -49,8 +49,7 @@ for file_number_str = all_file_nums
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
 
-
-    start_fr = 1700;
+    start_fr = 900;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -96,6 +95,7 @@ for file_number_str = all_file_nums
     
     counter = 0;
     % background reading
+    %v.CurrentTime = 560/30;
     while hasFrame(v) && counter < 10
         im_frame = readFrame(v);
         im_back = im_back + double(im_frame);
