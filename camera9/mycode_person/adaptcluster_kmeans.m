@@ -111,7 +111,7 @@ while(true)
             break;
         end
         
-        if (seed == newseed) | j>10
+        if (seed == newseed) || j>10
             j=0;
             array(qualified,:) = [];
             center(i,:) = newseed;

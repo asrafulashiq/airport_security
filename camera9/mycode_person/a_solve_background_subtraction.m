@@ -35,7 +35,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 1700;
+    start_fr = 2800;
     
     
     %% region setting,find region position
@@ -111,52 +111,40 @@ for file_number_str = all_file_nums
         im_c = imrotate(im_c, rot_angle);
         
         r4 = R_belt.r4;
-        im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+        im_actual = im_c(r4(3)-30:r4(4),r4(1):r4(2)+30,:);
         %im_actual = im_c;
         
         im_g = rgb2gray(im_actual);
        
-        %corners = detectHarrisFeatures(im_g,'ROI', ROI);
+        %corners = detectMinEigenFeatures(im_g,'FilterSize', 75);%detectHarrisFeatures(im_g, 'FilterSize', 25);
         
-        [lb, center] = adaptcluster_kmeans(im_actual);
+        corners = detectFASTFeatures(im_g);
+        
+        %[lb, center] = adaptcluster_kmeans(im_actual);
         
         
         %flow = estimateFlow(opticFlow, im_g);
         
         figure(1);
         imshow(im_actual);
-%         hold on;
-%         plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
-%         
-%         %plot(corners);
-%         
-%         hold off;
+        hold on;
+       %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        
+        plot(corners);
+        
+        hold off;
 
         
 
         drawnow;
         
-        
-        
-        
-        % tracking the people
-        %         [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-        %             R_belt,people_seq,people_array, bin_array, v.CurrentTime);
-        %
-        %         % tracking the bin
-        %         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-        %            R_belt,bin_seq,bin_array, people_array);
-        
+       
         title(num2str(frame_count));
         
         
         
         warning('off','last');
-        
-        
-        if is_write_video && show_image
-            writeVideo(outputVideo,image);
-        end
+  
         disp('-------------');
         disp(frame_count);
         disp('-------------');
