@@ -33,7 +33,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 1119;
+    start_fr = 420;
     
     %% region setting,find region position
     
@@ -51,6 +51,7 @@ for file_number_str = all_file_nums
     %R_belt.r4 = r4;
     rot_angle = 102;
     %% Region background
+    counter = 0;
     im_back = 0.0;
     
     counter = 0;
@@ -99,8 +100,8 @@ for file_number_str = all_file_nums
     
     opticFlow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10, 'NeighborhoodSize', 20, 'FilterSize', 20);
     
-    roi = [1 115 86 180];
-    tracker = vision.PointTracker('NumPyramidLevels', 33, 'BlockSize', [7 7], 'MaxBidirectionalError',11);
+    roi = [1 106 86 180];
+    tracker = vision.PointTracker('MaxBidirectionalError',3);
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -123,8 +124,15 @@ for file_number_str = all_file_nums
         
         Kb = logical(K);
         
-        crn = detectHarrisFeatures(Kb);
+        %points = detectHarrisFeatures(Kb);
 
+        if frame_count == start_fr
+           points = detectHarrisFeatures(Kb);
+           initialize(tracker,points.Location, im_g);
+        else
+           [points, validity] = step(tracker,im_g);
+           out = insertMarker(im_g,points(validity, :),'+');
+        end
         
         %corners = detectMinEigenFeatures(im_g,'FilterSize', 75);%detectHarrisFeatures(im_g, 'FilterSize', 25);
         %corners = detectFASTFeatures(im_g);
@@ -134,7 +142,7 @@ for file_number_str = all_file_nums
         
         
         
-        flow = estimateFlow(opticFlow, im_g);
+        %flow = estimateFlow(opticFlow, Kb);
         
         %BW2 = bwareaopen(Kb, 100);
         
@@ -144,7 +152,7 @@ for file_number_str = all_file_nums
 %         imshow(i_med,[]);
         
         figure(1);
-        imshow(im_g);
+        imshow(Kb);
         
 %         im_lab = rgb2hsv(im_actual);
 %         
@@ -152,18 +160,18 @@ for file_number_str = all_file_nums
 %         imshow(im_lab(:,:,2),[]);
         
         
-        figure(2); 
-        imshow(Ka);
+        %figure(2); 
+        %imshow(Kb);
         
-        hold on;
-        plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        %hold on;
+        %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         
-        hold on;
-        plot(crn);
+        %hold on;
+        %plot(crn);
         
         
         
-        %hold off;
+        hold off;
         drawnow;
         
    
