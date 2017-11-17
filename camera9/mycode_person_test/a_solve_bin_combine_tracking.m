@@ -23,8 +23,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-
-all_file_nums = ["EXP_5A"];
+all_file_nums = ["EXP_6A"];
 
 for file_number_str = all_file_nums
     
@@ -34,7 +33,6 @@ for file_number_str = all_file_nums
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_9.mp4');
     end
-    
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
@@ -47,8 +45,6 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
-    
-
     start_fr = 1100;
     
     if my_decision == is_update_region
@@ -64,8 +60,7 @@ for file_number_str = all_file_nums
     end
     
     %% region setting,find region position
-    
-    
+  
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
     
