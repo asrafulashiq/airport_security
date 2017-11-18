@@ -14,12 +14,16 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["10A"];
+all_file_nums = ["EXP_5A"];
 
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
     input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
+    
+    if ~exist(input_filename)
+        input_filename = fullfile('..',file_number, ['camera9.mp4']);
+    end
     
     v = VideoReader(input_filename);
     
@@ -33,7 +37,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 1119;
+    start_fr = 1560;
     
     %% region setting,find region position
     
@@ -110,7 +114,7 @@ for file_number_str = all_file_nums
         
         r4 = R_belt.r4;
         %r1 = R_dropping.r1;
-        im_actual = im_c(r4(3):r4(4),r4(1)+10:r4(2),:);
+        im_actual = im_c(r4(3):r4(4),r4(1)+10:r4(2)-5,:);
         %im_actual = im_c;
         
         im_g = rgb2gray(im_actual);
@@ -151,15 +155,20 @@ for file_number_str = all_file_nums
 %         figure(2);
 %         imshow(im_lab(:,:,2),[]);
         
+        figure(3);
+        %figure(2);
+        plot(1:size(Ka,1), calc_intens(Ka(:, 1:int32(size(Ka,2)/2)),[]));
+        %hold on;
         
+
         figure(2); 
         imshow(Ka);
         
         hold on;
         plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         
-        hold on;
-        plot(crn);
+        %hold on;
+        %plot(crn);
         
         
         
