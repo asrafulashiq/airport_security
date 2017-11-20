@@ -2,7 +2,7 @@ function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_som
 global debug;
 global scale;
 
-obj_num = numel(bin_array);
+obj_num = size(bin_array,2);
 thr = 0.8;
 % create rectangular tall pulse
 
@@ -47,8 +47,6 @@ if obj_num == 0
         r_tall = r_tall * r_tall_val;
     end
     
-    epsilon = 0.05;
-
     limit_std = 30;
     for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
         I_d = calc_intens(I(:, 1:int32(size(I,2)*0.7)), [ i i+length(r_tall)-1 ]);
@@ -64,17 +62,14 @@ if obj_num == 0
         end
         
         flow_bin_y = flow.Vy(i:i+length(r_tall)-1, 10:size(I,2)/2);
-%         flow_bin_Orientation = flow.Orientation(i:i+length(r_tall)-1, 10:size(I,2)/2);
-% 
-%         flow_bin_Orientation = rad2deg(flow_bin_Orientation);
-%         flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation < -30) ...
-%             & (flow_bin_Orientation > -135);
-        mean_vy = mean(flow_bin_y(:));
-        %mean_theta = mean(flow_bin_Orientation(flow_index));
-        
-        if   mean_vy < -0.5 
-            continue;
-        end
+        flow_bin_Orientation = flow.Orientation(i:i+length(r_tall)-1, 10:size(I,2)/2);
+
+        epsilon = 0.05;
+        flow_bin_Orientation = rad2deg(flow_bin_Orientation);
+        flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation> 70) ...
+            & (flow_bin_Orientation < 110);
+        mean_vy = mean(flow_bin_y(flow_index));
+        mean_theta = mean(flow_bin_Orientation(flow_index));
         
         coef_aray = [ coef_aray coef ];
         loc_array = [loc_array i];

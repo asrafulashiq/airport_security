@@ -11,8 +11,8 @@ scale = 0.5;
 global debug_people;
 debug_people = false;
 
-show_image = true;
-is_write_video = true;
+show_image = false;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
@@ -23,7 +23,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["EXP_6A"];
+all_file_nums = ["EXP_5A"];
 
 for file_number_str = all_file_nums
     
@@ -31,7 +31,7 @@ for file_number_str = all_file_nums
     input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
     
     if ~exist(input_filename)
-        input_filename = fullfile('..',file_number, 'Camera_9.mp4');
+        input_filename = fullfile('..',file_number, 'camera9.mp4');
     end
     v = VideoReader(input_filename);
     
@@ -45,7 +45,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
-    start_fr = 1100;
+    start_fr = 2150;
     
     if my_decision == is_update_region
         load(file_to_save);
@@ -74,6 +74,8 @@ for file_number_str = all_file_nums
     %% Region background
     counter = 0;
     im_back = 0.0;
+    
+    R_belt.flow = [];
     
     R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
@@ -145,13 +147,13 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 1301
+        if frame_count >= 2328
             1;
         end
         
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array, v.CurrentTime);
+        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
+        %    R_belt,people_seq,people_array, bin_array, v.CurrentTime);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
