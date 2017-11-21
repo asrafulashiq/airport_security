@@ -4,7 +4,7 @@ global scale;
 
 obj_num = numel(bin_array);
 thr = 0.8;
-% create rectangular tall pulse
+
 if flag == 1
     flow = estimateFlow(R_belt.optic_flow, I);
     R_belt.flow = flow;
@@ -68,13 +68,6 @@ if obj_num == 0
         flow_bin_y = flow.Vy(i:i+length(r_tall)-1, 10:size(I,2)/2);
         flow_bin_y1 = flow_bin_y(1:end/2, :);
         flow_bin_y2 = flow_bin_y(end/2:end, :);
-%         flow_bin_Orientation = flow.Orientation(i:i+length(r_tall)-1, 10:size(I,2)/2);
-% 
-%         flow_bin_Orientation = rad2deg(flow_bin_Orientation);
-%         flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation < -30) ...
-%             & (flow_bin_Orientation > -135);
-        %mean_vy = mean(flow_bin_y(:));
-        %mean_theta = mean(flow_bin_Orientation(flow_index));
         
         if sum(flow_bin_y1(:)) < -1000 || sum(flow_bin_y2(:)) < -2000
             continue;
@@ -84,8 +77,6 @@ if obj_num == 0
         loc_array = [loc_array i];
         
     end
-
-    
     
     if isempty(coef_aray)
         return;
@@ -116,7 +107,7 @@ if obj_num == 0
         'label', -1, ...
         'in_flag', 1, 'r_val', r_tall_val, 'bin_or',"tall", ...
         'state', "empty", 'count', 1, ...
-        'std', std( calc_intens(I, [min_loc loc_end]) ,1) ...
+        'std', std( calc_intens(I, [min_loc loc_end]) ,1), 'destroy', false ...
         );
     
     bin_array{end+1} = Bin;
