@@ -169,7 +169,7 @@ if debug
         hold on;
         plot(R_belt.flow,'DecimationFactor',[5 5],'ScaleFactor',5);
     end
-    
+    drawnow;
     
 end
 
