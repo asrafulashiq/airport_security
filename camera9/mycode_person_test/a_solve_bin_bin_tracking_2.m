@@ -56,11 +56,11 @@ if debug
     hold on;
 end
 
-[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt);
+[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt, 1);
 
 if debug
     hold off;
-    drawnow;
+    %drawnow;
     
 end
 
@@ -162,13 +162,15 @@ end
 
 if debug
    
-    figure(1);
+    figure(3);
     imshow(im_actual);
     
     if ~isempty(R_belt.flow)
         hold on;
         plot(R_belt.flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        hold off;
     end
+
     drawnow;
     
 end

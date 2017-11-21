@@ -1,14 +1,16 @@
-function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt)
+function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt, flag)
 global debug;
 global scale;
 
 obj_num = numel(bin_array);
 thr = 0.8;
 % create rectangular tall pulse
-
-flow = estimateFlow(R_belt.optic_flow, I);
-R_belt.flow = flow;
-
+if flag == 1
+    flow = estimateFlow(R_belt.optic_flow, I);
+    R_belt.flow = flow;
+else
+   flow = R_belt.flow; 
+end
 %%
 r_tall_val = 160;
 r_tall_width = floor(220 * scale);
@@ -64,15 +66,17 @@ if obj_num == 0
         end
         
         flow_bin_y = flow.Vy(i:i+length(r_tall)-1, 10:size(I,2)/2);
+        flow_bin_y1 = flow_bin_y(1:end/2, :);
+        flow_bin_y2 = flow_bin_y(end/2:end, :);
 %         flow_bin_Orientation = flow.Orientation(i:i+length(r_tall)-1, 10:size(I,2)/2);
 % 
 %         flow_bin_Orientation = rad2deg(flow_bin_Orientation);
 %         flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation < -30) ...
 %             & (flow_bin_Orientation > -135);
-        mean_vy = mean(flow_bin_y(:));
+        %mean_vy = mean(flow_bin_y(:));
         %mean_theta = mean(flow_bin_Orientation(flow_index));
         
-        if   mean_vy < -0.5 
+        if sum(flow_bin_y1(:)) < -1000 || sum(flow_bin_y2(:)) < -2000
             continue;
         end
         
@@ -116,10 +120,7 @@ if obj_num == 0
         );
     
     bin_array{end+1} = Bin;
-    
-    %     figure(4); imshow(I(min_loc:min_loc+59,:));
-    %
-    %      x = [];
+   
     
 else
         
@@ -406,7 +407,7 @@ else
     loc_2 = min_;
     if loc_2 >= loc_something(1) + r_tall_width * thr
         
-        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt);
+        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt, 0);
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end
@@ -425,7 +426,7 @@ else
         end
         bins = [];
         if end_m >= strt_m + r_tall_width * thr
-             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt );   
+             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0 );   
         end
         
         if ~isempty(bins)
