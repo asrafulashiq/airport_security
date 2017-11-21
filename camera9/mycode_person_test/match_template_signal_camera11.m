@@ -150,12 +150,12 @@ else
     
     %loc_something = [ 1  size(I,1) ];
     
-    for i = 1:obj_num
+    for i = 1:obj_num 
         
         r_bin = r_tall_bin;
       
         %lim = int32(20 * scale);
-        %lim_b = int32(5 * scale);
+        lim_b = int32(5 * scale);
         loc_to_match = [];
         
         flow_bin_y = flow.Vy(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);

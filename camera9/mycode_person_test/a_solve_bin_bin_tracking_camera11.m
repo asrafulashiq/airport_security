@@ -138,8 +138,7 @@ for counter = 1: total_bins
             end
             bin_array{i}.belongs_to = belongs_to;
         end
-        
-        
+          
         if debug
             bin_array{i}.belongs_to = 1;
         end
