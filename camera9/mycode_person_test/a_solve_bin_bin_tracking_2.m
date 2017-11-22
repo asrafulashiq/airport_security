@@ -72,7 +72,7 @@ limit_max_dist = 280*scale;
 
 for counter = 1: total_bins
     
-    if isfield(bin_array{i},'destroy')
+    if isfield(bin_array{i},'destroy') && bin_array{i}.destroy == true
         bin_array(i) = [];
         %r4_cnt = r4_cnt - 1;
         continue;
