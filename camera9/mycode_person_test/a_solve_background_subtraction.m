@@ -14,7 +14,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["EXP_5A"];
+all_file_nums = ["9A"];
 
 for file_number_str = all_file_nums
     
@@ -37,7 +37,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 1560;
+    start_fr = 600;
     
     %% region setting,find region position
     
@@ -117,17 +117,17 @@ for file_number_str = all_file_nums
         im_actual = im_c(r4(3):r4(4),r4(1)+10:r4(2)-5,:);
         %im_actual = im_c;
         
-        im_g = rgb2gray(im_actual);
-        
-        K = stdfilt(im_g, true(5));
-        K = mat2gray(K);
-        K(K<0.3) = 0;
-        Ka = K;
+%         im_g = rgb2gray(im_actual);
+%         
+%         K = stdfilt(im_g, true(5));
+%         K = mat2gray(K);
+%         K(K<0.3) = 0;
+%         Ka = K;
         %K = edge(K, 'sobel');
         
-        Kb = logical(K);
+        %Kb = logical(K);
         
-        crn = detectHarrisFeatures(Kb);
+        %crn = detectHarrisFeatures(Kb);
 
         
         %corners = detectMinEigenFeatures(im_g,'FilterSize', 75);%detectHarrisFeatures(im_g, 'FilterSize', 25);
@@ -138,7 +138,7 @@ for file_number_str = all_file_nums
         
         
         
-        flow = estimateFlow(opticFlow, im_g);
+        %flow = estimateFlow(opticFlow, im_g);
         
         %BW2 = bwareaopen(Kb, 100);
         
@@ -148,24 +148,24 @@ for file_number_str = all_file_nums
 %         imshow(i_med,[]);
         
         figure(1);
-        imshow(im_g);
+        imshow(im_actual);
         
 %         im_lab = rgb2hsv(im_actual);
 %         
 %         figure(2);
 %         imshow(im_lab(:,:,2),[]);
         
-        figure(3);
+        %figure(3);
         %figure(2);
-        plot(1:size(Ka,1), calc_intens(Ka(:, 1:int32(size(Ka,2)/2)),[]));
+        %plot(1:size(Ka,1), calc_intens(Ka(:, 1:int32(size(Ka,2)/2)),[]));
         %hold on;
         
 
-        figure(2); 
-        imshow(Ka);
+        %figure(2); 
+        %imshow(Ka);
         
         hold on;
-        plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         
         %hold on;
         %plot(crn);
