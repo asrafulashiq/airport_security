@@ -59,7 +59,7 @@ if debug
 end
 
 
-[bin_array, R_belt] = match_template_signal_camera11(I, bin_array, loc_something, R_belt,R_c9);
+[bin_array, R_belt] = match_template_signal_camera11(I, bin_array, loc_something, R_belt,R_c9, 1);
 
 if debug
     hold off;

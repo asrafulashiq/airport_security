@@ -7,7 +7,7 @@
 global debug;
 global debug_people
 debug = false;
-debug_people = false;
+debug_people = true;
 global scale;
 scale = 0.5;
 global associate;
@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["9A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -70,18 +70,8 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 3570;
-    
-%     if my_decision == is_update_region
-%         load(file_to_save);
-%         
-%     elseif my_decision == is_load_region
-%         load(file_to_save); % start_f will load here
-%         
-%     elseif my_decision == is_save_region
-%         start_f = start_fr; % starting frame for saving
-%         save(file_to_save, 'start_f'); % creating file_to_save        
-%     end
+    start_fr = 2350;
+   
     
     %% region setting,find region position
    
@@ -112,6 +102,11 @@ for file_number_str = all_file_nums
     
     im_background = lensdistort(im_background, k_distort); % solve radial distortion
     
+    R_belt.flow = [];
+    
+    R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+        'NeighborhoodSize', 20, 'FilterSize', 20);
+    
     
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -134,10 +129,10 @@ for file_number_str = all_file_nums
     R_belt.label = 1;
     starting_index = -1;
     
-    if associate
-       R_belt.label = 4;
-       R_dropping.label = 4;
-    end
+%     if associate
+%        R_belt.label = 4;
+%        R_dropping.label = 4;
+%     end
     
     R_dropping.prev_body = [];
     
@@ -180,7 +175,6 @@ for file_number_str = all_file_nums
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
-            %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
             image = displayimage_camera11(im_c, R_belt, R_dropping, bin_array, ...
                 people_array, bin_seq, people_seq);
         end
@@ -191,52 +185,13 @@ for file_number_str = all_file_nums
         if is_write_video && show_image
             writeVideo(outputVideo,image);
         end
-        
-        
-%         % some experiment here
-%         if numel(people_array) > 0
-%            
-%             X = [];
-%             for i = 1:numel(people_array)
-%                 
-%                 X = [X; people_array{i}.features(:)'];
-%             
-%             end
-%             
-%             Y = [];
-%             for i = 1:numel(R_c9.people_seq)
-%                 Y = [Y; R_c9.people_seq{i}.features(:)'];
-%                 
-%             end
-%             
-%             dd = pdist2(X, Y);
-%             fprintf(f_test, '\ncounter : %d\n------------\n', frame_count);
-%             for i = 1:size(dd, 1) 
-%                 fprintf(f_test, '%d : \n',i );
-%                 for j = 1:size(dd, 2)
-%                      fprintf(f_test, '%d: %.2f  ', j, dd(i,j));                            
-%                 end
-%                 fprintf(f_test, '\n\n');
-%             end
-%             
-%         end
-        
-        
+   
         disp(frame_count);
         
         frame_count = frame_count + 1;
         
     end
-    
-%     if my_decision == is_save_region || my_decision == is_update_region
-%         if my_decision == is_save_region
-%             start_f = start_fr;
-%         end
-%         
-% %         save(file_to_save, 'm_r1_obj', 'm_r1_cnt', 'm_r1_lb', 'm_r4_obj', 'm_r4_cnt', ...
-% %             'm_r4_lb', 'start_f');
-%     end
-    
+
     if is_write_video
         close(outputVideo);
     end

@@ -43,9 +43,7 @@ for file_number_str = all_file_nums
     
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
-    
-    
-    
+
     % camera 10 area
     R_dropping.r_c10 = uint32([1300 1800 377 930] * scale);
     

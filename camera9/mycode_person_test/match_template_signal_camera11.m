@@ -1,4 +1,4 @@
-function bin_array =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9, flag)
+function [bin_array, R_belt] =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9, flag)
 global debug;
 global scale;
 global associate;
@@ -421,7 +421,7 @@ else
     loc_2 = min_;
     if loc_2 > loc_something(1) + r_tall_width * thr
         
-        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9 );
+        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9, 0 );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end
