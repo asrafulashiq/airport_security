@@ -28,7 +28,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -93,8 +93,10 @@ for file_number_str = all_file_nums
         im_c = imrotate(im_c, rot_angle);
         im_c = lensdistort(im_c, k_distort);
 
-        r4 = R_belt.r4;
-        im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+        %r4 = R_belt.r4;
+        r1 = R_dropping.r1;
+        %im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+        im_actual = im_c(r1(3):r1(4),r1(1):r1(2),:);
         %im_actual = im_c;
         
         im_g = rgb2gray(im_actual);
@@ -102,44 +104,33 @@ for file_number_str = all_file_nums
         %corners = detectHarrisFeatures(im_g,'ROI', ROI);
               
         
-        %flow = estimateFlow(opticFlow, im_g);
+        flow = estimateFlow(opticFlow, im_g);
         
         figure(1);
         imshow(im_actual);
-        %hold on;
+        hold on;
 
-        %plot(flow,'DecimationFactor',[5 5],'ScaleFactor',10);
+        plot(flow,'DecimationFactor',[5 5],'ScaleFactor',10);
         
         %plot(corners);
         
-        K = stdfilt(im_g, true(5));
-        K = mat2gray(K);
-        K(K<0.1) = 0;
-        %K = edge(K, 'sobel');
+   
         
-        Kb = logical(K);
+        %Kb = logical(K);
         %Kt = edge(Kb, 'sobel');
         
-        figure(2);
-        imshow(Kb);
+%         figure(2);
+%         imshow(Kb);
         hold off;
-       
-        
 
         drawnow;
         
-        
-        
-
         title(num2str(frame_count));
         
-       
-        
-        
+   
         warning('off', 'last');
      
-        
- 
+
         
         disp(frame_count);
         

@@ -1,12 +1,16 @@
-function bin_array =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9)
+function [bin_array, R_belt] =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9, flag)
 global debug;
 global scale;
 global associate;
 
 obj_num = size(bin_array,2);
 thr = 0.9;
-% create rectangular tall pulse
-
+if flag == 1
+    flow = estimateFlow(R_belt.optic_flow, I);
+    R_belt.flow = flow;
+else
+   flow = R_belt.flow; 
+end
 %%
 r_tall_val = 120;
 r_tall_width = floor(190 * scale);
@@ -69,8 +73,7 @@ if obj_num == 0
           
        end
     else
-        r_val = r_tall_val;
-       
+        r_val = r_tall_val;      
     end
     
     if abs(loc_something(2) - loc_something(1)) <= thr * r_width
@@ -94,6 +97,15 @@ if obj_num == 0
         if coef > 36
             continue;
         end
+        
+        flow_bin_y = flow.Vy(i:i+length(r_tall)-1, 10:size(I,2)/2);
+        flow_bin_y1 = flow_bin_y(1:end/2, :);
+        flow_bin_y2 = flow_bin_y(end/2:end, :);
+        
+        if sum(flow_bin_y1(:)) < -1000 || sum(flow_bin_y2(:)) < -2000
+            continue;
+        end
+        
         coef_aray = [ coef_aray coef ];
         loc_array = [loc_array i];
         
@@ -138,14 +150,40 @@ else
     
     %loc_something = [ 1  size(I,1) ];
     
-    for i = 1:obj_num
+    for i = 1:obj_num 
         
         r_bin = r_tall_bin;
-        
-        
-        lim = int32(20 * scale);
+      
+        %lim = int32(20 * scale);
         lim_b = int32(5 * scale);
         loc_to_match = [];
+        
+        flow_bin_y = flow.Vy(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);
+        flow_bin_Orientation = flow.Orientation(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);
+
+        epsilon = 0.05;
+        flow_bin_Orientation = rad2deg(flow_bin_Orientation);
+        flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation> 70) ...
+            & (flow_bin_Orientation < 110);
+        mean_vy = mean(flow_bin_y(flow_index));
+        mean_theta = mean(flow_bin_Orientation(flow_index));
+        
+        if debug
+            disp('flow value :'); disp(mean_vy);
+            disp('theta :'); disp(mean_theta);
+            disp('');
+        end
+        lim = int32(10 * scale);
+        lim_b = int32(10 * scale);
+        if ~isnan(mean_vy) && ~isnan(mean_theta)
+            
+            if mean_vy >=0
+                lim = int32(20 * mean_vy);
+            else
+                lim_b = int32(20 * abs(mean_vy));
+            end
+        end
+        
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
             r_bin = create_rect(r_wide_width, 5, bin_array{i}.r_val);
@@ -383,7 +421,7 @@ else
     loc_2 = min_;
     if loc_2 > loc_something(1) + r_tall_width * thr
         
-        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9 );
+        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9, 0 );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end

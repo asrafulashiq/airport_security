@@ -64,15 +64,7 @@ for i = 1:size(people_array, 2)
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'blue', 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'blue');
     
-    %% just emni
-    if people_array{i}.label==4
-        text_ = sprintf('p:%d\n id:5', people_array{i}.label);
-    elseif people_array{i}.label==5
-       text_ = sprintf('p:%d\n id:4', people_array{i}.label);
-    end
-    
-    %text_ = sprintf('p:%d', people_array{i}.label);
-    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
+   
 end
 
 

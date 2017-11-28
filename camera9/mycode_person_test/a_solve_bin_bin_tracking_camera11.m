@@ -59,7 +59,7 @@ if debug
 end
 
 
-bin_array = match_template_signal_camera11(I, bin_array, loc_something, R_belt,R_c9);
+[bin_array, R_belt] = match_template_signal_camera11(I, bin_array, loc_something, R_belt,R_c9, 1);
 
 if debug
     hold off;
@@ -138,8 +138,7 @@ for counter = 1: total_bins
             end
             bin_array{i}.belongs_to = belongs_to;
         end
-        
-        
+          
         if debug
             bin_array{i}.belongs_to = 1;
         end
