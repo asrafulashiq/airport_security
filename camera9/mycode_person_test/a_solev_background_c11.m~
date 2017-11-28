@@ -33,7 +33,7 @@ for file_number_str = all_file_nums
     
     v = VideoReader(input_filename);
     
-    start_fr = 2500;
+    start_fr = 2;
 
     
     %% region setting,find region position
@@ -136,6 +136,11 @@ for file_number_str = all_file_nums
 %         imshow(Kb);
         hold off;
 
+        
+        
+        
+        
+        
         drawnow;
         
         title(num2str(frame_count));

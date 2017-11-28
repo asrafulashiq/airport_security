@@ -156,16 +156,12 @@ for file_number_str = all_file_nums
         ncols = size(im_g, 2);
         
         X = [flow_ori Index_array];
-        %X(:,1) = X(:,1)*10;
+        
         
         [cluster_idx, cluster_center] = kmeans(X ,k,'distance','sqEuclidean', ...
                                       'Replicates',3);
-                                  
         
         pixel_labels = reshape(cluster_idx,nrows,ncols);
-
-%         [cluster_center,~ , cluster_idx] = simple_kmeans(X,k, 1e-4);
-%         pixel_labels = reshape(cluster_idx,nrows,ncols);
 
         figure(2);
         imshow(pixel_labels,[]), title('image labeled by cluster index');
