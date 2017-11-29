@@ -58,19 +58,20 @@ for i = 1:size(people_array, 2)
 end
 
 %% text
-for i = 1:size(bin_seq, 2)
-    text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
-        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);
-end
-
-for i = 1:size(people_seq, 2)
-    text_im = insertText(text_im, [p_strt_x p_strt_y+i*t_pad_y], sprintf('p%d', people_seq{i}.label), ...
-        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);    
-end
+% for i = 1:size(bin_seq, 2)
+%     text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
+%         'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);
+% end
+% 
+% for i = 1:size(people_seq, 2)
+%     text_im = insertText(text_im, [p_strt_x p_strt_y+i*t_pad_y], sprintf('p%d', people_seq{i}.label), ...
+%         'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);    
+% end
 
 %% plot 
 figure(1);
-imshow([im_c text_im]);
+%imshow([im_c text_im]);
+imshow(im_c);
 drawnow;
 
 F = getframe(gcf);
