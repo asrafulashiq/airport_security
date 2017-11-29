@@ -28,14 +28,11 @@ for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
     input_filename = fullfile('..',file_number, 'camera11.mp4');
-    
-    
-    
+ 
     v = VideoReader(input_filename);
     
     start_fr = 2500;
-
-    
+   
     %% region setting,find region position
    
     
@@ -48,8 +45,6 @@ for file_number_str = all_file_nums
     %% Region background
     counter = 0;
     im_back = 0;
-    
-    
     
     % object information for each region
     R_dropping.r1_obj = [];
@@ -67,7 +62,6 @@ for file_number_str = all_file_nums
     R_dropping.label = 1;
     R_belt.label = 1;
     starting_index = -1;
-   
     
     R_dropping.prev_body = [];
     
@@ -141,7 +135,7 @@ for file_number_str = all_file_nums
         title(num2str(frame_count));
         
    
-        warning('off', 'last');
+        %warning('off', 'last');
      
 
         

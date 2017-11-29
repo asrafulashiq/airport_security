@@ -5,9 +5,9 @@
 
 %% control variable
 global debug;
-global debug_people
+global debug_people;
 debug = false;
-debug_people = true;
+debug_people = false;
 global scale;
 scale = 0.5;
 global associate;
