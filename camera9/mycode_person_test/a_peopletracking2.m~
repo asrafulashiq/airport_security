@@ -7,8 +7,8 @@ im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),
 min_allowed_dis = 200 * scale;
 limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
-limit_max_width = 450 *  scale;
-limit_max_height = 450 * scale;
+limit_max_width = 420 *  scale;
+limit_max_height = 420 * scale;
 half_y = 0.6 * size(im_r,1) / 2;
 limit_exit_y1 = 1070 * scale;
 limit_exit_x1 = 250 * scale;
@@ -181,13 +181,8 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     
                     all_dist = sort(dist(i,:));
                     second_min_index = find(dist(i,:)==all_dist(2));
-                    if ~isinf(all_dist(2))  && all_dist(2) < 200 &&  isempty(find(min_dis_vector==second_min_index, 1))
-
-%                             body_prop(second_min_index).Centroid(1) > people_array{prev_index}.BoundingBox(1) && ...
-%                             body_prop(second_min_index).Centroid(1) < people_array{prev_index}.BoundingBox(1)+ people_array{prev_index}.BoundingBox(3) && ...
-%                             body_prop(second_min_index).Centroid(2) > people_array{prev_index}.BoundingBox(2) && ...
-%                             body_prop(second_min_index).Centroid(2) < people_array{prev_index}.BoundingBox(2)+ people_array{prev_index}.BoundingBox(4) && ...
-                        
+                    if ~isinf(all_dist(2))  && body_prop(second_min_index).Centroid(1) > people_array{prev_index}.BoundingBox(1) && ...
+                            isempty(find(min_dis_vector==second_min_index, 1))
                         total_area = body_prop(second_min_index).Area + body_prop(min_arg).Area;
                         if total_area < 2 * people_array{prev_index}.Area 
                             bb = body_prop(second_min_index).BoundingBox;
