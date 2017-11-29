@@ -371,7 +371,9 @@ for i = 1:size(body_prop, 1)
     end
     
     % check entrance
-    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
+    bb = body_prop(i).BoundingBox;
+    total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
+    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
             body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1
         
         limit_flag = false;

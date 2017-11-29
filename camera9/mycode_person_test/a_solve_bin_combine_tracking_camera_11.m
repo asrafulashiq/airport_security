@@ -70,7 +70,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 2350;
+    start_fr = 2650;
    
     
     %% region setting,find region position
@@ -103,8 +103,11 @@ for file_number_str = all_file_nums
     im_background = lensdistort(im_background, k_distort); % solve radial distortion
     
     R_belt.flow = [];
+    R_dropping.flow = [];
     
     R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+        'NeighborhoodSize', 20, 'FilterSize', 20);
+    R_dropping.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
     
     
