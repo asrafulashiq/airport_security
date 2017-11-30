@@ -90,7 +90,7 @@ if obj_num == 0
     
     
     for i = loc_something(1): ( loc_something(2) -  length(r_) + 1 )
-        I_d = calc_intens(I, [ i i+length(r_)-1 ]);
+        I_d = calc_intens(I(:, 1:int32(size(I,2)*0.7)), [ i i+length(r_)-1 ]);
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_c11(r_, I_d, st);
         
@@ -154,8 +154,7 @@ else
         
         r_bin = r_tall_bin;
       
-        %lim = int32(20 * scale);
-        lim_b = int32(5 * scale);
+       
         loc_to_match = [];
         
         flow_bin_y = flow.Vy(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);
@@ -272,7 +271,7 @@ else
                 bin_array{i}.count < 150 && bin_array{i}.count >= 2
             
             lim_b = r_wide_width - r_tall_width;
-            
+            lim = 50;
             r_wide_val = bin_array{i}.r_val;
             
             r_wide = create_rect(r_wide_width, 5, r_wide_val);

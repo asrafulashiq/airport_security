@@ -121,10 +121,8 @@ else
     for i = 1:obj_num
         
         r_bin = r_tall_bin;
+          
         
-        
-        lim = int32(40 * scale);
-        lim_b = int32(10 * scale);
         loc_to_match = [];
         
         flow_bin_y = flow.Vy(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);

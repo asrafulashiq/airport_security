@@ -70,11 +70,9 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 2650;
-   
+    start_fr = 5550;   
     
-    %% region setting,find region position
-   
+    %% region setting,find region position   
     
     % Region1: droping bags 
     R_dropping.r1 = [570 1080 286 1800] * scale; %r1;%[103 266 61 436];
@@ -132,10 +130,10 @@ for file_number_str = all_file_nums
     R_belt.label = 1;
     starting_index = -1;
     
-%     if associate
-%        R_belt.label = 4;
-%        R_dropping.label = 4;
-%     end
+     if associate
+        R_belt.label = 5;
+        R_dropping.label = 3;
+     end
     
     R_dropping.prev_body = [];
     
@@ -145,8 +143,7 @@ for file_number_str = all_file_nums
     
     %% Start tracking and baggage association
     frame_count = start_fr;
-    
-    
+      
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
@@ -164,7 +161,7 @@ for file_number_str = all_file_nums
 %         end
         % tracking the people
         [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array);
+            R_belt,people_seq,people_array, bin_array, R_c9);
         
         % tracking the bin
         [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_dropping,...
