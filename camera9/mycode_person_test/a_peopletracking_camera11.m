@@ -12,7 +12,7 @@ limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
 limit_max_width = 420 *  scale;
 limit_max_height = 420 * scale;
-half_y = 1250 * scale; %1.8 * size(im_r,1) / 2;
+half_y = 1280 * scale; %1.8 * size(im_r,1) / 2;
 limit_exit_y1 = 1300 * scale;
 limit_exit_x1 = 10 * scale;
 limit_exit_y2 = 1300 * scale;
@@ -49,15 +49,6 @@ im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 %im_binary = logical(im_eroded);
 
-%% calculate difference image
-% im_diff = [];
-%
-% if ~isempty(R_dropping.prev_body)
-%     im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
-%     im_diff(norm(im_diff) < 30) = 0;
-%     im_diff = double(im_diff);
-%     im_diff = mat2gray(im_diff);
-% end
 
 %% blob analysis
 
@@ -371,8 +362,11 @@ for i = 1:size(body_prop, 1)
     % check entrance
     bb = body_prop(i).BoundingBox;
     total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
+    
+    init_max_x = 127 * 2 * scale;
+
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
-              body_prop(i).Centroid(2) < limit_exit_y1
+              body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];

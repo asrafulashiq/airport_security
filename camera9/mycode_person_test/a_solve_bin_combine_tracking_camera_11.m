@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["7A", "6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -70,7 +70,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 5550;   
+    start_fr = 1250;   
     
     %% region setting,find region position   
     
@@ -131,8 +131,8 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
      if associate
-        R_belt.label = 5;
-        R_dropping.label = 3;
+        R_belt.label = 1;
+        R_dropping.label = 1;
      end
     
     R_dropping.prev_body = [];

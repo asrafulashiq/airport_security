@@ -52,16 +52,15 @@ I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
 if debug
     figure(2);
-    plot(1:size(I,1), calc_intens(I(:, 1:int32(size(I,2)/2)),[]), 'k', 'LineWidth', 1);
+    plot(1:size(I,1), calc_intens(I(:, 1:int32(size(I,2)/2)),[]));
     hold on;
 end
 
-[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt, 1);
+bin_array = match_template_signal_half(I, bin_array, loc_something);
 
 if debug
     hold off;
-    %drawnow;
-    
+    drawnow;
 end
 
 %% bin processing
@@ -72,15 +71,10 @@ limit_max_dist = 280*scale;
 
 for counter = 1: total_bins
     
-    if isfield(bin_array{i},'destroy') && bin_array{i}.destroy == true
+    if isfield(bin_array{i},'destroy')
         bin_array(i) = [];
         %r4_cnt = r4_cnt - 1;
         continue;
-    end
-    
-    if debug
-        im_actual = insertShape(im_actual, 'Rectangle', ...
-            bin_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'red' );        
     end
     
     %bin_array{i}.belongs_to = 1;
@@ -155,26 +149,7 @@ for counter = 1: total_bins
     else
         i = i+1;
     end
-    
-    
-    
 end
-
-if debug
-   
-    figure(3);
-    imshow(im_actual);
-    
-    if ~isempty(R_belt.flow)
-        hold on;
-        plot(R_belt.flow,'DecimationFactor',[5 5],'ScaleFactor',5);
-        hold off;
-    end
-
-    drawnow;
-    
-end
-
 
 end
 

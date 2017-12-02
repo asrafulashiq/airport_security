@@ -5,18 +5,18 @@
 
 %% control variable
 global debug;
-debug = false;
+debug = true;
 global scale;
 scale = 0.5;
 global debug_people;
 debug_people = false;
 
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
-is_update_region = 3; % flag to update region data f   rom respective matfile
+is_update_region = 3; % flag to update region data from respective matfile
 
 my_decision = 1;
 
@@ -24,8 +24,7 @@ my_decision = 1;
 % file for input video
 
 
-all_file_nums = ["7A"];
-%all_file_nums = ["EXP_1A"];
+all_file_nums = ["EXP_1A"];
 
 for file_number_str = all_file_nums
     
@@ -33,8 +32,9 @@ for file_number_str = all_file_nums
     input_filename = fullfile('..',file_number, ['camera9_' file_number '.mp4']);
     
     if ~exist(input_filename)
-        input_filename = fullfile('..',file_number, 'camera9.mp4');
+        input_filename = fullfile('..',file_number, 'Camera_9.mp4');
     end
+    
     v = VideoReader(input_filename);
     
     %% the file for the outputvideo
@@ -47,8 +47,10 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
-    start_fr = 300;
+    
 
+    start_fr = 900;
+    
     if my_decision == is_update_region
         load(file_to_save);
         
@@ -62,7 +64,8 @@ for file_number_str = all_file_nums
     end
     
     %% region setting,find region position
-  
+    
+    
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
     
@@ -76,14 +79,6 @@ for file_number_str = all_file_nums
     %% Region background
     counter = 0;
     im_back = 0.0;
-    
-    R_belt.flow = [];
-    R_dropping.flow = [];
-    
-    R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-        'NeighborhoodSize', 20, 'FilterSize', 20);
-    R_dropping.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-        'NeighborhoodSize', 20, 'FilterSize', 20);
     
     % read camera 10 background
     file_c10 = fullfile('..',file_number, 'camera10.mp4');
@@ -152,7 +147,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 907
+        if frame_count >= 1301
             1;
         end
         
@@ -186,9 +181,6 @@ for file_number_str = all_file_nums
 
         frame_count = frame_count + 1;
         
-        if frame_count > 6280
-           break; 
-        end
     end
     
     if my_decision == is_save_region || my_decision == is_update_region

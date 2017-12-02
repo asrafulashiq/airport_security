@@ -365,7 +365,7 @@ else
         
         %%% draw
         if debug
-            plot( min_loc:loc_end, r_bin );
+            plot( min_loc:loc_end, r_bin,  'r--', 'LineWidth', 2 );
             %disp("min loc :"+min_loc);
             %disp("min value :"+min_val);
         end

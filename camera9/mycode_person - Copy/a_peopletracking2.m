@@ -7,19 +7,14 @@ im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),
 min_allowed_dis = 200 * scale;
 limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
-limit_max_width = 450 *  scale;
-limit_max_height = 450 * scale;
-half_y = 190 * 2 * scale;%0.3 * size(im_r,1) / 2;
+limit_max_width = 420 *  scale;
+limit_max_height = 420 * scale;
+half_y = 0.6 * size(im_r,1) / 2;
 limit_exit_y1 = 1070 * scale;
 limit_exit_x1 = 250 * scale;
 limit_exit_y2 = 600 * scale;
 limit_exit_x2 = 210 * scale;
 threshold_img = 60;
-
-im_g = rgb2gray(im_r);
-flow = estimateFlow(R_dropping.optic_flow, im_g);
-R_dropping.flow = flow;
-
 
 if debug_people
     half_y = 1.6 * size(im_r,1) / 2;
@@ -52,14 +47,14 @@ im_binary = imfill(im_binary, 'holes');
 %im_binary = logical(im_eroded);
 
 %% calculate difference image
-% im_diff = [];
-%
-% if ~isempty(R_dropping.prev_body)
-%     im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
-%     im_diff(norm(im_diff) < 30) = 0;
-%     im_diff = double(im_diff);
-%     im_diff = mat2gray(im_diff);
-% end
+im_diff = [];
+
+if ~isempty(R_dropping.prev_body)
+    im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
+    im_diff(norm(im_diff) < 30) = 0;
+    im_diff = double(im_diff);
+    im_diff = mat2gray(im_diff);
+end
 
 %% blob analysis
 
@@ -82,7 +77,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
         % detect exit from camera 9
         if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
                 ( people_array{i}.Centroid(2) > limit_exit_y2 && people_array{i}.Centroid(1) > limit_exit_x2 && ...
-                (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del)) % people_array{i}.Area < exit_vanishing_area
+                (~isempty(people_array) && people_array{i}.critical_del >= thres_critical_del)) % people_array{i}.Area < exit_vanishing_area 
             
             % && people_array{i}.Centroid(2) > half_y)
             %people_seq{end+1} = people_array{i};
@@ -152,7 +147,7 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 if body_prop(min_arg).BoundingBox(3)>limit_max_width || body_prop(min_arg).BoundingBox(4)>limit_max_height
                     %&& people_array{i}.state ~= "temp_disappear" %  body_prop(min_arg).Area > 1.3 * people_array{i}.Area
                     % divide area and match
-                    [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{prev_index}, flow);
+                    [bbox_matched, ~, centroid] = match_people_bbox(im_r, im_binary, people_array{prev_index}, im_diff);
                     
                     if ~isempty(bbox_matched)
                         del_index_of_body = [del_index_of_body; min_arg];
@@ -169,59 +164,12 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     continue;
                 end
                 
-                people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
                 del_index_of_body = [del_index_of_body; min_arg];
-                
+                people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
+                people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
                 people_array{prev_index}.BoundingBox = body_prop(min_arg).BoundingBox;
                 people_array{prev_index}.color_val = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary);
                 people_array{prev_index}.Area = body_prop(min_arg).Area;
-                
-                % check second minimum value
-                if length(dist(i,:)) > 1
-                    
-                    all_dist = sort(dist(i,:));
-                    second_min_index = find(dist(i,:)==all_dist(2));
-                    if ~isinf(all_dist(2))  && all_dist(2) < 200 &&  isempty(find(min_dis_vector==second_min_index, 1))
-
-%                             body_prop(second_min_index).Centroid(1) > people_array{prev_index}.BoundingBox(1) && ...
-%                             body_prop(second_min_index).Centroid(1) < people_array{prev_index}.BoundingBox(1)+ people_array{prev_index}.BoundingBox(3) && ...
-%                             body_prop(second_min_index).Centroid(2) > people_array{prev_index}.BoundingBox(2) && ...
-%                             body_prop(second_min_index).Centroid(2) < people_array{prev_index}.BoundingBox(2)+ people_array{prev_index}.BoundingBox(4) && ...
-                        
-                        total_area = body_prop(second_min_index).Area + body_prop(min_arg).Area;
-                        if total_area < 2 * people_array{prev_index}.Area 
-                            bb = body_prop(second_min_index).BoundingBox;
-                            total_flow = sum(sum( flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1)));
-                            if total_flow > 1000
-                                % pass
-                                
-                                b_2 = body_prop(second_min_index);
-                                b_1 = body_prop(min_arg);
-                                
-                                people_array{prev_index}.Centroid = (body_prop(min_arg).Centroid*body_prop(min_arg).Area + ...
-                                    body_prop(second_min_index).Centroid * body_prop(second_min_index).Area) / ...
-                                    (body_prop(second_min_index).Area + body_prop(min_arg).Area);
-                                
-                                del_index_of_body = [del_index_of_body; second_min_index];
-                                
-                                % bbox
-                                x_t = min( b_2.BoundingBox(1), b_1.BoundingBox(1) );
-                                y_t = min( b_2.BoundingBox(2), b_1.BoundingBox(2) );
-                                
-                                x_end_t = max( b_2.BoundingBox(1)+b_2.BoundingBox(3)-1, b_1.BoundingBox(1)+b_1.BoundingBox(3)-1 );
-                                y_end_t = max( b_2.BoundingBox(2)+b_2.BoundingBox(4)-1, b_1.BoundingBox(2)+b_1.BoundingBox(4)-1 );
-                                
-                                people_array{prev_index}.BoundingBox = [x_t, y_t, x_end_t-x_t+1, y_end_t-y_t+1];
-                                
-                                people_array{prev_index}.Area = body_prop(min_arg).Area+b_2.Area;
-                                
-                                
-                            end
-                        end
-                    end
-                end
-                
-                people_array{prev_index}.Orientation = body_prop(min_arg).Orientation;
                 people_array{prev_index}.temp_count = 0;
                 new_features = get_features(im_r, body_prop(min_arg).BoundingBox, im_binary);
                 people_array{prev_index}.features = 0.5 * new_features + 0.5 * people_array{prev_index}.features;
@@ -238,7 +186,6 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                 end
                 
                 prev_ind = find(min_dis_vector(:,2) == vect(i));
-                
                 prev_ind = prev_ind(min_dis_vector(prev_ind, 1) <= 500*scale);
                 
                 if length(prev_ind) == 1
@@ -371,9 +318,7 @@ for i = 1:size(body_prop, 1)
     end
     
     % check entrance
-    bb = body_prop(i).BoundingBox;
-    total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
-    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
+    if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && ...
             body_prop(i).Centroid(1) < limit_exit_x1 && body_prop(i).Centroid(2) < limit_exit_y1
         
         limit_flag = false;
@@ -480,7 +425,7 @@ for i = 1:numel(R_dropping.exit_from_9)
             
             if debug_people
                 
-                figure(5); imshow(im_draw_10);
+                figure(4); imshow(im_draw_10);
             end
             
         end
@@ -498,7 +443,12 @@ if ~isempty(del_exit_from_c9)
 end
 
 im_draw = im_r;
-
+for i = 1:size(people_array, 2)
+    
+    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 10);
+    im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 20] );
+    
+end
 
 %figure(2); imshow(im_draw);
 
@@ -514,34 +464,9 @@ if ~isempty(R_dropping.prev_body) && debug_people
     %figure(2); imshow(im_draw);
     
     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
-    %figure(4);imshow(im_binary);
-
     
-    for i = 1:size(im_draw,1)
-        for j = 1:size(im_draw,2)            
-            if im_binary(i,j)==1
-               im_draw(i,j,1) = 200;
-            end
-        end
-    end
-    
-    for i = 1:size(people_array, 2)
-    bounding_box = [ people_array{i}.BoundingBox(1) ...
-        people_array{i}.BoundingBox(2) ...
-        people_array{i}.BoundingBox(3) ...
-        people_array{i}.BoundingBox(4) ];
-    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'blue');
-    im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 10], 'Color', 'blue' );
-    text_ = sprintf('person:%d', people_array{i}.label);
-    im_draw = insertText(im_draw, bounding_box(1:2), text_, 'FontSize', 20);
-    end
-    
-    figure(2);
-    imshow(im_draw);
-    hold off;
-    
-    figure(3); imshow(im_binary);
-    
+    figure(3); imshow(im_diff,[]);
+    figure(4);imshow(im_binary);
     drawnow;
     
 end

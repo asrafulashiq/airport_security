@@ -6,7 +6,7 @@
 %% control variable
 global debug;
 global debug_people
-debug = false;
+debug = true;
 debug_people = false;
 global scale;
 scale = 0.5;
@@ -15,7 +15,7 @@ associate = true;
 
 %% some test
 
-%f_test = fopen('f_test.txt', 'at');
+f_test = fopen('f_test.txt', 'at');
 
 %%
 show_image = true;
@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["9A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = ["6A","7A","9A","10A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -70,7 +70,7 @@ for file_number_str = all_file_nums
        R_c9.start_fr = start_fr;
     end
     
-    start_fr = 1000;
+    start_fr = 2350;
     
 %     if my_decision == is_update_region
 %         load(file_to_save);
@@ -94,7 +94,7 @@ for file_number_str = all_file_nums
     rot_angle = 90;
     %% Region background
     counter = 0;
-    im_back = 0;
+    im_back = 0.0;
     
     
     
@@ -112,10 +112,6 @@ for file_number_str = all_file_nums
     
     im_background = lensdistort(im_background, k_distort); % solve radial distortion
     
-    R_belt.flow = [];
-    
-    R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-        'NeighborhoodSize', 20, 'FilterSize', 20);
     
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
@@ -139,8 +135,7 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
     if associate
-       R_belt.label = 4;
-       R_dropping.label = 4;
+       R_belt.label = 1; 
     end
     
     R_dropping.prev_body = [];

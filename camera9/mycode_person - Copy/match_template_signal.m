@@ -1,4 +1,4 @@
-function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt)
+function bin_array =  match_template_signal(I, bin_array, loc_something)
 global debug;
 global scale;
 
@@ -47,7 +47,7 @@ if obj_num == 0
     
     limit_std = 30;
     for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
-        I_d = calc_intens(I(:, 1:int32(size(I,2)*0.7)), [ i i+length(r_tall)-1 ]);
+        I_d = calc_intens(I, [ i i+length(r_tall)-1 ]);
         %coef = sum(abs( r_tall - I_d )) / length(r_tall);
         coef = calc_coef_w(r_tall, I_d);
         
@@ -83,6 +83,7 @@ if obj_num == 0
         disp("min value :"+min_val);
     end
     
+    
     Bin = struct( ...
         'Area',size(T_,1)*size(T_,2), 'Centroid', Loc', ...
         'BoundingBox', [1 min_loc size(I,2) height ], ...
@@ -97,21 +98,22 @@ if obj_num == 0
     
     bin_array{end+1} = Bin;
     
-    estimateFlow(R_belt.optic_flow, I);
-     
+    %     figure(4); imshow(I(min_loc:min_loc+59,:));
+    %
+    %      x = [];
+    
 else
         
     loc_something_actual = loc_something;
     
-
     for i = 1:obj_num
         
-        r_bin = r_tall_bin; 
-        lim = int32(40 * scale);
-        lim_b = int32(10 * scale);
+        r_bin = r_tall_bin;
+        
+        
+        lim = int32(20 * scale);
+        lim_b = int32(5 * scale);
         loc_to_match = [];
-        
-        
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
             r_bin = create_rect(r_wide_width, 5, bin_array{i}.r_val);
@@ -177,7 +179,7 @@ else
         
         for j = loc_to_match(1): loc_to_match(2)- length(r_bin) + 1
             % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
-            I_d = calc_intens(I(:, 1:int32(size(I,2)/2)), [ j j+length(r_bin)-1 ]);
+            I_d = calc_intens(I, [ j j+length(r_bin)-1 ]);
             coef = calc_coef(r_bin, I_d, bin_array{i}.std);
             coef_aray = [ coef_aray coef ];
             loc_array = [loc_array j];
@@ -205,7 +207,7 @@ else
             
             lim_b = r_wide_width - r_tall_width;
             lim = 50;
-            r_wide_val = bin_array{i}.r_val ;
+            r_wide_val = bin_array{i}.r_val * 0.9;
             r_wide = create_rect(r_wide_width, 5, r_wide_val);
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
@@ -219,7 +221,7 @@ else
                 loc_array_wide = [];
                 for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_wide) + 1
                     % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
-                    I_d = calc_intens(I(:, 1:int32(size(I,2)/2)), [ j j+length(r_wide)-1 ]);
+                    I_d = calc_intens(I, [ j j+length(r_wide)-1 ]);
                     coef = calc_coef(r_wide, I_d, bin_array{i}.std);
                     coef_aray_wide = [ coef_aray_wide coef ];
                     loc_array_wide = [loc_array_wide j];
@@ -241,10 +243,10 @@ else
                     end
                 end
             end
-        elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" %&& bin_array{i}.count < 150
+        elseif bin_array{i}.state=="empty" && bin_array{i}.bin_or == "wide" && bin_array{i}.count < 150
             
             lim_b = 10;
-            r_tall_w = create_rect(r_tall_width, 5, r_val); %r_tall_bin;
+            r_tall_w = r_tall_bin;
             
             loc_to_match_w = loc_match(bin_array,i,loc_something,lim,lim_b);
             if abs(loc_to_match_w(2) - loc_to_match_w(1))> thr * length(r_tall_w)
@@ -257,7 +259,7 @@ else
                 loc_array_tall = [];
                 for j = loc_to_match_w(1): loc_to_match_w(2)- length(r_tall_w) + 1
                     % width = bin_array{i}.limit(2) - bin_array{i}.limit(1)+1;
-                    I_d = calc_intens(I(:, 1:int32(size(I,2)/2)), [ j j+length(r_tall_w)-1 ]);
+                    I_d = calc_intens(I, [ j j+length(r_tall_w)-1 ]);
                     coef = calc_coef(r_tall_w, I_d, bin_array{i}.std);
                     coef_aray_tall = [ coef_aray_tall coef ];
                     loc_array_tall = [loc_array_tall j];
@@ -297,7 +299,7 @@ else
                 bin_array{i}.recent_unspec = [];
                 bin_array{i}.recent_unspec(end+1) = min_val;
             else
-                %bin_array{i}.recent_unspec
+                bin_array{i}.recent_unspec
                 bin_array{i}.recent_unspec( end+1 ) = min_val;
                 if length(bin_array{i}.recent_unspec) > 5
                     std_unspec = std(bin_array{i}.recent_unspec(end-4:end), 1);
@@ -306,10 +308,9 @@ else
                         if mean2( I(min_loc:loc_end, :)) > 110
                             % empty state
                             bin_array{i}.state = "empty";
-                            bin_array{i}.r_val = mean2( I(min_loc:loc_end, 1:end/2));
                         else
                             bin_array{i}.state = "fill";
-                            bin_array{i}.r_val = mean2( I(min_loc:loc_end, 1:end/2));
+                            bin_array{i}.r_val = mean2( I(min_loc:loc_end, :));
                             
                         end
                         bin_array{i} = rmfield(bin_array{i}, 'recent_unspec');
@@ -335,7 +336,7 @@ else
         bin_array{i}.BoundingBox = [1 min_loc size(I,2) height ];
         bin_array{i}.limit= [ min_loc loc_end ] ;
         bin_array{i}.image=I( min_loc : loc_end , : );
-        bin_array{i}.std =  std( calc_intens(I(:, 1:int32(size(I,2)/2)), [min_loc loc_end]) ,1);
+        bin_array{i}.std =  std( calc_intens(I, [min_loc loc_end]) ,1);
         bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
         
