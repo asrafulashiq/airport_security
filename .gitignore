@@ -4,7 +4,6 @@ data/*.jpg
 detected_bin/*jpg
 label*/*
 new_bin*/*
-*.mat
 
 # General
 *.DS_Store
