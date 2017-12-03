@@ -9,7 +9,7 @@ r4 = R_belt.r4;
 im_r4_p = R_belt.im_r4_p;
 
 %% Set up parameters
-threshold = 10; %threshold for object recognition
+threshold = 13; %threshold for object recognition
 dis_exit_y = 900 * scale;
 
 %% Preprocessing
@@ -38,7 +38,7 @@ if isempty(loc)
     
     if debug
         I = im_actual;
-        figure(1); imshow(I);
+        figure(3); imshow(I);
         drawnow;
     end
     return;
@@ -116,7 +116,7 @@ for counter = 1: total_bins
                 if min(dis_b_p) > limit_max_dist
                     belongs_to = -1;
                 else
-                    belongs_to = people_array{bin_belong_index}.label;
+                    belongs_to = people_array{bin_belong_index}.id;
                     % check matching
                     intended_bin = [];
                     % find associated previous bin
@@ -126,8 +126,10 @@ for counter = 1: total_bins
                             break;
                         end
                     end
-                    to_match = intended_bin.belongs_to;
-                    if to_match == belongs_to
+                    if ~isempty(intended_bin)
+                        to_match = intended_bin.belongs_to;
+                    end
+                    if ~isempty(intended_bin) && to_match == belongs_to
                         bin_array{i}.match = "right";
                     else
                         bin_array{i}.match = "wrong";
@@ -166,7 +168,7 @@ for counter = 1: total_bins
 end
 
 if debug
-    figure(1); imshow(I);
+    figure(3); imshow(I);
     drawnow;
 end
 

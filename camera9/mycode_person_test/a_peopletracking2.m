@@ -9,7 +9,7 @@ limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
 limit_max_width = 450 *  scale;
 limit_max_height = 450 * scale;
-half_y = 0.6 * size(im_r,1) / 2;
+half_y = 190 * 2 * scale;%0.3 * size(im_r,1) / 2;
 limit_exit_y1 = 1070 * scale;
 limit_exit_x1 = 250 * scale;
 limit_exit_y2 = 600 * scale;
@@ -498,12 +498,7 @@ if ~isempty(del_exit_from_c9)
 end
 
 im_draw = im_r;
-for i = 1:size(people_array, 2)
-    
-    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 10);
-    im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 20] );
-    
-end
+
 
 %figure(2); imshow(im_draw);
 
@@ -519,7 +514,34 @@ if ~isempty(R_dropping.prev_body) && debug_people
     %figure(2); imshow(im_draw);
     
     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
-    figure(4);imshow(im_binary);
+    %figure(4);imshow(im_binary);
+
+    
+    for i = 1:size(im_draw,1)
+        for j = 1:size(im_draw,2)            
+            if im_binary(i,j)==1
+               im_draw(i,j,1) = 200;
+            end
+        end
+    end
+    
+    for i = 1:size(people_array, 2)
+    bounding_box = [ people_array{i}.BoundingBox(1) ...
+        people_array{i}.BoundingBox(2) ...
+        people_array{i}.BoundingBox(3) ...
+        people_array{i}.BoundingBox(4) ];
+    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'blue');
+    im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 10], 'Color', 'blue' );
+    text_ = sprintf('person:%d', people_array{i}.label);
+    im_draw = insertText(im_draw, bounding_box(1:2), text_, 'FontSize', 20);
+    end
+    
+    figure(2);
+    imshow(im_draw);
+    hold off;
+    
+    figure(3); imshow(im_binary);
+    
     drawnow;
     
 end

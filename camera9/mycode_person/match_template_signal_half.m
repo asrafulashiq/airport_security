@@ -1,4 +1,4 @@
-function bin_array =  match_template_signal_half(I, bin_array, loc_something)
+function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt)
 global debug;
 global scale;
 
@@ -83,7 +83,6 @@ if obj_num == 0
         disp("min value :"+min_val);
     end
     
-    
     Bin = struct( ...
         'Area',size(T_,1)*size(T_,2), 'Centroid', Loc', ...
         'BoundingBox', [1 min_loc size(I,2) height ], ...
@@ -98,22 +97,21 @@ if obj_num == 0
     
     bin_array{end+1} = Bin;
     
-    %     figure(4); imshow(I(min_loc:min_loc+59,:));
-    %
-    %      x = [];
-    
+    estimateFlow(R_belt.optic_flow, I);
+     
 else
         
     loc_something_actual = loc_something;
     
+
     for i = 1:obj_num
         
-        r_bin = r_tall_bin;
-        
-        
+        r_bin = r_tall_bin; 
         lim = int32(40 * scale);
         lim_b = int32(10 * scale);
         loc_to_match = [];
+        
+        
         
         if isfield(bin_array{i},'bin_or') && bin_array{i}.bin_or=="wide"
             r_bin = create_rect(r_wide_width, 5, bin_array{i}.r_val);

@@ -1,8 +1,9 @@
 function [people_seq, people_array, R_dropping] = a_peopletracking_camera11(im_c,R_dropping,...
-    R_belt,people_seq,people_array, bin_array)
+    R_belt,people_seq,people_array, bin_array, R_c9)
 %% region 1 extraction
 global scale;
 global debug_people;
+global associate;
 im_r = im_c(R_dropping.r1(3):(R_dropping.r1(4)),R_dropping.r1(1):R_dropping.r1(2),:);
 thres_low = 0.4;
 thres_up = 1.5;
@@ -11,7 +12,7 @@ limit_area = 14000 * scale^2;
 limit_init_area = 35000 *  scale^2;
 limit_max_width = 420 *  scale;
 limit_max_height = 420 * scale;
-half_y = 1250 * scale; %1.8 * size(im_r,1) / 2;
+half_y = 1280 * scale; %1.8 * size(im_r,1) / 2;
 limit_exit_y1 = 1300 * scale;
 limit_exit_x1 = 10 * scale;
 limit_exit_y2 = 1300 * scale;
@@ -48,15 +49,6 @@ im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 %im_binary = logical(im_eroded);
 
-%% calculate difference image
-% im_diff = [];
-%
-% if ~isempty(R_dropping.prev_body)
-%     im_diff = abs(double(rgb2gray(im_r)) - double(rgb2gray(R_dropping.prev_body)));
-%     im_diff(norm(im_diff) < 30) = 0;
-%     im_diff = double(im_diff);
-%     im_diff = mat2gray(im_diff);
-% end
 
 %% blob analysis
 
@@ -370,8 +362,11 @@ for i = 1:size(body_prop, 1)
     % check entrance
     bb = body_prop(i).BoundingBox;
     total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
+    
+    init_max_x = 127 * 2 * scale;
+
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
-              body_prop(i).Centroid(2) < limit_exit_y1
+              body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
@@ -394,11 +389,21 @@ for i = 1:size(body_prop, 1)
         features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-            'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, ...
+            'state', "unspec", 'color_val', color_val, 'label', R_dropping.label, 'id', R_dropping.label, ...
             'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
+        
+        if associate
+            label_num = Person.label;
+            if numel(R_c9.people_seq) >= label_num
+                intended_label = R_c9.people_seq{label_num}.label;
+                Person.id = intended_label;     
+            end
+        end
+        
+        
         R_dropping.label = R_dropping.label + 1;
         people_array{end+1} = Person;
-        
+  
     end
 end
 
@@ -406,8 +411,6 @@ end
 
 %% check exit from c9
 check_10_threshold = 400;
-
-
 
 im_draw = im_r;
 for i = 1:size(people_array, 2)

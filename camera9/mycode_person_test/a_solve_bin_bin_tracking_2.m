@@ -52,7 +52,7 @@ I(loc,:) = rgb2gray(im_actual(loc,:,:));
 
 if debug
     figure(2);
-    plot(1:size(I,1), calc_intens(I(:, 1:int32(size(I,2)/2)),[]));
+    plot(1:size(I,1), calc_intens(I(:, 1:int32(size(I,2)/2)),[]), 'k', 'LineWidth', 1);
     hold on;
 end
 
@@ -80,7 +80,7 @@ for counter = 1: total_bins
     
     if debug
         im_actual = insertShape(im_actual, 'Rectangle', ...
-            bin_array{i}.BoundingBox, 'LineWidth', 5 );        
+            bin_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'red' );        
     end
     
     %bin_array{i}.belongs_to = 1;

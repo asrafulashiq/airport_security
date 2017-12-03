@@ -37,13 +37,17 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
+<<<<<<< HEAD
     start_fr = 400;
+=======
+    start_fr = 1200;
+>>>>>>> 44f971e6714143dda32271fd5b40bd8d90efe074
     
     %% region setting,find region position
     
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
-
+    
     % camera 10 area
     R_dropping.r_c10 = uint32([1300 1800 377 930] * scale);
     
@@ -101,6 +105,7 @@ for file_number_str = all_file_nums
     
     opticFlow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10, 'NeighborhoodSize', 20, 'FilterSize', 20);
     
+<<<<<<< HEAD
 %     Index_array = zeros(nrows, ncols, 2);
 %         for i = 1:nrows
 %            for j = 1:ncols
@@ -108,6 +113,15 @@ for file_number_str = all_file_nums
 %            end
 %         end
 %     Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
+=======
+    Index_array = zeros(nrows, ncols, 2);
+    for i = 1:nrows
+        for j = 1:ncols
+            Index_array(i,j,:) = [i, j];
+        end
+    end
+    Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
+>>>>>>> 44f971e6714143dda32271fd5b40bd8d90efe074
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -121,18 +135,18 @@ for file_number_str = all_file_nums
         im_actual = im_c ;%(r1(3):r1(4),r1(1):r1(2),:);
         %im_actual = im_c;
         
-         im_g = rgb2gray(im_actual);
-%         
-%         K = stdfilt(im_g, true(5));
-%         K = mat2gray(K);
-%         K(K<0.3) = 0;
-%         Ka = K;
+        im_g = rgb2gray(im_actual);
+        %
+        %         K = stdfilt(im_g, true(5));
+        %         K = mat2gray(K);
+        %         K(K<0.3) = 0;
+        %         Ka = K;
         %K = edge(K, 'sobel');
         
         %Kb = logical(K);
         
         %crn = detectHarrisFeatures(Kb);
-
+        
         
         %corners = detectMinEigenFeatures(im_g,'FilterSize', 75);%detectHarrisFeatures(im_g, 'FilterSize', 25);
         %corners = detectFASTFeatures(im_g);
@@ -141,63 +155,70 @@ for file_number_str = all_file_nums
         %i_med = imgaussfilt(im_g,2);
         
         
-        
-        
         flow = estimateFlow(opticFlow, im_g);
         
-%         flow_mag = flow.Magnitude(:);
-%         flow_ori = flow.Orientation(:);
-%         
-%         indices_low_mag = find(flow_mag < .05 );
-%         flow_ori(indices_low_mag) = 2*pi;
-%         
-%         k = 3;
+
+        flow_mag = flow.Magnitude;
+        flow_ori = flow.Orientation;
+        
+        indices_low_mag = find(flow_mag < .20 );
+        flow_ori(indices_low_mag) = 2*pi;
+        flow_mag(indices_low_mag) = 0;
+        
+%         k = 5;
 %         nrows = size(im_g, 1);
 %         ncols = size(im_g, 2);
-        
-        %X = [flow_ori Index_array];
-        %X(:,1) = X(:,1)*10;
-        
-       % [cluster_idx, cluster_center] = kmeans(X ,k,'distance','sqEuclidean', ...
-       %                               'Replicates',3);
-                                  
-        
-       % pixel_labels = reshape(cluster_idx,nrows,ncols);
-
-%         [cluster_center,~ , cluster_idx] = simple_kmeans(X,k, 1e-4);
+%         
+%         X = [flow_ori flow_mag ];
+%         %X(:,1) = X(:,1)*10;
+%         
+%         [cluster_idx, cluster_center] = kmeans(X ,k,'distance','sqEuclidean', ...
+%             'Replicates',3);
+%         
+%         
 %         pixel_labels = reshape(cluster_idx,nrows,ncols);
-
 %         figure(2);
 %         imshow(pixel_labels,[]), title('image labeled by cluster index');
-
+        
+      
+        im_flow = logical(flow_mag);
+        
+        se = strel('disk',10);
+        im_flow = imclose(im_flow, se);
+        
+        figure(2);
+        imshow(im_flow,[]);
+        
+        
+        %hold off;
+        
         
         %BW2 = bwareaopen(Kb, 100);
         
-       
         
-%         figure(3);
-%         imshow(i_med,[]);
-
-        %figure(2);
-        %imshow(pixel_labels,[]), title('image labeled by cluster index');
-
-
-
+        
+        %         figure(3);
+        %         imshow(i_med,[]);
+        
+        
+        
+        
+        
         figure(1);
         imshow(im_actual);
         
-%         im_lab = rgb2hsv(im_actual);
-%         
-%         figure(2);
-%         imshow(im_lab(:,:,2),[]);
+        %         im_lab = rgb2hsv(im_actual);
+        %
+        %         figure(2);
+        %         imshow(im_lab(:,:,2),[]);
         
         %figure(3);
         %figure(2);
         %plot(1:size(Ka,1), calc_intens(Ka(:, 1:int32(size(Ka,2)/2)),[]));
         %hold on;
         
-
-        %figure(2); 
+        
+        %figure(2);
         %imshow(Ka);
         
         hold on;
@@ -211,7 +232,7 @@ for file_number_str = all_file_nums
         hold off;
         drawnow;
         
-   
+        
         
         title(num2str(frame_count));
         

@@ -49,7 +49,11 @@ for i=1:size(bin_array,2)
                             'Opacity', 0.3);
         im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 2, 'Color', color);
        
-        text_ = sprintf('b:%d\np:%d',bin_array{i}.label, bin_array{i}.belongs_to);
+        if bin_array{i}.belongs_to ~= -1
+            text_ = sprintf('b:%d\np:%d',bin_array{i}.label, bin_array{i}.belongs_to);
+        else
+            text_ = sprintf('b:%d',bin_array{i}.label);
+        end
         im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
         
     end
@@ -63,21 +67,23 @@ for i = 1:size(people_array, 2)
                      people_array{i}.BoundingBox(4)-2*offsety ];
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'blue', 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'blue');
+    text_ = sprintf('person:%d', people_array{i}.id);
+    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
     
    
 end
 
 
 %% text
-for i = 1:size(bin_seq, 2)
-    text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
-        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);
-end
-
-for i = 1:size(people_seq, 2)
-    text_im = insertText(text_im, [p_strt_x p_strt_y+i*t_pad_y], sprintf('p%d', people_seq{i}.label), ...
-        'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);    
-end
+% for i = 1:size(bin_seq, 2)
+%     text_im = insertText(text_im, [b_strt_x b_strt_y+i*t_pad_y], sprintf('b%d', bin_seq{i}.label), ...
+%         'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);
+% end
+% 
+% for i = 1:size(people_seq, 2)
+%     text_im = insertText(text_im, [p_strt_x p_strt_y+i*t_pad_y], sprintf('p%d', people_seq{i}.label), ...
+%         'AnchorPoint', 'LeftBottom', 'FontSize', font_size, 'BoxOpacity', 0.3);    
+% end
 
 
 %% plot 
