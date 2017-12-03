@@ -37,7 +37,7 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-    start_fr = 800;
+    start_fr = 400;
     
     %% region setting,find region position
     
@@ -101,13 +101,13 @@ for file_number_str = all_file_nums
     
     opticFlow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10, 'NeighborhoodSize', 20, 'FilterSize', 20);
     
-    Index_array = zeros(nrows, ncols, 2);
-        for i = 1:nrows
-           for j = 1:ncols
-               Index_array(i,j,:) = [i, j];
-           end
-        end
-    Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
+%     Index_array = zeros(nrows, ncols, 2);
+%         for i = 1:nrows
+%            for j = 1:ncols
+%                Index_array(i,j,:) = [i, j];
+%            end
+%         end
+%     Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
@@ -118,7 +118,7 @@ for file_number_str = all_file_nums
         %r4 = R_belt.r4;
         r1 = R_dropping.r1;
         %im_actual = im_c(r4(3):r4(4),r4(1)+10:r4(2)-5,:);
-        im_actual = im_c(r1(3):r1(4),r1(1):r1(2),:);
+        im_actual = im_c ;%(r1(3):r1(4),r1(1):r1(2),:);
         %im_actual = im_c;
         
          im_g = rgb2gray(im_actual);
@@ -145,30 +145,30 @@ for file_number_str = all_file_nums
         
         flow = estimateFlow(opticFlow, im_g);
         
-        flow_mag = flow.Magnitude(:);
-        flow_ori = flow.Orientation(:);
+%         flow_mag = flow.Magnitude(:);
+%         flow_ori = flow.Orientation(:);
+%         
+%         indices_low_mag = find(flow_mag < .05 );
+%         flow_ori(indices_low_mag) = 2*pi;
+%         
+%         k = 3;
+%         nrows = size(im_g, 1);
+%         ncols = size(im_g, 2);
         
-        indices_low_mag = find(flow_mag < .05 );
-        flow_ori(indices_low_mag) = 2*pi;
-        
-        k = 3;
-        nrows = size(im_g, 1);
-        ncols = size(im_g, 2);
-        
-        X = [flow_ori Index_array];
+        %X = [flow_ori Index_array];
         %X(:,1) = X(:,1)*10;
         
-        [cluster_idx, cluster_center] = kmeans(X ,k,'distance','sqEuclidean', ...
-                                      'Replicates',3);
+       % [cluster_idx, cluster_center] = kmeans(X ,k,'distance','sqEuclidean', ...
+       %                               'Replicates',3);
                                   
         
-        pixel_labels = reshape(cluster_idx,nrows,ncols);
+       % pixel_labels = reshape(cluster_idx,nrows,ncols);
 
 %         [cluster_center,~ , cluster_idx] = simple_kmeans(X,k, 1e-4);
 %         pixel_labels = reshape(cluster_idx,nrows,ncols);
 
-        figure(2);
-        imshow(pixel_labels,[]), title('image labeled by cluster index');
+%         figure(2);
+%         imshow(pixel_labels,[]), title('image labeled by cluster index');
 
         
         %BW2 = bwareaopen(Kb, 100);
@@ -178,8 +178,8 @@ for file_number_str = all_file_nums
 %         figure(3);
 %         imshow(i_med,[]);
 
-        figure(2);
-        imshow(pixel_labels,[]), title('image labeled by cluster index');
+        %figure(2);
+        %imshow(pixel_labels,[]), title('image labeled by cluster index');
 
 
 
