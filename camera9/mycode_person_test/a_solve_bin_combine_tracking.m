@@ -24,7 +24,7 @@ my_decision = 1;
 % file for input video
 
 
-all_file_nums = ["7A"];
+all_file_nums = ["6A"];
 %all_file_nums = ["EXP_1A"];
 
 for file_number_str = all_file_nums

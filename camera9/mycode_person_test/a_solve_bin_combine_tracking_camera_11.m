@@ -32,7 +32,7 @@ k_distort = -0.24;
 %% load video data
 % file for input video
 
-all_file_nums = ["7A", "6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = [ "6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
