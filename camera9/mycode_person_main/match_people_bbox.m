@@ -3,15 +3,10 @@ function [bbox_, min_val, centroid] = match_people_bbox(I, I_mask, img_struct, i
 x_lim = 5;
 y_lim = 5;
 threshold = 0.7;
-alpha = 5;
+alpha = 0.05;
 
 bbox = img_struct.BoundingBox;
 ref_color_val = img_struct.color_val;
-
-x1 = bbox(1) - x_lim;
-x2 = bbox(1) + x_lim;
-y1 = bbox(2) - y_lim;
-y2 = bbox(2) + y_lim;
 
 flow_x = im_flow.Vx(bbox(2):bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
 flow_y = im_flow.Vy(bbox(2):bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
@@ -23,8 +18,28 @@ flow_index = flow_mag > epsilon;
 flow_x_mean = mean2(flow_x(flow_index));
 flow_y_mean = mean2(flow_y(flow_index));
 
+x_lim1 = int32(2);
+x_lim2 = int32(2);
+y_lim1 = int32(2);
+y_lim2 = int32(2);
+
 if flow_x_mean > 0
-    x_
+    x_lim2 = int32(flow_x_mean * 20);
+else
+    x_lim1 = int32(abs(flow_x_mean) * 20);
+end
+
+if flow_y_mean > 0
+    y_lim2 = int32(flow_y_mean * 20);
+else
+    y_lim1 = int32(abs(flow_y_mean) * 20);
+end
+
+x1 = max(bbox(1) - x_lim1, 1);
+x2 = min(bbox(1) + x_lim2, size(I,2));
+y1 = max(bbox(2) - y_lim1, 1);
+y2 = min(bbox(2) + y_lim2, size(I,1));
+
 
 ind_array = zeros(x2-x1+1, y2-y1+1);
 
@@ -42,8 +57,9 @@ for x = x1:x2
         % compare two images
         im_box = [x y width height];
         im_color_val = get_color_val(I, im_box,I_mask);
-        if ~isempty(im_diff)
-            ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val) - alpha * sum(sum(imcrop(im_diff, im_box))) ;
+        if ~isempty(flow)
+            flow_mag_box = im_flow.Magnitude(im_box(2):im_box(2)+im_box(4)-1, im_box(1):im_box(1)+im_box(3)-1);
+            ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val) - alpha * sum(sum(flow_mag_box)) ;
         else
             ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val);
         end

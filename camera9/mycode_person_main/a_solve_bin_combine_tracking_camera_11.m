@@ -83,9 +83,7 @@ for file_number_str = all_file_nums
     %% Region background
     counter = 0;
     im_back = 0;
-    
-    
-    
+  
     while hasFrame(v) && counter < 10
         im_frame = readFrame(v);
         im_back = im_back + double(im_frame);
@@ -131,8 +129,8 @@ for file_number_str = all_file_nums
     starting_index = -1;
     
      if associate
-        R_belt.label = 1;
-        R_dropping.label = 1;
+        R_belt.label = 3;
+        R_dropping.label = 2;
      end
     
     R_dropping.prev_body = [];
@@ -180,7 +178,7 @@ for file_number_str = all_file_nums
         end
         
         
-        warning('off', 'last');
+        %warning('off', 'last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
