@@ -13,13 +13,10 @@ scale = 0.5;
 global associate;
 associate = true;
 
-%% some test
-
-%f_test = fopen('f_test.txt', 'at');
 
 %%
-show_image = true;
-is_write_video = true;
+show_image = false;
+is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 is_load_region = 2; % flag to load region data from respective matfile
