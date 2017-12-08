@@ -17,10 +17,6 @@ associate = true;
 %%
 show_image = true;
 is_write_video = false;
-is_do_nothing = 0;
-is_save_region = 1; % flag to save region data to matfile in a completely new fashion
-is_load_region = 2; % flag to load region data from respective matfile
-is_update_region = 3; % flag to update region data from respective matfile
 
 my_decision = 0;
 global k_distort;
