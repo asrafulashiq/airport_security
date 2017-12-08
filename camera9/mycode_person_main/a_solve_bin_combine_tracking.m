@@ -24,11 +24,8 @@ my_decision = 1;
 % file for input video
 
 
-<<<<<<< HEAD
-all_file_nums = ["10A"];
-=======
+
 all_file_nums = ["6A"];
->>>>>>> da88cff5ac899cf82a960c7e1011cfe120acade3
 %all_file_nums = ["EXP_1A"];
 
 for file_number_str = all_file_nums
@@ -201,7 +198,6 @@ for file_number_str = all_file_nums
         if my_decision == is_save_region
             start_f = start_fr;
         end
-        
         save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
     end
     
