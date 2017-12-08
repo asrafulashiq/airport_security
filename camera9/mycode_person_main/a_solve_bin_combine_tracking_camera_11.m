@@ -13,19 +13,20 @@ scale = 0.5;
 global associate;
 associate = true;
 global associate_13;
-associate_13 = true;
-
-%% some test
-
-%f_test = fopen('f_test.txt', 'at');
+associate_13 = false;
 
 %%
 show_image = true;
 is_write_video = false;
 
 my_decision = 0;
-global k_distort;
-k_distort = -0.24;
+global k_distort_11;
+k_distort_11 = -0.24;
+
+global k_distort_13;
+k_distort_13 = -0.20;
+
+diff_frame_sec = 0; % camera 13 is 5 second behind
 
 %% load video data
 % file for input video
@@ -47,8 +48,11 @@ for file_number_str = all_file_nums
     
     v_11 = VideoReader(R_11.input_filename);
     
+    R_com_info = [];
+    
     if associate_13
         v_13 = VideoReader(input_filename);
+        R_com_info.check_13 = false;
     end
     
     %% the file for the outputvideo
@@ -62,10 +66,8 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    %%%%%% R_c9
-    
     start_fr = 1600;
-
+    
     %% Camera 11
     %% region setting,find region position
     
@@ -91,7 +93,7 @@ for file_number_str = all_file_nums
     R_11.im_background = imresize(R_11.im_background, scale);
     R_11.im_background = imrotate(R_11.im_background, R_11.rot_angle);
     
-    R_11.im_background = lensdistort(R_11.im_background, k_distort); % solve radial distortion
+    R_11.im_background = lensdistort(R_11.im_background, k_distort_11); % solve radial distortion
     
     R_11.R_belt.flow = [];
     R_11.R_dropping.flow = [];
@@ -104,7 +106,7 @@ for file_number_str = all_file_nums
     
     R_11.R_belt.im_r4_p = R_11.im_background(R_11.R_belt.r4(3):R_11.R_belt.r4(4),R_11.R_belt.r4(1):R_11.R_belt.r4(2),:);
     R_11.R_dropping.im_r1_p = R_11.im_background(R_11.R_dropping.r1(3):R_11.R_dropping.r1(4),R_11.R_dropping.r1(1):R_11.R_dropping.r1(2),:);
-    %R_11.R_dropping.im_r1_p = lensdistort(R_11.R_dropping.im_r1_p, k_distort);
+    %R_11.R_dropping.im_r1_p = lensdistort(R_11.R_dropping.im_r1_p, k_distort_11);
     
     % object information for each region
     R_11.R_dropping.r1_obj = [];
@@ -123,6 +125,18 @@ for file_number_str = all_file_nums
     R_11.R_belt.label = 1;
     starting_index = -1;
     
+    R_c9 = [];
+    if associate   % load camera 9 information
+        load(file_to_save);
+        R_c9.bin_seq = bin_seq;
+        R_c9.frame_count = frame_count;
+        R_c9.people_seq = people_seq;
+        R_c9.R_belt = R_belt;
+        R_c9.R_dropping = R_dropping;
+        R_c9.start_fr = start_fr;
+    end
+    
+    % for debug
     if associate
         R_11.R_belt.label = 3;
         R_11.R_dropping.label = 2;
@@ -161,9 +175,8 @@ for file_number_str = all_file_nums
         R_13.im_background = imresize(R_13.im_background, scale);
         R_13.im_background = imrotate(R_13.im_background, R_13.rot_angle);
         
-        k_distort = -0.20;
         
-        R_13.im_background = lensdistort(R_13.im_background, k_distort); % solve radial distortion
+        R_13.im_background = lensdistort(R_13.im_background, k_distort_13); % solve radial distortion
         
         R_13.R_belt.flow = [];
         R_13.R_dropping.flow = [];
@@ -176,7 +189,7 @@ for file_number_str = all_file_nums
         
         R_13.R_belt.im_r4_p = R_13.im_background(R_13.R_belt.r4(3):R_13.R_belt.r4(4),R_13.R_belt.r4(1):R_13.R_belt.r4(2),:);
         R_13.R_dropping.im_r1_p = R_13.im_background(R_13.R_dropping.r1(3):R_13.R_dropping.r1(4),R_13.R_dropping.r1(1):R_13.R_dropping.r1(2),:);
-        %R_13.R_dropping.im_r1_p = lensdistort(R_13.R_dropping.im_r1_p, k_distort);
+        %R_13.R_dropping.im_r1_p = lensdistort(R_13.R_dropping.im_r1_p, k_distort_11);
         
         % object information for each region
         R_13.R_dropping.r1_obj = [];
@@ -195,11 +208,11 @@ for file_number_str = all_file_nums
         R_13.R_belt.label = 1;
         starting_index = -1;
         R_13.R_dropping.prev_body = [];
-              
+        
     end
     
     %% Start tracking and baggage association
-    frame_count = start_fr;
+    R_11.frame_count = start_fr;
     
     while hasFrame(v_11) && v_11.CurrentTime < ( end_f / v_11.FrameRate )
         
@@ -207,18 +220,39 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, R_11.rot_angle);
         
-        if frame_count >= 3573
+        if R_11.frame_count >= 3573
             1;
         end
         
-        im_c = lensdistort(im_c, k_distort);
+        im_c = lensdistort(im_c, k_distort_11);
         
-        %         if R_11.R_dropping.label == 7
-        %             R_11.R_dropping.label = 8;
-        %         end
-        % tracking the people
-        [R_11.people_seq, R_11.people_array, R_11.R_dropping] = a_peopletracking_camera11(im_c,R_11.R_dropping,...
-            R_11.R_belt,R_11.people_seq,R_11.people_array, R_11.bin_array, R_c9);
+        %% tracking the people
+        % people tracking variables
+        im_r = im_c(R_11.R_dropping.r1(3):(R_11.R_dropping.r1(4)),R_11.R_dropping.r1(1):R_11.R_dropping.r1(2),:);
+        R_people_var = [];
+        R_people_var.thres_low = 0.4;
+        R_people_var.thres_up = 1.5;
+        R_people_var.min_allowed_dis = 200 * scale;
+        R_people_var.limit_area = 14000 * scale^2;
+        R_people_var.limit_init_area = 35000 *  scale^2;
+        R_people_var.limit_max_width = 420 *  scale;
+        R_people_var.limit_max_height = 420 * scale;
+        R_people_var.half_y = 1280 * scale; %1.8 * size(im_r,1) / 2;
+        R_people_var.limit_exit_y1 = 1300 * scale;
+        R_people_var.limit_exit_x1 = 10 * scale;
+        R_people_var.limit_exit_y2 = 1300 * scale;
+        R_people_var.limit_exit_x2 = 10 * scale;
+        R_people_var.threshold_img = 90 ;
+        
+        R_people_var.thres_critical_del = 6;
+        R_people_var.thres_temp_count_low = 15;
+        R_people_var.thres_temp_count_high = 100;
+        
+        R_people_var.critical_exit_x = 0.5 * size(im_r, 2);
+        R_people_var.critical_exit_y = 0.4 * size(im_r, 1);
+        
+        %%
+        [R_11, R_com_info] = a_peopletracking_camera11(im_r, R_11 ,R_people_var, R_com_info, R_c9);
         
         % tracking the bin
         %[R_11.bin_seq, R_11.bin_array, R_11.R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_11.R_dropping,...
@@ -228,12 +262,25 @@ for file_number_str = all_file_nums
         %         imshow(im_c);
         %         drawnow;
         
-        title(num2str(frame_count));
+        title(num2str(R_11.frame_count));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
             image = displayimage_camera11(im_c, R_11.R_belt, R_11.R_dropping, R_11.bin_array, ...
                 R_11.people_array, R_11.bin_seq, R_11.people_seq);
+        end
+        
+        %% check camera 13
+        if R_com_info.check_13 && associate_13
+            v_13.CurrentTime = v11.CurrentTime + diff_frame_sec;
+            img = readFrame(v_13);
+            im_c = imresize(img,scale);%original image
+            im_c = imrotate(im_c, R_13.rot_angle);
+            im_c = lensdistort(im_c, k_distort_13);
+            
+            
+            
+            
         end
         
         
@@ -243,9 +290,9 @@ for file_number_str = all_file_nums
             writeVideo(outputVideo,image);
         end
         
-        disp(frame_count);
+        disp(R_11.frame_count);
         
-        frame_count = frame_count + 1;
+        R_11.frame_count = R_11.frame_count + 1;
         
     end
     

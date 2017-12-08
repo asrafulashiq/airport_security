@@ -123,14 +123,5 @@ for file_number_str = all_file_nums
 end
 
 
-    R_c9 = [];
-    if associate   % load camera 9 information
-       load(file_to_save);
-       R_c9.bin_seq = bin_seq;
-       R_c9.frame_count = frame_count;
-       R_c9.people_seq = people_seq;
-       R_c9.R_belt = R_belt;
-       R_c9.R_dropping = R_dropping;
-       R_c9.start_fr = start_fr;
-    end
+    
 
