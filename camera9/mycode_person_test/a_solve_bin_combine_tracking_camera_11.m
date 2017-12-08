@@ -15,7 +15,7 @@ associate = true;
 
 
 %%
-show_image = false;
+show_image = true;
 is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
@@ -177,7 +177,7 @@ for file_number_str = all_file_nums
         end
         
         
-        warning('off', 'last');
+        %warning('off', 'last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
