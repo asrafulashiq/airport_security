@@ -12,7 +12,6 @@ for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
     input_filename1 = fullfile('..',file_number, 'camera13.mp4');
-    input_filename1 = fullfile('..',file_number, 'camera11.mp4');
     
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_13.mp4');
@@ -22,9 +21,7 @@ for file_number_str = all_file_nums
     end
     
     v_13 = VideoReader(input_filename);
-    
 
-    
     start_fr = 2700;   
     
     %% region setting,find region position   
@@ -83,13 +80,7 @@ for file_number_str = all_file_nums
     % object Labels
     R_13.R_dropping.label = 1;
     R_13.R_belt.label = 1;
-    starting_index = -1;
-    
-     if associate
-        R_13.R_belt.label = 3;
-        R_13.R_dropping.label = 2;
-     end
-    
+    starting_index = -1; 
     R_13.R_dropping.prev_body = [];
     
     %% the parameter for the start frame and end frame
@@ -131,4 +122,15 @@ for file_number_str = all_file_nums
     
 end
 
+
+    R_c9 = [];
+    if associate   % load camera 9 information
+       load(file_to_save);
+       R_c9.bin_seq = bin_seq;
+       R_c9.frame_count = frame_count;
+       R_c9.people_seq = people_seq;
+       R_c9.R_belt = R_belt;
+       R_c9.R_dropping = R_dropping;
+       R_c9.start_fr = start_fr;
+    end
 

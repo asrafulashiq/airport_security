@@ -66,7 +66,6 @@ end
 exit_index_people_array = [];
 del_index_of_body = [];
 if ~isempty(people_array) && ~isempty(list_bbox)
-    
     for i = 1:size(people_array,2)
         % detect exit from camera 9
         if ( people_array{i}.Centroid(2) > limit_exit_y1 && people_array{i}.Centroid(1) > limit_exit_x1 ) || ...
