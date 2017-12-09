@@ -2,6 +2,8 @@ update_region = 3; % flag to update region data from respective matfile
 
 my_decision = 0;
 global k_distort;
+global scale;
+scale = 0.5;
 
 %% load video data
 % file for input video
@@ -11,7 +13,7 @@ all_file_nums = [ "6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 for file_number_str = all_file_nums
     
     file_number = char(file_number_str); % convert to character array
-    input_filename1 = fullfile('..',file_number, 'camera13.mp4');
+    input_filename = fullfile('..',file_number, 'camera13.mp4');
     
     if ~exist(input_filename)
         input_filename = fullfile('..',file_number, 'Camera_13.mp4');

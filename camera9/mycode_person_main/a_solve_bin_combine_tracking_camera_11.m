@@ -5,18 +5,23 @@
 
 %% control variable
 global debug;
-global debug_people;
+global debug_people_11;
+global debug_people_13;
+debug_people_11 = true;
+debug_people_13 = false;
+
+
 debug = false;
 debug_people = false;
 global scale;
 scale = 0.5;
 global associate;
-associate = true;
+associate = false;
 global associate_13;
-associate_13 = false;
+associate_13 = true;
 
 %%
-show_image = true;
+show_image = false;
 is_write_video = false;
 
 my_decision = 0;
@@ -52,7 +57,9 @@ for file_number_str = all_file_nums
     
     if associate_13
         v_13 = VideoReader(input_filename);
-        R_com_info.check_13 = false;
+        
+        R_com_info.check_13 = 1;
+        
     end
     
     %% the file for the outputvideo
@@ -66,7 +73,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_fr = 1600;
+    start_fr = 2770;
     
     %% Camera 11
     %% region setting,find region position
@@ -197,8 +204,8 @@ for file_number_str = all_file_nums
         % sequence of bin and people
         R_13.people_seq = {};
         R_13.bin_seq = {};
-        bin_array={};
-        people_array = {};
+        R_13.bin_array={};
+        R_13.people_array = {};
         % object count for each region
         R_13.R_dropping.r1_cnt = 0;
         R_13.R_dropping.r1_lb = 0;
@@ -220,7 +227,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, R_11.rot_angle);
         
-        if R_11.frame_count >= 3573
+        if R_11.frame_count >= 2625
             1;
         end
         
@@ -233,8 +240,9 @@ for file_number_str = all_file_nums
         R_people_var.thres_low = 0.4;
         R_people_var.thres_up = 1.5;
         R_people_var.min_allowed_dis = 200 * scale;
-        R_people_var.limit_area = 14000 * scale^2;
-        R_people_var.limit_init_area = 35000 *  scale^2;
+        R_people_var.limit_area = 9000 * scale^2;
+        R_people_var.limit_small_area = 4000 * scale^2;
+        R_people_var.limit_init_area = 14000 *  scale^2;
         R_people_var.limit_max_width = 420 *  scale;
         R_people_var.limit_max_height = 420 * scale;
         R_people_var.half_y = 1280 * scale; %1.8 * size(im_r,1) / 2;
@@ -242,8 +250,9 @@ for file_number_str = all_file_nums
         R_people_var.limit_exit_x1 = 10 * scale;
         R_people_var.limit_exit_y2 = 1300 * scale;
         R_people_var.limit_exit_x2 = 10 * scale;
-        R_people_var.threshold_img = 90 ;
-        
+        R_people_var.threshold_img = 30 ;
+        R_people_var.init_max_x = 127 * 2 * scale;
+
         R_people_var.thres_critical_del = 6;
         R_people_var.thres_temp_count_low = 15;
         R_people_var.thres_temp_count_high = 100;
@@ -252,7 +261,7 @@ for file_number_str = all_file_nums
         R_people_var.critical_exit_y = 0.4 * size(im_r, 1);
         
         %%
-        [R_11, R_com_info] = a_peopletracking_camera11(im_r, R_11 ,R_people_var, R_com_info, R_c9);
+        %[R_11, R_com_info] = a_peopletracking_camera11(im_r, R_11 ,R_people_var, R_com_info, R_c9, camera_no);
         
         % tracking the bin
         %[R_11.bin_seq, R_11.bin_array, R_11.R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_11.R_dropping,...
@@ -271,18 +280,46 @@ for file_number_str = all_file_nums
         end
         
         %% check camera 13
-        if R_com_info.check_13 && associate_13
-            v_13.CurrentTime = v11.CurrentTime + diff_frame_sec;
+        if associate_13 && R_com_info.check_13 ~=0  
+            
+            if R_com_info.check_13 == 1
+                v_13.CurrentTime = v_11.CurrentTime + diff_frame_sec;
+            end
+            
             img = readFrame(v_13);
             im_c = imresize(img,scale);%original image
             im_c = imrotate(im_c, R_13.rot_angle);
             im_c = lensdistort(im_c, k_distort_13);
             
+            im_r = im_c(R_13.R_dropping.r1(3):(R_13.R_dropping.r1(4)),R_13.R_dropping.r1(1):R_13.R_dropping.r1(2),:);
+            R_people_var = [];
+            R_people_var.thres_low = 0.4;
+            R_people_var.thres_up = 1.5;
+            R_people_var.min_allowed_dis = 200 * scale;
+            R_people_var.limit_area = 14000 * scale^2;
+            R_people_var.limit_init_area = 35000 *  scale^2;
+            R_people_var.limit_max_width = 420 *  scale;
+            R_people_var.limit_max_height = 420 * scale;
+            R_people_var.half_y = 300 * scale; %1.8 * size(im_r,1) / 2;
+            R_people_var.limit_exit_y1 = 1300 * scale;
+            R_people_var.limit_exit_x1 = 10 * scale;
+            R_people_var.limit_exit_y2 = 1300 * scale;
+            R_people_var.limit_exit_x2 = 10 * scale;
+            R_people_var.threshold_img = 30 ;
+            R_people_var.limit_small_area = 4000 * scale^2;
+
+            R_people_var.thres_critical_del = 6;
+            R_people_var.thres_temp_count_low = 15;
+            R_people_var.thres_temp_count_high = 100;
             
+            R_people_var.critical_exit_x = 0.5 * size(im_r, 2);
+            R_people_var.critical_exit_y = 0.4 * size(im_r, 1);
+            
+            %%
+            [R_13, R_com_info] = a_peopletracking_camera11(im_r, R_13 ,R_people_var, R_com_info, R_c9);
             
             
         end
-        
         
         %warning('off', 'last');
         
@@ -299,7 +336,6 @@ for file_number_str = all_file_nums
     if is_write_video
         close(outputVideo);
     end
-    
     beep;
     
 end

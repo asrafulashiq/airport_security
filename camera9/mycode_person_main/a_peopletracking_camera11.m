@@ -1,13 +1,15 @@
-function [R_main, R_com_info] = a_peopletracking_camera11(im_r,R_main, R_people_var, R_com_info, R_c9)
+function [R_main, R_com_info] = a_peopletracking_camera11(im_r,R_main, R_people_var, R_com_info, R_c9, camera_no)
 %% region 1 extraction
 global scale;
-global debug_people;
+global debug_people_11;
+global debug_people_13;
 global associate;
 
-thres_low    =  R_people_var.thres_low;
-thres_up     =  R_people_var.thres_up;
+thres_low   =  R_people_var.thres_low;
+thres_up    =  R_people_var.thres_up;
 min_allowed_dis =  R_people_var.min_allowed_dis;
-limit_area    =  R_people_var.limit_area;
+limit_area  =  R_people_var.limit_area;
+limit_small_area = R_people_var.limit_small_area;
 limit_init_area  =   R_people_var.limit_init_area;
 limit_max_width  =   R_people_var.limit_max_width;
 limit_max_height =  R_people_var.limit_max_height;
@@ -17,6 +19,7 @@ limit_exit_x1  =  R_people_var.limit_exit_x1;
 limit_exit_y2  =  R_people_var.limit_exit_y2 ;
 limit_exit_x2  =  R_people_var.limit_exit_x2;
 threshold_img  =  R_people_var.threshold_img;
+init_max_x = 127 * 2 * scale;
 
 thres_critical_del  =    R_people_var.thres_critical_del ;
 thres_temp_count_low  =    R_people_var.thres_temp_count_low;
@@ -25,22 +28,21 @@ thres_temp_count_high  =    R_people_var.thres_temp_count_high;
 critical_exit_x   =   R_people_var.critical_exit_x ;
 critical_exit_y    =  R_people_var.critical_exit_y ;
 
-
-
-
-
 im_g = rgb2gray(im_r);
 flow = estimateFlow(R_main.R_dropping.optic_flow, im_g);
 R_main.R_dropping.flow = flow;
 
 exit_vanishing_area = 30000 * scale^2;
 %% Region 1 background subtraction based on chromatic value
+im_r = imgaussfilt(im_r, 5);
+im_back = R_main.R_dropping.im_r1_p;
+im_back = imgaussfilt(im_back, 5);
 
 im_r_hsv = rgb2hsv(im_r);
-im_p_hsv = rgb2hsv(R_main.R_dropping.im_r1_p);
+im_p_hsv = rgb2hsv(im_back);
 
 im_fore = abs(im_r_hsv(:,:,2)-im_p_hsv(:,:,2)) + abs(im_p_hsv(:,:,2) - im_r_hsv(:,:,2));
-im_fore = uint8(im_fore*255);
+im_fore = uint8(im_fore * 255 * 0.5);
 
 im_filtered = imgaussfilt(im_fore, 6);
 im_filtered(im_filtered < threshold_img) = 0;
@@ -52,17 +54,17 @@ im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 %im_binary = logical(im_eroded);
 
-
 %% blob analysis
-
-cpro_r1 = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'MajorAxisLength'); % extract parameters
-body_prop = cpro_r1([cpro_r1.Area] > limit_area);
+cpro_r1_main = regionprops(im_binary,'Centroid','Area','Orientation','BoundingBox', 'MajorAxisLength'); % extract parameters
+body_prop = cpro_r1_main([cpro_r1_main.Area] > limit_area);
+body_prop_all = cpro_r1_main([cpro_r1_main.Area] > limit_small_area);
 list_bbox = [];
 for i = 1:size(body_prop, 1)
     body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
     list_bbox = [list_bbox; body_prop(i).Centroid];
     body_prop(i).Centroid = body_prop(i).Centroid';
 end
+
 %figure(2); imshow(im_draw);
 
 %% track previous detection
@@ -127,6 +129,9 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
             min_dis_vector = [min_dis_vector; min_dis min_arg];
         end
         
+        %%%%
+        
+        
         % resolve conflict
         vect = unique(min_dis_vector(:,2),'stable');
         count_el = zeros(1,length(vect));
@@ -173,12 +178,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                     all_dist = sort(dist(i,:));
                     second_min_index = find(dist(i,:)==all_dist(2));
                     if ~isinf(all_dist(2))  && all_dist(2) < 200 &&  isempty(find(min_dis_vector==second_min_index, 1))
-                        
-                        %                             body_prop(second_min_index).Centroid(1) > R_main.people_array{prev_index}.BoundingBox(1) && ...
-                        %                             body_prop(second_min_index).Centroid(1) < R_main.people_array{prev_index}.BoundingBox(1)+ R_main.people_array{prev_index}.BoundingBox(3) && ...
-                        %                             body_prop(second_min_index).Centroid(2) > R_main.people_array{prev_index}.BoundingBox(2) && ...
-                        %                             body_prop(second_min_index).Centroid(2) < R_main.people_array{prev_index}.BoundingBox(2)+ R_main.people_array{prev_index}.BoundingBox(4) && ...
-                        
+
                         total_area = body_prop(second_min_index).Area + body_prop(min_arg).Area;
                         if total_area < 2 * R_main.people_array{prev_index}.Area
                             bb = body_prop(second_min_index).BoundingBox;
@@ -199,14 +199,13 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                                 x_t = min( b_2.BoundingBox(1), b_1.BoundingBox(1) );
                                 y_t = min( b_2.BoundingBox(2), b_1.BoundingBox(2) );
                                 
-                                x_end_t = max( b_2.BoundingBox(1)+b_2.BoundingBox(3)-1, b_1.BoundingBox(1)+b_1.BoundingBox(3)-1 );
-                                y_end_t = max( b_2.BoundingBox(2)+b_2.BoundingBox(4)-1, b_1.BoundingBox(2)+b_1.BoundingBox(4)-1 );
+                                x_end_t = max( b_2.BoundingBox(1) + b_2.BoundingBox(3)-1, b_1.BoundingBox(1)+b_1.BoundingBox(3)-1 );
+                                y_end_t = max( b_2.BoundingBox(2) + b_2.BoundingBox(4)-1, b_1.BoundingBox(2)+b_1.BoundingBox(4)-1 );
                                 
                                 R_main.people_array{prev_index}.BoundingBox = [x_t, y_t, x_end_t-x_t+1, y_end_t-y_t+1];
                                 
-                                R_main.people_array{prev_index}.Area = body_prop(min_arg).Area+b_2.Area;
-                                
-                                
+                                R_main.people_array{prev_index}.Area = body_prop(min_arg).Area + b_2.Area;
+                             
                             end
                         end
                     end
@@ -365,7 +364,7 @@ for i = 1:size(body_prop, 1)
     bb = body_prop(i).BoundingBox;
     total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
     
-    init_max_x = 127 * 2 * scale;
+
     
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
             body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
@@ -432,13 +431,17 @@ if ~isempty(R_main.people_array)
     R_main.people_array = {R_main.people_array{I}};
 end
 %% some test image
-if ~isempty(R_main.R_dropping.prev_body) && debug_people
+if ~isempty(R_main.R_dropping.prev_body) && debug_people_11
     %figure(2); imshow(im_draw);
     
     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_main.R_dropping.prev_body)));
     figure(4);imshow(im_binary);
-    drawnow;
     
+    figure(5);
+    imshow(im_draw); 
+    
+    drawnow;
+
 end
 
 R_main.R_dropping.prev_body = im_r;
