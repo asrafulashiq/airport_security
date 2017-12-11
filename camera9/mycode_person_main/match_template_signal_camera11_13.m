@@ -1,4 +1,4 @@
-function [bin_array, R_belt] =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9, flag)
+function [bin_array, R_belt] =  match_template_signal_camera11_13(I, bin_array, loc_something, R_belt, R_c9, flag)
 global debug;
 global scale;
 global associate;
@@ -406,8 +406,6 @@ else
         bin_array{i}.std =  std( calc_intens(I, [min_loc loc_end]) ,1);
         bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
-        
-       
         
     end
     

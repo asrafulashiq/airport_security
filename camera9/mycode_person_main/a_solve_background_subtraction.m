@@ -37,11 +37,8 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-<<<<<<< HEAD
-    start_fr = 400;
-=======
+
     start_fr = 1200;
->>>>>>> 44f971e6714143dda32271fd5b40bd8d90efe074
     
     %% region setting,find region position
     
@@ -105,24 +102,15 @@ for file_number_str = all_file_nums
     
     opticFlow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10, 'NeighborhoodSize', 20, 'FilterSize', 20);
     
-<<<<<<< HEAD
+
 %     Index_array = zeros(nrows, ncols, 2);
-%         for i = 1:nrows
-%            for j = 1:ncols
-%                Index_array(i,j,:) = [i, j];
-%            end
+%     for i = 1:nrows
+%         for j = 1:ncols
+%             Index_array(i,j,:) = [i, j];
 %         end
+%     end
 %     Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
-=======
-    Index_array = zeros(nrows, ncols, 2);
-    for i = 1:nrows
-        for j = 1:ncols
-            Index_array(i,j,:) = [i, j];
-        end
-    end
-    Index_array = 1e-3 * reshape(Index_array, nrows*ncols, 2 );
->>>>>>> 44f971e6714143dda32271fd5b40bd8d90efe074
-    
+%     
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
@@ -137,13 +125,15 @@ for file_number_str = all_file_nums
         
         im_g = rgb2gray(im_actual);
         %
-        %         K = stdfilt(im_g, true(5));
-        %         K = mat2gray(K);
-        %         K(K<0.3) = 0;
+                 K = stdfilt(im_g, true(5));
+                 K = mat2gray(K);
+                 K(K<0.3) = 0;
         %         Ka = K;
         %K = edge(K, 'sobel');
         
         %Kb = logical(K);
+        
+        
         
         %crn = detectHarrisFeatures(Kb);
         
@@ -154,16 +144,16 @@ for file_number_str = all_file_nums
         
         %i_med = imgaussfilt(im_g,2);
         
-        
-        flow = estimateFlow(opticFlow, im_g);
-        
-
-        flow_mag = flow.Magnitude;
-        flow_ori = flow.Orientation;
-        
-        indices_low_mag = find(flow_mag < .20 );
-        flow_ori(indices_low_mag) = 2*pi;
-        flow_mag(indices_low_mag) = 0;
+%         
+%         flow = estimateFlow(opticFlow, im_g);
+%         
+% 
+%         flow_mag = flow.Magnitude;
+%         flow_ori = flow.Orientation;
+%         
+%         indices_low_mag = find(flow_mag < .20 );
+%         flow_ori(indices_low_mag) = 2*pi;
+%         flow_mag(indices_low_mag) = 0;
         
 %         k = 5;
 %         nrows = size(im_g, 1);
@@ -180,14 +170,14 @@ for file_number_str = all_file_nums
 %         figure(2);
 %         imshow(pixel_labels,[]), title('image labeled by cluster index');
         
-      
-        im_flow = logical(flow_mag);
-        
-        se = strel('disk',10);
-        im_flow = imclose(im_flow, se);
-        
-        figure(2);
-        imshow(im_flow,[]);
+%       
+%         im_flow = logical(flow_mag);
+%         
+%         se = strel('disk',10);
+%         im_flow = imclose(im_flow, se);
+%         
+%         figure(2);
+%         imshow(im_flow,[]);
         
         
         %hold off;
@@ -221,8 +211,8 @@ for file_number_str = all_file_nums
         %figure(2);
         %imshow(Ka);
         
-        hold on;
-        plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+%         hold on;
+%         plot(flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         
         %hold on;
         %plot(crn);

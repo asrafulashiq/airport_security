@@ -19,7 +19,7 @@ scale = 0.5;
 global associate;
 associate = false;
 global associate_13;
-associate_13 = true;
+associate_13 = false;
 
 %%
 show_image = false;
@@ -260,6 +260,11 @@ for file_number_str = all_file_nums
         R_people_var.critical_exit_x = 0.5 * size(im_r, 2);
         R_people_var.critical_exit_y = 0.4 * size(im_r, 1);
         
+        % bin variable
+        R_11.bin_var.dis_exit_y = 900 * scale;
+        R_11.bin_var.threshold = 13;
+        R_11.bin_var.limit_max_dist = 350 * scale;
+        
         %%
         
         if debug == true && tmp == 0
@@ -272,11 +277,10 @@ for file_number_str = all_file_nums
             R_people_var.half_y = 900 * scale; 
         end
         
-        [R_11, R_com_info] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11);
+        %[R_11, R_com_info] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11);
         
         % tracking the bin
-        %[R_11.bin_seq, R_11.bin_array, R_11.R_belt] = a_solve_bin_bin_tracking_camera11(im_c,R_11.R_dropping,...
-        %    R_11.R_belt,R_11.bin_seq,R_11.bin_array, R_11.people_array, R_c9);
+        R_11 = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9);
         
         %         figure(3);
         %         imshow(im_c);
