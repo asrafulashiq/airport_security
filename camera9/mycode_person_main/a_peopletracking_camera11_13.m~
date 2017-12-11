@@ -1,4 +1,4 @@
-function [R_main, R_com_info] = a_peopletracking_camera11(im_r,R_main, R_people_var, R_com_info, R_c9, camera_no)
+function [R_main, R_com_info] = a_peopletracking_camera11_13(im_r,R_main, R_people_var, R_com_info, R_c9, camera_no)
 %% region 1 extraction
 global scale;
 global debug_people_11;
@@ -73,10 +73,30 @@ del_index_of_body = [];
 if ~isempty(R_main.people_array) && ~isempty(list_bbox)
     for i = 1:size(R_main.people_array,2)
         
-        % detect exit from camera 11 to camera 13
-        if camera_no == 11 
-           
+        % detect exit from camera 13 to 11
+        if camera_no == 13
             
+            if R_main.people_array{i}.Centroid(2) < R_people_var.init_limit_exit_y1 - 10 %&& R_people_var.people_array{i}.Centroid(1) < R_main.init_limit_exit_x1
+                
+                R_com_info.check_11 = 1;
+                R_com_info.check_13 = 0;
+                R_com_info.id = R_main.people_array{i}.id;
+                
+                if numel(R_main.people_seq) > 0 && ~isempty(find([R_main.people_seq.id] == R_com_info.id, 1))
+                    index = find([R_main.people_seq.id] == R_com_info.id, 1);
+                    R_main.people_seq(index) = R_main.people_array{i};
+                else
+                    R_main.people_seq = [R_main.people_seq;R_main.people_array{i}];
+                end
+                
+                R_main.people_array{i}.temp_count = 0;
+                %R_main.R_dropping.exit_from_9{end+1} = R_main.people_array{i};
+                exit_index_people_array(end+1) = i;
+                disp('exit......');
+                continue;
+                
+                
+            end
             
         end
         
@@ -86,18 +106,35 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                 (~isempty(R_main.people_array) && R_main.people_array{i}.critical_del >= thres_critical_del)) % R_main.people_array{i}.Area < exit_vanishing_area
             
             % && R_main.people_array{i}.Centroid(2) > half_y)
-            R_main.people_seq{end+1} = R_main.people_array{i};
+            
+            % detect exit from camera 11 to camera 13
+            if camera_no == 11
+                R_com_info.check_13 = 1;
+                R_com_info.check_11 = 0;
+                R_com_info.id = R_main.people_array{i}.id;
+                half_y = 473;
+            end
+            
+            if numel(R_main.people_seq) > 0 && ~isempty(find([R_main.people_seq.id] == R_com_info.id, 1))
+                index = find([R_main.people_seq.id] == R_com_info.id, 1);
+                R_main.people_seq(index) = R_main.people_array{i};
+            else
+                R_main.people_seq = [R_main.people_seq; R_main.people_array{i}];
+            end
+            
+            %R_main.people_seq(end+1) = R_main.people_array{i};
             R_main.people_array{i}.temp_count = 0;
             %R_main.R_dropping.exit_from_9{end+1} = R_main.people_array{i};
             exit_index_people_array(end+1) = i;
             disp('exit......');
             continue;
         end
+        
         if R_main.people_array{i}.state=="temporary_vanishing"
             if (R_main.people_array{i}.Centroid(1) > limit_exit_x1 && R_main.people_array{i}.temp_count > thres_temp_count_low) || ...
                     (R_main.people_array{i}.Centroid(1) > limit_exit_x2 && R_main.people_array{i}.temp_count > thres_temp_count_high) ...
                     || (R_main.people_array{i}.temp_count > 400)
-                R_main.people_seq{end+1} = R_main.people_array{i};
+                R_main.people_seq = [R_main.people_seq; R_main.people_array{i}];
                 exit_index_people_array(end+1) = i;
                 disp('exit......');
                 continue;
@@ -186,7 +223,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                     all_dist = sort(dist(i,:));
                     second_min_index = find(dist(i,:)==all_dist(2));
                     if ~isinf(all_dist(2))  && all_dist(2) < 200 &&  isempty(find(min_dis_vector==second_min_index, 1))
-
+                        
                         total_area = body_prop(second_min_index).Area + body_prop(min_arg).Area;
                         if total_area < 2 * R_main.people_array{prev_index}.Area
                             bb = body_prop(second_min_index).BoundingBox;
@@ -213,7 +250,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                                 R_main.people_array{prev_index}.BoundingBox = [x_t, y_t, x_end_t-x_t+1, y_end_t-y_t+1];
                                 
                                 R_main.people_array{prev_index}.Area = body_prop(min_arg).Area + b_2.Area;
-                             
+                                
                             end
                         end
                     end
@@ -372,7 +409,79 @@ for i = 1:size(body_prop, 1)
     bb = body_prop(i).BoundingBox;
     total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
     
-
+    % inital detection from 11 to 13
+    if camera_no == 13 && R_com_info.check_13 ~= 0
+        
+        if body_prop(i).Centroid(2) > R_people_var.init_limit_exit_y1 && body_prop(i).Centroid(2) < half_y
+            limit_flag = false;
+            centre_rec =  [ body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
+            if body_prop(i).BoundingBox(3) > limit_max_width
+                body_prop(i).BoundingBox(3) = limit_max_width;
+                body_prop(i).BoundingBox(1) = centre_rec(1) - limit_max_width / 2;
+                limit_flag = true;
+            end
+            if body_prop(i).BoundingBox(4) > limit_max_height
+                body_prop(i).BoundingBox(4) = limit_max_height;
+                body_prop(i).BoundingBox(2) = centre_rec(2) - limit_max_height / 2;
+                limit_flag = true;
+            end
+            if limit_flag % area overloaded
+                body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
+                body_prop(i).Area = sum(sum(imcrop(im_binary, body_prop(i).BoundingBox)));
+            end
+            
+            color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
+            features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
+            Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
+                'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
+                'state', "unspec", 'color_val', color_val, 'label', R_main.R_dropping.label, 'id', R_com_info.id, ...
+                'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
+            
+            R_main.R_dropping.label = R_main.R_dropping.label + 1;
+            R_main.people_array{end+1} = Person;
+            
+            continue;
+        end
+        
+    end
+    
+    % initial detection from 13 to 11
+    if camera_no == 11 && R_com_info.check_11 ~= 0
+        
+        if body_prop(i).Centroid(2) < R_people_var.limit_exit_y2 + 10 && body_prop(i).Centroid(2) > R_people_var.half_y
+            limit_flag = false;
+            centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
+            if body_prop(i).BoundingBox(3) > limit_max_width
+                body_prop(i).BoundingBox(3) = limit_max_width;
+                body_prop(i).BoundingBox(1) = centre_rec(1) - limit_max_width / 2;
+                limit_flag = true;
+            end
+            if body_prop(i).BoundingBox(4) > limit_max_height
+                body_prop(i).BoundingBox(4) = limit_max_height;
+                body_prop(i).BoundingBox(2) = centre_rec(2) - limit_max_height / 2;
+                limit_flag = true;
+            end
+            if limit_flag % area overloaded
+                body_prop(i).BoundingBox = int32(body_prop(i).BoundingBox);
+                body_prop(i).Area = sum(sum(imcrop(im_binary, body_prop(i).BoundingBox)));
+            end
+            
+            color_val = get_color_val(im_r, body_prop(i).BoundingBox, im_binary );
+            features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
+            Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
+                'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
+                'state', "unspec", 'color_val', color_val, 'label', R_main.R_dropping.label, 'id', R_com_info.id, ...
+                'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
+            
+            R_main.R_dropping.label = R_main.R_dropping.label + 1;
+            R_main.people_array{end+1} = Person;
+            
+            continue;
+        end
+        
+        
+    end
+    
     
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
             body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
@@ -404,7 +513,7 @@ for i = 1:size(body_prop, 1)
         if associate
             label_num = Person.label;
             if numel(R_c9.R_main.people_seq) >= label_num
-                intended_label = R_c9.R_main.people_seq{label_num}.label;
+                intended_label = R_c9.R_main.people_seq(label_num).label;
                 Person.id = intended_label;
             end
         end
@@ -443,13 +552,23 @@ if ~isempty(R_main.R_dropping.prev_body) && ( debug_people_11 || debug_people_13
     %figure(2); imshow(im_draw);
     
     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_main.R_dropping.prev_body)));
-    figure(4);imshow(im_binary);
+    if debug_people_11
+        figure(4);
+    else
+        figure(6);
+    end
     
-    figure(5);
-    imshow(im_draw); 
+    imshow(im_binary);
+    
+    if debug_people_11
+        figure(5);
+    else
+        figure(7);
+    end
+    imshow(im_draw);
     
     drawnow;
-
+    
 end
 
 R_main.R_dropping.prev_body = im_r;

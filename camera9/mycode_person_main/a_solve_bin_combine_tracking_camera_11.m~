@@ -10,9 +10,7 @@ global debug_people_13;
 debug_people_11 = true;
 debug_people_13 = true;
 
-debug = true;
-tmp = 0;
-
+debug = false;
 debug_people = false;
 global scale;
 scale = 0.5;
@@ -37,7 +35,7 @@ diff_frame_sec = 0; % camera 13 is 5 second behind
 %% load video data
 % file for input video
 
-all_file_nums = [ "7A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
+all_file_nums = [ "6A"];%["5A_take1","5A_take2","5A_take3","6A","9A","10A"];
 
 for file_number_str = all_file_nums
     
@@ -73,7 +71,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_fr = 4450;
+    start_fr = 2820;
     
     %% Camera 11
     %% region setting,find region position
@@ -245,7 +243,7 @@ for file_number_str = all_file_nums
         R_people_var.limit_init_area = 14000 *  scale^2;
         R_people_var.limit_max_width = 420 *  scale;
         R_people_var.limit_max_height = 420 * scale;
-        R_people_var.half_y = 900 * scale; %1.8 * size(im_r,1) / 2;
+        R_people_var.half_y = 1280 * scale; %1.8 * size(im_r,1) / 2;
         R_people_var.limit_exit_y1 = 1300 * scale;
         R_people_var.limit_exit_x1 = 10 * scale;
         R_people_var.limit_exit_y2 = 1370 * scale;
@@ -262,14 +260,11 @@ for file_number_str = all_file_nums
         
         %%
         
-        if debug == true && tmp == 0
+        if debug == true
             R_people_var.half_y =  0.9 * size(im_r, 1); 
-            tmp = 1;
-            if R_com_info.check_13 ~= 0
-                R_people_var.half_y = 900 * scale; 
+            if R_com_info.check_13 == 
+                R_people_var.half_y = 1280 * scale; 
             end
-        else
-            R_people_var.half_y = 900 * scale; 
         end
         
         [R_11, R_com_info] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11);
@@ -312,7 +307,7 @@ for file_number_str = all_file_nums
             R_people_var.limit_init_area = 35000 *  scale^2;
             R_people_var.limit_max_width = 420 *  scale;
             R_people_var.limit_max_height = 420 * scale;
-            R_people_var.half_y = 500 * scale; %1.8 * size(im_r,1) / 2;
+            R_people_var.half_y = 300 * scale; %1.8 * size(im_r,1) / 2;
             R_people_var.limit_exit_y1 = 1300 * scale;
             R_people_var.limit_exit_x1 = 10 * scale;
             R_people_var.limit_exit_y2 = 1300 * scale;
