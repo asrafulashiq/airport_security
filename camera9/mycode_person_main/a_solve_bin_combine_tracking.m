@@ -48,7 +48,7 @@ for file_number_str = all_file_nums
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
 
 
-    start_fr = 370;
+    start_fr = 1610;
 
     if my_decision == is_update_region
         load(file_to_save);
@@ -166,7 +166,7 @@ for file_number_str = all_file_nums
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, rot_angle);
         
-        if frame_count >= 907
+        if frame_count >= 1620
             1;
         end
         

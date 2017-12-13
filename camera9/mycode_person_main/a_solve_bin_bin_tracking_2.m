@@ -16,6 +16,7 @@ end
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
+im_actual_rgb = im_actual;
 
 im_all = rgb2gray(im_actual);
 im_background = rgb2gray(im_r4_p);
@@ -56,7 +57,7 @@ if debug
     hold on;
 end
 
-[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt, 1);
+[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt, 1, im_actual_rgb);
 
 if debug
     hold off;

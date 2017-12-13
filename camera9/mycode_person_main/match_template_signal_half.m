@@ -1,4 +1,4 @@
-function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt, flag)
+function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt, flag, I_rgb)
 global debug;
 global scale;
 
@@ -371,60 +371,60 @@ else
         end
         
         bin_array{i}.Area=size(T_,1)*size(T_,2);
+        if isfield(bin_array{i}, 'Centroid')
+            bin_array{i}.p_Centroid = bin_array{i}.Centroid;
+        end
         bin_array{i}.Centroid =  Loc';
         bin_array{i}.BoundingBox = [1 min_loc size(I,2) height ];
         bin_array{i}.limit= [ min_loc loc_end ];
-        if isfield(bin_array{i},'t_img')
-            bin_array{i}.p_img = bin_array{i}.t_img;
+        if bin_array{i}.state=="empty" && isfield(bin_array{i}, 'image')
+            bin_array{i}.p_img = bin_array{i}.image;
         end
-        bin_array{i}.t_img =  I( min_loc: min_loc+r_tall_width-1, : );
-        
-        bin_array{i}.image=I( min_loc : loc_end , : );
+        %bin_array{i}.t_img =  I( min_loc: min_loc+r_tall_width-1, : );
+        bin_array{i}.image = I( min_loc : loc_end , : );
         bin_array{i}.std =  std( calc_intens(I(:, 1:int32(size(I,2)/2)), [min_loc loc_end]) ,1);
         bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
         
         %% do some test
-        if i==1
-           
-            im = bin_array{i}.t_img(20:end-20, 30:end-30);
-%             fgMask = step(R_belt.fore_detector, im);
-%             bbox_f   = step(R_belt.blob, fgMask);
-%             
-%             if ~isempty(bbox_f)
-%                 out    = step(R_belt.shapeInserter, im, bbox_f);
-%                 figure(3);
-%                 imshow(out);
-%             end
+        
+        if isfield(bin_array{i},'p_Centroid') && isfield(bin_array{i}, 'p_img') && bin_array{i}.state ~= "empty" && ...
+                norm(double(bin_array{i}.p_Centroid - bin_array{i}.Centroid)) <= 2
+        
             
-            K = stdfilt(im, true(5));
-            K = mat2gray(K);
-            K(K<0.3) = 0;
-            Kb = logical(K);
             
-            se = strel('disk',3);
-            Kb = imclose(Kb, se);
+            p_img = bin_array{i}.p_img(20:end-20, 30:end-30);
+            c_img = bin_array{i}.image(20: 20 + size(p_img,1) - 1, 30 : 30 + size(p_img,2)-1 );
+            rgb_img = I_rgb( min_loc : loc_end , :, : );
+            rgb_cut = rgb_img(20: 20 + size(p_img,1) - 1, 30 : 30 + size(p_img,2)-1, : );
             
-            bbox_f   = step(R_belt.blob, Kb);
-             
-            if ~isempty(bbox_f) %&& bbox_f(3) < 0.7 * size(im,1) && bbox_f(4) < 0.7 * size(im,2) 
-                out    = step(R_belt.shapeInserter, im, bbox_f);
-                figure(3);
-                imshow(out);
-            else
-                disp('bbox empty');
+            d_img = abs(p_img - c_img) + abs(c_img - p_img);
+            d_img(d_img < 100) = 0;
+            d_img = imclose(d_img, strel('disk', 6));
+            d_img = logical(d_img);
+            
+            reg = regionprops(d_img, 'FilledArea', 'BoundingBox', 'FilledImage', 'Perimeter');
+            
+            reg = reg([reg.FilledArea] > 150);
+            
+            e_img = uint8(ones(size(c_img,1), size(c_img, 2), 3) * 255);
+            
+            for itmp = 1:numel(reg)
+                
+                bb = reg(itmp).BoundingBox;
+                f_im = reg(itmp).FilledImage;
+                
+                rgb_cut = insertShape(rgb_cut, 'Rectangle', bb, 'Color', 'red', 'LineWidth', 5 );
+                
+                e_img(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1, :) = rgb_cut(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1, :).* uint8(f_im);
+                e_img(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1, 1) = e_img(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1, 1) + 10; 
             end
             
-            figure(4);imshow(Kb);
-            
-%             if isfield(bin_array{i},'p_img')
-%                 diff = abs(bin_array{i}.t_img - bin_array{i}.p_img) + abs(bin_array{i}.p_img - bin_array{i}.t_img);
-%                 figure(4); imshow(diff,[]);
-%             end
+            figure(3);imshow(e_img);
+            drawnow;
             
             
         end
-        
         
     end
     
@@ -443,7 +443,7 @@ else
     loc_2 = min_;
     if loc_2 >= loc_something(1) + r_tall_width * thr
         
-        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt, 0);
+        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt, 0, []);
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end
@@ -462,7 +462,7 @@ else
         end
         bins = [];
         if end_m >= strt_m + r_tall_width * thr
-             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0 );   
+             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0, [] );   
         end
         
         if ~isempty(bins)
