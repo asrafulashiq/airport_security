@@ -23,8 +23,13 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["7A"];
+all_file_nums = ["6A","7A","9A"];
 %all_file_nums = ["EXP_1A"];
+
+
+    R_belt.imno = 1;
+    R_belt.filenames = {};
+    R_belt.bb = [];
 
 for file_number_str = all_file_nums
     
@@ -49,18 +54,6 @@ for file_number_str = all_file_nums
 
 
     start_fr = 300;
-
-    if my_decision == is_update_region
-        load(file_to_save);
-        
-    elseif my_decision == is_load_region
-        load(file_to_save); % start_f will load here
-        
-    elseif my_decision == is_save_region
-        start_f = start_fr; % starting frame for saving
-        save(file_to_save, 'start_f'); % creating file_to_save
-        
-    end
     
     %% region setting,find region position
     
@@ -126,8 +119,7 @@ for file_number_str = all_file_nums
     %load('imback.mat','im_background');
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
-    
-    
+        
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
@@ -150,19 +142,26 @@ for file_number_str = all_file_nums
     R_belt.label = 1;
     starting_index = -1;
     
-    R_belt.imno = 1;
-    R_belt.imname = fullfile('bins', '7A');
+    
+    %% save images for training
+    
+    
+    
+    R_belt.file_number = file_number_str;
+    R_belt.imname = 'data';
+
+    
+    
     
     R_dropping.prev_body = [];
     
     %% the parameter for the start frame and end frame
-    end_f = v.Duration * v.FrameRate ; %15500;
+    end_f =  5000; %v.Duration * v.FrameRate ; %15500;
     v.CurrentTime = start_fr / 30;%v.FrameRate ;
     
     %% Start tracking and baggage association
     frame_count = start_fr;
-    
-    
+       
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
@@ -203,16 +202,14 @@ for file_number_str = all_file_nums
 
         frame_count = frame_count + 1;
         
-        if frame_count > 6280
-           break; 
-        end
+        
     end
     
-    if my_decision == is_save_region || my_decision == is_update_region
-        if my_decision == is_save_region
-            start_f = start_fr;
-        end
-        save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
+    if is_save_region
+        %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
+        filenames = R_belt.filenames;
+        bb = R_belt.bb;
+        save('trainingdata.mat',' filenames','bb');
     end
     
     if is_write_video

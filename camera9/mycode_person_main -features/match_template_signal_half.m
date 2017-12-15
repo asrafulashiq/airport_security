@@ -113,7 +113,13 @@ if obj_num == 0
     bin_array{end+1} = Bin;
    
     
-    imwrite( Bin.image, fullfile(R_belt.imname,sprintf('%d.jpg', R_belt.imno)));
+    %% save images bounding box for training
+    fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
+    imwrite( I_rgb, fname);
+    
+    R_belt.filenames{end+1} = fname;
+    R_belt.bb = [R_belt.bb; Bin.BoundingBox];
+    
     R_belt.imno = R_belt.imno + 1;
     
 else
@@ -388,10 +394,18 @@ else
         bin_array{i}.std =  std( calc_intens(I(:, 1:int32(size(I,2)/2)), [min_loc loc_end]) ,1);
         bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
+                
         
-        imwrite( bin_array{i}.image, fullfile(R_belt.imname, sprintf('%d.jpg', R_belt.imno)));
+        
+        %% save image bounding box for training
+        fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
+
+        imwrite( I_rgb, fname);
+    
+        R_belt.filenames{end+1} =  fname;
+        R_belt.bb = [R_belt.bb; bin_array{i}.BoundingBox];
+    
         R_belt.imno = R_belt.imno + 1;
-        
         
     end
     
@@ -410,7 +424,7 @@ else
     loc_2 = min_;
     if loc_2 >= loc_something(1) + r_tall_width * thr
         
-        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt, 0, []);
+        [bins, R_belt] = match_template_signal_half( I, {}, [loc_something(1) loc_2], R_belt, 0, I_rgb);
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end
@@ -429,7 +443,7 @@ else
         end
         bins = [];
         if end_m >= strt_m + r_tall_width * thr
-             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0, [] );   
+             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0, I_rgb );   
         end
         
         if ~isempty(bins)

@@ -37,7 +37,6 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     
-
     start_fr = 1200;
     
     %% region setting,find region position

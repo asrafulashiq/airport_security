@@ -1,0 +1,3 @@
+location = fullfile('images');
+ds = datastore(location,'Type','image', 'IncludeSubfolders',true, ...
+                      'FileExtensions',{'.jpg'}, 'LabelSource','foldernames');
