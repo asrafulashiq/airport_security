@@ -209,7 +209,7 @@ for file_number_str = all_file_nums
         %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
         filenames = R_belt.filenames;
         bb = R_belt.bb;
-        save('trainingdata.mat',' filenames','bb');
+        save('trainingdata.mat','filenames','bb');
     end
     
     if is_write_video
