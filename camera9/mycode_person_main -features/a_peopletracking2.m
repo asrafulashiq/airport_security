@@ -3,6 +3,8 @@ function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropp
 %% region 1 extraction
 global scale;
 global debug_people;
+global associate_10;
+
 im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
 min_allowed_dis = 200 * scale;
 limit_area = 14000 * scale^2;
@@ -422,7 +424,7 @@ for i = 1:numel(R_dropping.exit_from_9)
     end
     
     cur_people = R_dropping.exit_from_9{1};
-    if cur_people.temp_count <= check_10_threshold
+    if associate_10 &&  cur_people.temp_count <= check_10_threshold
         
         if cur_people.temp_count == 0
             R_dropping.v10.currentTime = currentTime;
@@ -478,11 +480,9 @@ for i = 1:numel(R_dropping.exit_from_9)
                 cur_people.temp_count = cur_people.temp_count + 1;
             end
             
-            if debug_people
-                
+            if debug_people               
                 figure(5); imshow(im_draw_10);
             end
-            
         end
     else
         people_seq{end+1} = R_dropping.exit_from_9{1};
@@ -547,6 +547,19 @@ if ~isempty(R_dropping.prev_body) && debug_people
 end
 
 R_dropping.prev_body = im_r;
+
+%% for test images
+for i = 1:numel(people_array)
+   
+    fname = fullfile(R_dropping.imname,sprintf('%d_%s.jpg', R_dropping.imno, R_dropping.file_number));
+    imwrite( im_r, fname);
+    
+    R_dropping.imageFilenames{end+1} = sprintf('%-20s',fname);
+    R_dropping.BoundingBox{end+1} = people_array{i}.BoundingBox;
+    
+    R_dropping.imno = R_dropping.imno + 1; 
+    
+end
 
 end
 

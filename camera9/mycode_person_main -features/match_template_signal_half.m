@@ -117,8 +117,8 @@ if obj_num == 0
     fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
     imwrite( I_rgb, fname);
     
-    R_belt.filenames{end+1} = fname;
-    R_belt.bb = [R_belt.bb; Bin.BoundingBox];
+    R_belt.filenames{end+1} = sprintf('%-20s',fname);
+    R_belt.bb{end+1} = Bin.BoundingBox;
     
     R_belt.imno = R_belt.imno + 1;
     
@@ -402,8 +402,8 @@ else
 
         imwrite( I_rgb, fname);
     
-        R_belt.filenames{end+1} =  fname;
-        R_belt.bb = [R_belt.bb; bin_array{i}.BoundingBox];
+        R_belt.filenames{end+1} =  sprintf('%-20s',fname);
+        R_belt.bb{end+1} = bin_array{i}.BoundingBox;
     
         R_belt.imno = R_belt.imno + 1;
         

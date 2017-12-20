@@ -7,11 +7,14 @@
 global debug;
 debug = false;
 global scale;
-scale = 0.5;
+scale = 1;
 global debug_people;
 debug_people = false;
 
-show_image = true;
+global associate_10;
+associate_10 = false;
+
+show_image = false;
 is_write_video = false;
 is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
@@ -29,7 +32,11 @@ all_file_nums = ["6A","7A","9A"];
 
     R_belt.imno = 1;
     R_belt.filenames = {};
-    R_belt.bb = [];
+    R_belt.bb = {};
+    
+    R_dropping.imno = 1;
+    R_dropping.imageFilenames = {};
+    R_dropping.BoundingBox = {};
 
 for file_number_str = all_file_nums
     
@@ -149,7 +156,8 @@ for file_number_str = all_file_nums
     
     R_belt.file_number = file_number_str;
     R_belt.imname = 'data';
-
+    R_dropping.file_number = file_number_str;
+    R_dropping.imname = 'data_people';
     
     
     
@@ -173,12 +181,12 @@ for file_number_str = all_file_nums
         end
         
         % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array, v.CurrentTime);
+        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
+            R_belt,people_seq,people_array, bin_array, v.CurrentTime);
         
         % tracking the bin
-        [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-           R_belt,bin_seq,bin_array, people_array);
+        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
+        %   R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
         
@@ -190,7 +198,7 @@ for file_number_str = all_file_nums
         end
         
         
-        warning('off','last');
+       % warning('off','last');
 
         
         if is_write_video && show_image
@@ -207,9 +215,10 @@ for file_number_str = all_file_nums
     
     if is_save_region
         %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
-        filenames = R_belt.filenames;
-        bb = R_belt.bb;
-        save('trainingdata.mat','filenames','bb');
+        imageFilenames = R_dropping.imageFilenames;
+        BoundingBox = R_dropping.BoundingBox;
+        fname = sprintf('trainingdata_people_%s.mat', file_number_str);
+        save(fname,'imageFilenames','BoundingBox');
     end
     
     if is_write_video
@@ -218,6 +227,13 @@ for file_number_str = all_file_nums
     
     beep;
     
+end
+
+if is_save_region
+        %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
+        imageFilenames = R_dropping.imageFilenames;
+        BoundingBox = R_dropping.BoundingBox;
+        save('trainingdata_people.mat','imageFilenames','BoundingBox');
 end
 
 
