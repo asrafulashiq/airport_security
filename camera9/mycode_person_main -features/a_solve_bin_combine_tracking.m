@@ -11,15 +11,15 @@ scale = 1;
 global debug_people;
 debug_people = false;
 
+global save_features;
+save_features = true;
+
 global associate_10;
 associate_10 = false;
 
 show_image = false;
 is_write_video = false;
-is_do_nothing = 0;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
-is_load_region = 2; % flag to load region data from respective matfile
-is_update_region = 3; % flag to update region data f   rom respective matfile
 
 my_decision = 1;
 
@@ -30,13 +30,14 @@ all_file_nums = ["6A","7A","9A"];
 %all_file_nums = ["EXP_1A"];
 
 
-    R_belt.imno = 1;
-    R_belt.filenames = {};
-    R_belt.bb = {};
-    
-    R_dropping.imno = 1;
-    R_dropping.imageFilenames = {};
-    R_dropping.BoundingBox = {};
+R_belt.imno = 1;
+R_belt.filenames = {};
+R_belt.bb = {};
+
+R_dropping.imno = 1;
+R_dropping.imageFilenames = {};
+R_dropping.BoundingBox = {};
+R_dropping.person_id = {};
 
 for file_number_str = all_file_nums
     
@@ -58,25 +59,25 @@ for file_number_str = all_file_nums
     
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
-
-
+    
+    
     start_fr = 300;
     
     %% region setting,find region position
     
     %% some test on foreground
-%     R_belt.fore_detector = vision.ForegroundDetector(...
-%        'NumTrainingFrames', 5, ... 
-%        'InitialVariance', 30*30);
-%     
-%     R_belt.blob = vision.BlobAnalysis(...
-%        'CentroidOutputPort', false, 'AreaOutputPort', false, ...
-%        'BoundingBoxOutputPort', true, ...
-%        'MinimumBlobAreaSource', 'Property', 'MinimumBlobArea', 250, 'MaximumBlobArea', 3000);
-%    R_belt.shapeInserter = vision.ShapeInserter('BorderColor','Black','LineWidth', 3);
-%     
+    %     R_belt.fore_detector = vision.ForegroundDetector(...
+    %        'NumTrainingFrames', 5, ...
+    %        'InitialVariance', 30*30);
+    %
+    %     R_belt.blob = vision.BlobAnalysis(...
+    %        'CentroidOutputPort', false, 'AreaOutputPort', false, ...
+    %        'BoundingBoxOutputPort', true, ...
+    %        'MinimumBlobAreaSource', 'Property', 'MinimumBlobArea', 250, 'MaximumBlobArea', 3000);
+    %    R_belt.shapeInserter = vision.ShapeInserter('BorderColor','Black','LineWidth', 3);
+    %
     %%
-  
+    
     % Region1: droping bags
     R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
     
@@ -126,7 +127,7 @@ for file_number_str = all_file_nums
     %load('imback.mat','im_background');
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
-        
+    
     R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
     R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
     % object information for each region
@@ -151,17 +152,12 @@ for file_number_str = all_file_nums
     
     
     %% save images for training
-    
-    
-    
     R_belt.file_number = file_number_str;
     R_belt.imname = 'data';
     R_dropping.file_number = file_number_str;
     R_dropping.imname = 'data_people';
-    
-    
-    
     R_dropping.prev_body = [];
+    
     
     %% the parameter for the start frame and end frame
     end_f =  5000; %v.Duration * v.FrameRate ; %15500;
@@ -169,7 +165,7 @@ for file_number_str = all_file_nums
     
     %% Start tracking and baggage association
     frame_count = start_fr;
-       
+    
     while hasFrame(v) && v.CurrentTime < ( end_f / v.FrameRate )
         
         img = readFrame(v);
@@ -198,8 +194,7 @@ for file_number_str = all_file_nums
         end
         
         
-       % warning('off','last');
-
+        % warning('off','last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
@@ -207,7 +202,7 @@ for file_number_str = all_file_nums
         disp('-------------');
         disp(frame_count);
         disp('-------------');
-
+        
         frame_count = frame_count + 1;
         
         
@@ -230,10 +225,10 @@ for file_number_str = all_file_nums
 end
 
 if is_save_region
-        %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
-        imageFilenames = R_dropping.imageFilenames;
-        BoundingBox = R_dropping.BoundingBox;
-        save('trainingdata_people.mat','imageFilenames','BoundingBox');
+    %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
+    imageFilenames = R_dropping.imageFilenames;
+    BoundingBox = R_dropping.BoundingBox;
+    save('trainingdata_people.mat','imageFilenames','BoundingBox');
 end
 
 

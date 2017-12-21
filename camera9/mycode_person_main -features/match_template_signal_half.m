@@ -1,6 +1,7 @@
 function [bin_array, R_belt] =  match_template_signal_half(I, bin_array, loc_something, R_belt, flag, I_rgb)
 global debug;
 global scale;
+global save_features;
 
 obj_num = numel(bin_array);
 thr = 0.8;
@@ -9,7 +10,7 @@ if flag == 1
     flow = estimateFlow(R_belt.optic_flow, I);
     R_belt.flow = flow;
 else
-   flow = R_belt.flow; 
+    flow = R_belt.flow;
 end
 %%
 r_tall_val = 160;
@@ -50,7 +51,7 @@ if obj_num == 0
     end
     
     epsilon = 0.05;
-
+    
     limit_std = 30;
     for i = loc_something(1): ( loc_something(2) -  length(r_tall) + 1 )
         I_d = calc_intens(I(:, 1:int32(size(I,2)*0.7)), [ i i+length(r_tall)-1 ]);
@@ -58,10 +59,10 @@ if obj_num == 0
         coef = calc_coef_w(r_tall, I_d);
         
         if std(I_d) > limit_std
-           continue; 
+            continue;
         end
         
-        if coef > 60 
+        if coef > 60
             continue;
         end
         
@@ -111,32 +112,34 @@ if obj_num == 0
         );
     
     bin_array{end+1} = Bin;
-   
+    
     
     %% save images bounding box for training
-    fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
-    imwrite( I_rgb, fname);
-    
-    R_belt.filenames{end+1} = sprintf('%-20s',fname);
-    R_belt.bb{end+1} = Bin.BoundingBox;
-    
-    R_belt.imno = R_belt.imno + 1;
+    if save_features
+        fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
+        imwrite( I_rgb, fname);
+        
+        R_belt.filenames{end+1} = sprintf('%-20s',fname);
+        R_belt.bb{end+1} = Bin.BoundingBox;
+        
+        R_belt.imno = R_belt.imno + 1;
+    end
     
 else
-        
+    
     loc_something_actual = loc_something;
     
     
     for i = 1:obj_num
         
         r_bin = r_tall_bin;
-          
+        
         
         loc_to_match = [];
         
         flow_bin_y = flow.Vy(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);
         flow_bin_Orientation = flow.Orientation(bin_array{i}.limit(1):bin_array{i}.limit(2), 10:size(I,2)/2);
-
+        
         epsilon = 0.05;
         flow_bin_Orientation = rad2deg(flow_bin_Orientation);
         flow_index = (flow_bin_y > epsilon) & (flow_bin_Orientation> 70) ...
@@ -190,11 +193,11 @@ else
                     bin_array{i}.bin_or = "tall";
                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
                     break;
-%                 else
-%                     r_bin = create_rect(60, 5, bin_array{i}.r_val);
-%                     bin_array{i}.r_val = 60;
-%                     bin_array{i}.bin_or = "tall";
-%                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
+                    %                 else
+                    %                     r_bin = create_rect(60, 5, bin_array{i}.r_val);
+                    %                     bin_array{i}.r_val = 60;
+                    %                     bin_array{i}.bin_or = "tall";
+                    %                     loc_to_match = loc_match(bin_array,i,loc_something,lim,lim_b);
                 end
                 bin_array{i}.destroy = true;
                 disp('PROBLEM:::::::: Check this out !!!!!!!!!!!!!');
@@ -207,9 +210,9 @@ else
         coef_aray = [];
         loc_array = [];
         r_val = bin_array{i}.r_val;
-       
+        
         if isfield(bin_array{i},'destroy') && bin_array{i}.destroy == true
-           continue; 
+            continue;
         end
         
         %r_bin = create_rect( loc_to_match(2) - loc_to_match(1)+1, 3, r_val );
@@ -245,8 +248,8 @@ else
         loc_end = min_loc + length(r_bin)-1;
         
         if debug
-           %disp('min val :');
-           %disp(min_val);
+            %disp('min val :');
+            %disp(min_val);
         end
         
         %%% check wide
@@ -394,19 +397,17 @@ else
         bin_array{i}.std =  std( calc_intens(I(:, 1:int32(size(I,2)/2)), [min_loc loc_end]) ,1);
         bin_array{i}.count = bin_array{i}.count + 1;
         loc_something(2) = min_loc;
-                
+        
         
         
         %% save image bounding box for training
-        fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
-
-        imwrite( I_rgb, fname);
-    
-        R_belt.filenames{end+1} =  sprintf('%-20s',fname);
-        R_belt.bb{end+1} = bin_array{i}.BoundingBox;
-    
-        R_belt.imno = R_belt.imno + 1;
-        
+        if save_features
+            fname = fullfile(R_belt.imname,sprintf('%d_%s.jpg', R_belt.imno, R_belt.file_number));
+            imwrite( I_rgb, fname);
+            R_belt.filenames{end+1} =  sprintf('%-20s',fname);
+            R_belt.bb{end+1} = bin_array{i}.BoundingBox;
+            R_belt.imno = R_belt.imno + 1;
+        end
     end
     
     % search lowest y
@@ -430,7 +431,7 @@ else
         end
     end
     
-    %%% also search below of bin 
+    %%% also search below of bin
     if numel(bin_array) >= 1
         
         strt_m = bin_array{end}.BoundingBox(2) + bin_array{end}.BoundingBox(4) - 1;
@@ -443,13 +444,13 @@ else
         end
         bins = [];
         if end_m >= strt_m + r_tall_width * thr
-             [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0, I_rgb );   
+            [bins, R_belt] = match_template_signal_half( I, {}, [strt_m end_m], R_belt, 0, I_rgb );
         end
         
         if ~isempty(bins)
             %bin_array = {bin_array{:} bins{:}};
             if numel(bin_array) > 1
-               bin_array = { bin_array{1:end-1} bins{:} bin_array{end} }; 
+                bin_array = { bin_array{1:end-1} bins{:} bin_array{end} };
             else
                 bin_array = { bins{:} bin_array{:}};
             end

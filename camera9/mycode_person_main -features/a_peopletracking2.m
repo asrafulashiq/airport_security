@@ -4,6 +4,7 @@ function [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropp
 global scale;
 global debug_people;
 global associate_10;
+global save_features;
 
 im_r = im_c(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
 min_allowed_dis = 200 * scale;
@@ -184,14 +185,14 @@ if ~isempty(people_array) && ~isempty(list_bbox)
                     all_dist = sort(dist(i,:));
                     second_min_index = find(dist(i,:)==all_dist(2));
                     if ~isinf(all_dist(2))  && all_dist(2) < 200 &&  isempty(find(min_dis_vector==second_min_index, 1))
-
-%                             body_prop(second_min_index).Centroid(1) > people_array{prev_index}.BoundingBox(1) && ...
-%                             body_prop(second_min_index).Centroid(1) < people_array{prev_index}.BoundingBox(1)+ people_array{prev_index}.BoundingBox(3) && ...
-%                             body_prop(second_min_index).Centroid(2) > people_array{prev_index}.BoundingBox(2) && ...
-%                             body_prop(second_min_index).Centroid(2) < people_array{prev_index}.BoundingBox(2)+ people_array{prev_index}.BoundingBox(4) && ...
+                        
+                        %                             body_prop(second_min_index).Centroid(1) > people_array{prev_index}.BoundingBox(1) && ...
+                        %                             body_prop(second_min_index).Centroid(1) < people_array{prev_index}.BoundingBox(1)+ people_array{prev_index}.BoundingBox(3) && ...
+                        %                             body_prop(second_min_index).Centroid(2) > people_array{prev_index}.BoundingBox(2) && ...
+                        %                             body_prop(second_min_index).Centroid(2) < people_array{prev_index}.BoundingBox(2)+ people_array{prev_index}.BoundingBox(4) && ...
                         
                         total_area = body_prop(second_min_index).Area + body_prop(min_arg).Area;
-                        if total_area < 2 * people_array{prev_index}.Area 
+                        if total_area < 2 * people_array{prev_index}.Area
                             bb = body_prop(second_min_index).BoundingBox;
                             total_flow = sum(sum( flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1)));
                             if total_flow > 1000
@@ -480,7 +481,7 @@ for i = 1:numel(R_dropping.exit_from_9)
                 cur_people.temp_count = cur_people.temp_count + 1;
             end
             
-            if debug_people               
+            if debug_people
                 figure(5); imshow(im_draw_10);
             end
         end
@@ -515,25 +516,25 @@ if ~isempty(R_dropping.prev_body) && debug_people
     
     %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_dropping.prev_body)));
     %figure(4);imshow(im_binary);
-
+    
     
     for i = 1:size(im_draw,1)
-        for j = 1:size(im_draw,2)            
+        for j = 1:size(im_draw,2)
             if im_binary(i,j)==1
-               im_draw(i,j,1) = 200;
+                im_draw(i,j,1) = 200;
             end
         end
     end
     
     for i = 1:size(people_array, 2)
-    bounding_box = [ people_array{i}.BoundingBox(1) ...
-        people_array{i}.BoundingBox(2) ...
-        people_array{i}.BoundingBox(3) ...
-        people_array{i}.BoundingBox(4) ];
-    im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'blue');
-    im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 10], 'Color', 'blue' );
-    text_ = sprintf('person:%d', people_array{i}.label);
-    im_draw = insertText(im_draw, bounding_box(1:2), text_, 'FontSize', 20);
+        bounding_box = [ people_array{i}.BoundingBox(1) ...
+            people_array{i}.BoundingBox(2) ...
+            people_array{i}.BoundingBox(3) ...
+            people_array{i}.BoundingBox(4) ];
+        im_draw = insertShape(im_draw, 'Rectangle', people_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'blue');
+        im_draw = insertShape(im_draw, 'FilledCircle', [people_array{i}.Centroid' 10], 'Color', 'blue' );
+        text_ = sprintf('person:%d', people_array{i}.label);
+        im_draw = insertText(im_draw, bounding_box(1:2), text_, 'FontSize', 20);
     end
     
     figure(2);
@@ -549,16 +550,19 @@ end
 R_dropping.prev_body = im_r;
 
 %% for test images
-for i = 1:numel(people_array)
-   
-    fname = fullfile(R_dropping.imname,sprintf('%d_%s.jpg', R_dropping.imno, R_dropping.file_number));
-    imwrite( im_r, fname);
-    
-    R_dropping.imageFilenames{end+1} = sprintf('%-20s',fname);
-    R_dropping.BoundingBox{end+1} = people_array{i}.BoundingBox;
-    
-    R_dropping.imno = R_dropping.imno + 1; 
-    
+if save_features
+    for i = 1:numel(people_array)
+        
+        fname = fullfile(R_dropping.imname,sprintf('%d_%s.jpg', R_dropping.imno, R_dropping.file_number));
+        imwrite( im_r, fname);
+        
+        R_dropping.imageFilenames{end+1} = sprintf('%-20s',fname);
+        R_dropping.BoundingBox{end+1} = people_array{i}.BoundingBox;
+        R_dropping.person_id{end+1} = people_array{i}.label;
+        
+        R_dropping.imno = R_dropping.imno + 1;
+        
+    end
 end
 
 end
