@@ -13,22 +13,23 @@ debug_people = false;
 
 global save_features;
 save_features = true;
+is_save_for_test = 1;
 
 global associate_10;
 associate_10 = false;
 
 show_image = false;
-is_write_video = false;
-is_save_region = 1; % flag to save region data to matfile in a completely new fashion
+is_write_video = true;
+is_save_region = 0; % flag to save region data to matfile in a completely new fashion
+
 
 my_decision = 1;
 
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","7A","9A"];
+all_file_nums = ["6A","7A"];
 %all_file_nums = ["EXP_1A"];
-
 
 R_belt.imno = 1;
 R_belt.filenames = {};
@@ -208,12 +209,19 @@ for file_number_str = all_file_nums
         
     end
     
-    if is_save_region
+    if is_save_for_test
         %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
         imageFilenames = R_dropping.imageFilenames;
         BoundingBox = R_dropping.BoundingBox;
-        fname = sprintf('trainingdata_people_%s.mat', file_number_str);
-        save(fname,'imageFilenames','BoundingBox');
+        ids = R_dropping.person_id;
+        fname = sprintf('trainingdata_people_sep_%s.mat', file_number_str);
+        %save(fname,'imageFilenames','BoundingBox');
+        save(fname,'imageFilenames','BoundingBox', 'ids' );
+    end
+    
+    
+    if is_save_region       
+       save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
     end
     
     if is_write_video
@@ -224,7 +232,7 @@ for file_number_str = all_file_nums
     
 end
 
-if is_save_region
+if is_save_for_test
     %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
     imageFilenames = R_dropping.imageFilenames;
     BoundingBox = R_dropping.BoundingBox;

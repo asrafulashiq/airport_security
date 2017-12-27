@@ -7,8 +7,8 @@
 global debug;
 global debug_people_11;
 global debug_people_13;
-debug_people_11 = true;
-debug_people_13 = true;
+debug_people_11 = false;
+debug_people_13 = false;
 
 debug = true;
 tmp = 0;
@@ -17,13 +17,13 @@ debug_people = false;
 global scale;
 scale = 0.5;
 global associate;
-associate = false;
+associate = true;
 global associate_13;
-associate_13 = false;
+associate_13 = true;
 
 %%
-show_image = false;
-is_write_video = false;
+show_image = true;
+is_write_video = true;
 
 my_decision = 0;
 global k_distort_11;
@@ -73,7 +73,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_fr = 4450;
+    start_fr = 1300;
     
     %% Camera 11
     %% region setting,find region position

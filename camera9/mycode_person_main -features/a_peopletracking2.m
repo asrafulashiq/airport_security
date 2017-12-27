@@ -558,8 +558,7 @@ if save_features
         
         R_dropping.imageFilenames{end+1} = sprintf('%-20s',fname);
         R_dropping.BoundingBox{end+1} = people_array{i}.BoundingBox;
-        R_dropping.person_id{end+1} = people_array{i}.label;
-        
+        R_dropping.person_id{end+1} = people_array{i}.label;        
         R_dropping.imno = R_dropping.imno + 1;
         
     end
