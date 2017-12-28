@@ -28,7 +28,7 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","7A"];
+all_file_nums = ["6A","7A", "9A"];
 %all_file_nums = ["EXP_1A"];
 
 R_belt.imno = 1;
