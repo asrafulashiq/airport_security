@@ -11,7 +11,7 @@ ids = ids(1:numel(imageFilenames));
 
 %% get deep features
 net = vgg19();
-layers = [37, 28, 19];
+layers = [ 28, 19];
 sz_window = net.Layers(1).InputSize(1:2);
 
 %% image ids
