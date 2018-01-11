@@ -1,11 +1,11 @@
-function [bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,R_belt,bin_seq, bin_array, people_array)
+function [R_bin] = a_solve_bin_bin_tracking_2(im_c,R_people,R_bin)
 
 global debug;
 global scale;
 
-r4_lb = R_belt.label;
-r4 = R_belt.r4;
-im_r4_p = R_belt.im_r4_p;
+r4_lb = R_bin.label;
+r4 = R_bin.r4;
+im_r4_p = R_bin.im_r4_p;
 
 %% Set up parameters
 threshold = 15; %threshold for object recognition
@@ -57,7 +57,7 @@ if debug
     hold on;
 end
 
-[bin_array, R_belt] = match_template_signal_half(I, bin_array, loc_something, R_belt, 1, im_actual_rgb);
+[R_bin] = match_template_signal_half(I, loc_something, R_bin, 1, im_actual_rgb);
 
 if debug
     hold off;
@@ -66,91 +66,91 @@ if debug
 end
 
 %% bin processing
-total_bins = size(bin_array,2);
+total_bins = size(R_bin.bin_array,2);
 i = 1;
 
 limit_max_dist = 280*scale;
 
 for counter = 1: total_bins
     
-    if isfield(bin_array{i},'destroy') && bin_array{i}.destroy == true
-        bin_array(i) = [];
+    if isfield(R_bin.bin_array{i},'destroy') && R_bin.bin_array{i}.destroy == true
+        R_bin.bin_array(i) = [];
         %r4_cnt = r4_cnt - 1;
         continue;
     end
     
     if debug
         im_actual = insertShape(im_actual, 'Rectangle', ...
-            bin_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'red' );        
+            R_bin.bin_array{i}.BoundingBox, 'LineWidth', 5, 'Color', 'red' );        
     end
     
-    %bin_array{i}.belongs_to = 1;
+    %R_bin.bin_array{i}.belongs_to = 1;
     %%% detect new bin and assign person
-    if bin_array{i}.belongs_to == -1 % if no person is assigned
-        centroid = bin_array{i}.Centroid;
+    if R_bin.bin_array{i}.belongs_to == -1 % if no person is assigned
+        centroid = R_bin.bin_array{i}.Centroid;
         centroid = centroid';
         
         if centroid(2) > dis_exit_y
-            bin_seq{end+1} = bin_array{i};
-            bin_array(i) = [];
+            R_bin.bin_seq{end+1} = R_bin.bin_array{i};
+            R_bin.bin_array(i) = [];
             continue;
         end
         
         r1_edge = [];
         
-        for j = 1:size(people_array, 2)
-            centr = double([people_array{j}.BoundingBox(1) people_array{j}.Centroid(2)])  + double([R_dropping.r1(1) R_dropping.r1(3)]);
+        for j = 1:size(R_people.people_array, 2)
+            centr = double([R_people.people_array{j}.BoundingBox(1) R_people.people_array{j}.Centroid(2)])  + double([R_people.r1(1) R_people.r1(3)]);
             r1_edge = [r1_edge; centr];
         end
         
-        if ~isempty(people_array) && bin_array{i}.count >= 20
+        if ~isempty(R_people.people_array) && R_bin.bin_array{i}.count >= 20
             
-            last_people = people_array{end};
-            dist_to_last = pdist2( double([people_array{end}.BoundingBox(1) people_array{end}.Centroid(2)])  + double([R_dropping.r1(1) R_dropping.r1(3)]), ...
-                double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+            last_people = R_people.people_array{end};
+            dist_to_last = pdist2( double([R_people.people_array{end}.BoundingBox(1) R_people.people_array{end}.Centroid(2)])  + double([R_people.r1(1) R_people.r1(3)]), ...
+                double(centroid) + [R_bin.r4(1) R_bin.r4(3)]);
             if dist_to_last <= limit_max_dist
-                belongs_to = people_array{end}.label;
+                belongs_to = R_people.people_array{end}.label;
             else
                 
-                dis_b_p = pdist2( r1_edge, double(centroid) + [R_belt.r4(1) R_belt.r4(3)]);
+                dis_b_p = pdist2( r1_edge, double(centroid) + [R_bin.r4(1) R_bin.r4(3)]);
                 bin_belong_index =  dis_b_p == min(dis_b_p);
                 if min(dis_b_p) > limit_max_dist
                     belongs_to = -1;
                 else
-                    belongs_to = people_array{bin_belong_index}.label;
+                    belongs_to = R_people.people_array{bin_belong_index}.label;
                 end
             end
         else
             belongs_to = -1;
         end
         
-        bin_array{i}.belongs_to = belongs_to;
+        R_bin.bin_array{i}.belongs_to = belongs_to;
         
-        if bin_array{i}.label == -1
-            bin_array{i}.label = R_belt.label;
-            R_belt.label = R_belt.label + 1;
+        if R_bin.bin_array{i}.label == -1
+            R_bin.bin_array{i}.label = R_bin.label;
+            R_bin.label = R_bin.label + 1;
         end
         
         
         if debug
-            bin_array{i}.belongs_to = 1;
+            R_bin.bin_array{i}.belongs_to = 1;
         end
         
-        i = i+1; % go to next bin in bin_array
+        i = i+1; % go to next bin in R_bin.bin_array
         
         %%% detect exiting
-    elseif bin_array{i}.Centroid(2) >= dis_exit_y
-        if abs(bin_array{i}.limit(2)-size(im_r4,1)) > 30
-            if bin_array{i}.in_flag ~= 0
-                bin_array{i}.in_flag = 0;
-                bin_seq{end+1} = bin_array{i};
+    elseif R_bin.bin_array{i}.Centroid(2) >= dis_exit_y
+        if abs(R_bin.bin_array{i}.limit(2)-size(im_r4,1)) > 30
+            if R_bin.bin_array{i}.in_flag ~= 0
+                R_bin.bin_array{i}.in_flag = 0;
+                R_bin.bin_seq{end+1} = R_bin.bin_array{i};
             end
             i = i + 1;
         else
-            if bin_array{i}.in_flag ~= 0
-                bin_seq{end+1} = bin_array{i};
+            if R_bin.bin_array{i}.in_flag ~= 0
+                R_bin.bin_seq{end+1} = R_bin.bin_array{i};
             end
-            bin_array(i) = [];
+            R_bin.bin_array(i) = [];
             disp('delete');
         end
     else
@@ -166,9 +166,9 @@ if debug
     figure(3);
     imshow(im_actual);
     
-    if ~isempty(R_belt.flow)
+    if ~isempty(R_bin.flow)
         hold on;
-        plot(R_belt.flow,'DecimationFactor',[5 5],'ScaleFactor',5);
+        plot(R_bin.flow,'DecimationFactor',[5 5],'ScaleFactor',5);
         hold off;
     end
 

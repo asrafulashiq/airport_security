@@ -1,4 +1,4 @@
-function [bin_array, R_belt] =  match_template_signal_camera11(I, bin_array, loc_something, R_belt, R_c9, flag)
+function [bin_array, R_bin] =  match_template_signal_camera11(I, bin_array, loc_something, R_bin, R_c9, flag)
 global debug;
 global scale;
 global associate;
@@ -6,10 +6,10 @@ global associate;
 obj_num = size(bin_array,2);
 thr = 0.9;
 if flag == 1
-    flow = estimateFlow(R_belt.optic_flow, I);
-    R_belt.flow = flow;
+    flow = estimateFlow(R_bin.optic_flow, I);
+    R_bin.flow = flow;
 else
-   flow = R_belt.flow; 
+   flow = R_bin.flow; 
 end
 %%
 r_tall_val = 120;
@@ -44,7 +44,7 @@ if obj_num == 0
     %loc_end = loc_something(2) - length(r_tall) + 1;
     r_val = r_tall_val;
     if associate
-       intended_label = R_belt.label;
+       intended_label = R_bin.label;
       
        intended_bin = [];     
        % find associated previous bin
@@ -422,7 +422,7 @@ else
     loc_2 = min_;
     if loc_2 > loc_something(1) + r_tall_width * thr
         
-        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_belt, R_c9, 0 );
+        bins = match_template_signal_camera11( I, {}, [loc_something(1) loc_2], R_bin, R_c9, 0 );
         if ~isempty(bins)
             bin_array = {bin_array{:} bins{:}};
         end

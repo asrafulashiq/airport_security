@@ -69,8 +69,7 @@ for i = 1:size(people_array, 2)
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'blue');
     text_ = sprintf('person:%d', people_array{i}.id);
     im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
-    
-   
+      
 end
 
 

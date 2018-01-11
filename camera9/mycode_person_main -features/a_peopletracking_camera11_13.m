@@ -29,13 +29,13 @@ critical_exit_x   =   R_people_var.critical_exit_x ;
 critical_exit_y    =  R_people_var.critical_exit_y ;
 
 im_g = rgb2gray(im_r);
-flow = estimateFlow(R_main.R_dropping.optic_flow, im_g);
-R_main.R_dropping.flow = flow;
+flow = estimateFlow(R_main.R_people.optic_flow, im_g);
+R_main.R_people.flow = flow;
 
 exit_vanishing_area = 30000 * scale^2;
 %% Region 1 background subtraction based on chromatic value
 im_r = imgaussfilt(im_r, 5);
-im_back = R_main.R_dropping.im_r1_p;
+im_back = R_main.R_people.im_r1_p;
 im_back = imgaussfilt(im_back, 5);
 
 im_r_hsv = rgb2hsv(im_r);
@@ -90,7 +90,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                 end
                 
                 R_main.people_array{i}.temp_count = 0;
-                %R_main.R_dropping.exit_from_9{end+1} = R_main.people_array{i};
+                %R_main.R_people.exit_from_9{end+1} = R_main.people_array{i};
                 exit_index_people_array(end+1) = i;
                 disp('exit......');
                 continue;
@@ -112,6 +112,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                 R_com_info.check_13 = 1;
                 R_com_info.check_11 = 0;
                 R_com_info.id = R_main.people_array{i}.id;
+                R_com_info.label = R_main.people_array{i}.label;
                 half_y = 473;
             end
             
@@ -122,9 +123,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
                 R_main.people_seq = [R_main.people_seq; R_main.people_array{i}];
             end
             
-            %R_main.people_seq(end+1) = R_main.people_array{i};
             R_main.people_array{i}.temp_count = 0;
-            %R_main.R_dropping.exit_from_9{end+1} = R_main.people_array{i};
             exit_index_people_array(end+1) = i;
             disp('exit......');
             continue;
@@ -164,6 +163,7 @@ if ~isempty(R_main.people_array) && ~isempty(list_bbox)
     people_array_struct = [R_main.people_array{:}];
     % determine minimum distance
     min_dis_vector = [];
+    
     if ~isempty(R_main.people_array)
         
         dist = pdist2(double([people_array_struct.Centroid]'), double(list_bbox));
@@ -434,10 +434,13 @@ for i = 1:size(body_prop, 1)
             features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
             Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
                 'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-                'state', "unspec", 'color_val', color_val, 'label', R_main.R_dropping.label, 'id', R_com_info.id, ...
+                'state', "unspec", 'color_val', color_val, 'label', R_com_info.label, 'id', R_com_info.id, ...
                 'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
             
-            R_main.R_dropping.label = R_main.R_dropping.label + 1;
+            if Person.label >= R_main.R_people.label
+                R_main.R_people.label = R_main.R_people.label + 1;
+            end
+            
             R_main.people_array{end+1} = Person;
             
             continue;
@@ -470,10 +473,13 @@ for i = 1:size(body_prop, 1)
             features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
             Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
                 'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-                'state', "unspec", 'color_val', color_val, 'label', R_main.R_dropping.label, 'id', R_com_info.id, ...
+                'state', "unspec", 'color_val', color_val, 'label',  R_com_info.label, 'id', R_com_info.id, ...
                 'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
             
-            R_main.R_dropping.label = R_main.R_dropping.label + 1;
+            if Person.label >= R_main.R_people.label
+                R_main.R_people.label = R_main.R_people.label + 1;
+            end
+            
             R_main.people_array{end+1} = Person;
             
             continue;
@@ -485,6 +491,12 @@ for i = 1:size(body_prop, 1)
     
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
             body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
+        
+        if camera_no == 13      
+            if  body_prop(i).Centroid(2) < half_y
+                continue;
+            end
+        end
         
         limit_flag = false;
         centre_rec =  [  body_prop(i).BoundingBox(1)+body_prop(i).BoundingBox(3)/2  body_prop(i).BoundingBox(2)+body_prop(i).BoundingBox(4)/2  ];
@@ -507,19 +519,19 @@ for i = 1:size(body_prop, 1)
         features = get_features(im_r, body_prop(i).BoundingBox, im_binary);
         Person = struct('Area', body_prop(i).Area, 'Centroid', body_prop(i).Centroid, ...
             'Orientation', body_prop(i).Orientation, 'BoundingBox', body_prop(i).BoundingBox, ...
-            'state', "unspec", 'color_val', color_val, 'label', R_main.R_dropping.label, 'id', R_main.R_dropping.label, ...
+            'state', "unspec", 'color_val', color_val, 'label', R_main.R_people.label, 'id', R_main.R_people.label, ...
             'critical_del', -1000, 'prev_centroid',[], 'temp_count', 0, 'features', features);
         
         if associate
             label_num = Person.label;
-            if numel(R_c9.R_main.people_seq) >= label_num
-                intended_label = R_c9.R_main.people_seq(label_num).label;
+            if numel(R_c9.people_seq) >= label_num
+                intended_label = R_c9.people_seq(label_num).label;
                 Person.id = intended_label;
             end
         end
         
         
-        R_main.R_dropping.label = R_main.R_dropping.label + 1;
+        R_main.R_people.label = R_main.R_people.label + 1;
         R_main.people_array{end+1} = Person;
         
     end
@@ -548,10 +560,10 @@ if ~isempty(R_main.people_array)
     R_main.people_array = {R_main.people_array{I}};
 end
 %% some test image
-if ~isempty(R_main.R_dropping.prev_body) && ( debug_people_11 || debug_people_13)
+if ~isempty(R_main.R_people.prev_body) && ( debug_people_11 || debug_people_13)
     %figure(2); imshow(im_draw);
     
-    %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_main.R_dropping.prev_body)));
+    %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_main.R_people.prev_body)));
     if debug_people_11
         figure(4);
     else
@@ -571,7 +583,7 @@ if ~isempty(R_main.R_dropping.prev_body) && ( debug_people_11 || debug_people_13
     
 end
 
-R_main.R_dropping.prev_body = im_r;
+R_main.R_people.prev_body = im_r;
 
 end
 

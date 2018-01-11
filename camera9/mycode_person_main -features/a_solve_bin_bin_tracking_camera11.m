@@ -6,12 +6,12 @@ global associate;
 %global k_distort;
 
 
-r4 = R_main.R_belt.r4;
-im_r4_p = R_main.R_belt.im_r4_p;
+r4 = R_main.R_bin.r4;
+im_r4_p = R_main.R_bin.im_r4_p;
 
 %% Set up parameters
-threshold = R_11.bin_var.threshold; %threshold for object recognition
-dis_exit_y = R_11.bin_var.dis_exit_y;
+threshold = R_main.bin_var.threshold; %threshold for object recognition
+dis_exit_y = R_main.bin_var.dis_exit_y;
 
 %% Preprocessing
 im_actual = im_c(r4(3):r4(4),r4(1):r4(2),:);
@@ -60,7 +60,8 @@ if debug
 end
 
 
-[R_main.bin_array, R_main.R_belt] = match_template_signal_camera11(I, R_main.bin_array, loc_something, R_main.R_belt,R_c9, 1);
+[R_main.bin_array, R_main.R_bin] = match_template_signal_camera11(I, R_main.bin_array, loc_something, R_main.R_bin,R_c9, 1);
+
 
 if debug
     hold off;
@@ -71,7 +72,7 @@ end
 total_bins = size(R_main.bin_array,2);
 i = 1;
 
-limit_max_dist =  R_11.bin_var.limit_max_dist;
+limit_max_dist =  R_main.bin_var.limit_max_dist;
 
 for counter = 1: total_bins
     
@@ -101,18 +102,18 @@ for counter = 1: total_bins
         
         for j = 1:size(R_main.people_array, 2)
             centr = double([R_main.people_array{j}.BoundingBox(1) R_main.people_array{j}.Centroid(2)]) ...
-                + [R_main.R_dropping.r1(1) R_main.R_dropping.r1(3)];
+                + [R_main.R_people.r1(1) R_main.R_people.r1(3)];
             r1_edge = [r1_edge; centr];
         end
         
         if R_main.bin_array{i}.label == -1
-            R_main.bin_array{i}.label = R_main.R_belt.label;
-            R_main.R_belt.label = R_main.R_belt.label + 1;
+            R_main.bin_array{i}.label = R_main.R_bin.label;
+            R_main.R_bin.label = R_main.R_bin.label + 1;
         end
         
         if R_main.bin_array{i}.belongs_to == -1
             if ~isempty(R_main.people_array)
-                dis_b_p = pdist2( r1_edge, double(centroid) + [R_main.R_belt.r4(1) R_main.R_belt.r4(3)]);
+                dis_b_p = pdist2( r1_edge, double(centroid) + [R_main.R_bin.r4(1) R_main.R_bin.r4(3)]);
                 bin_belong_index =  dis_b_p == min(dis_b_p);
                 if min(dis_b_p) > limit_max_dist
                     belongs_to = -1;
@@ -121,9 +122,9 @@ for counter = 1: total_bins
                     % check matching
                     intended_bin = [];
                     % find associated previous bin
-                    for counter_i = 1:numel(R_c9.R_main.bin_seq)
-                        if R_c9.R_main.bin_seq{counter_i}.label == R_main.bin_array{i}.label
-                            intended_bin = R_c9.R_main.bin_seq{counter_i};
+                    for counter_i = 1:numel(R_c9.bin_seq)
+                        if R_c9.bin_seq{counter_i}.label == R_main.bin_array{i}.label
+                            intended_bin = R_c9.bin_seq{counter_i};
                             break;
                         end
                     end

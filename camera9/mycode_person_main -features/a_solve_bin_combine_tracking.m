@@ -7,20 +7,20 @@
 global debug;
 debug = false;
 global scale;
-scale = 1;
+scale = 0.5;
 global debug_people;
 debug_people = false;
 
 global save_features;
-save_features = true;
-is_save_for_test = 1;
+save_features = false;
+is_save_for_test = 0;
 
 global associate_10;
-associate_10 = false;
+associate_10 = true;
 
-show_image = false;
+show_image = true;
 is_write_video = true;
-is_save_region = 0; % flag to save region data to matfile in a completely new fashion
+is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 
 
 my_decision = 1;
@@ -28,17 +28,17 @@ my_decision = 1;
 %% load video data
 % file for input video
 
-all_file_nums = ["6A","7A", "9A"];
+all_file_nums = ["6A"];
 %all_file_nums = ["EXP_1A"];
 
-R_belt.imno = 1;
-R_belt.filenames = {};
-R_belt.bb = {};
+R_bin.imno = 1;
+R_bin.filenames = {};
+R_bin.bb = {};
 
-R_dropping.imno = 1;
-R_dropping.imageFilenames = {};
-R_dropping.BoundingBox = {};
-R_dropping.person_id = {};
+R_people.imno = 1;
+R_people.imageFilenames = {};
+R_people.BoundingBox = {};
+R_people.person_id = {};
 
 for file_number_str = all_file_nums
     
@@ -62,43 +62,43 @@ for file_number_str = all_file_nums
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
     
-    start_fr = 300;
+    start_fr = 330;
     
     %% region setting,find region position
     
     %% some test on foreground
-    %     R_belt.fore_detector = vision.ForegroundDetector(...
+    %     R_bin.fore_detector = vision.ForegroundDetector(...
     %        'NumTrainingFrames', 5, ...
     %        'InitialVariance', 30*30);
     %
-    %     R_belt.blob = vision.BlobAnalysis(...
+    %     R_bin.blob = vision.BlobAnalysis(...
     %        'CentroidOutputPort', false, 'AreaOutputPort', false, ...
     %        'BoundingBoxOutputPort', true, ...
     %        'MinimumBlobAreaSource', 'Property', 'MinimumBlobArea', 250, 'MaximumBlobArea', 3000);
-    %    R_belt.shapeInserter = vision.ShapeInserter('BorderColor','Black','LineWidth', 3);
+    %    R_bin.shapeInserter = vision.ShapeInserter('BorderColor','Black','LineWidth', 3);
     %
     %%
     
     % Region1: droping bags
-    R_dropping.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
+    R_people.r1 = [996 1396 512 2073] * scale; %r1;%[103 266 61 436];
     
     % camera 10 area
-    R_dropping.r_c10 = uint32([1300 1800 377 930] * scale);
+    R_people.r_c10 = uint32([1300 1800 377 930] * scale);
     
     % Region4: Belt
-    R_belt.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
-    %R_belt.r4 = r4;
+    R_bin.r4 = [660 990 536 1676] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    %R_bin.r4 = r4;
     rot_angle = 102;
     %% Region background
     counter = 0;
     im_back = 0.0;
     
-    R_belt.flow = [];
-    R_dropping.flow = [];
+    R_bin.flow = [];
+    R_people.flow = [];
     
-    R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+    R_bin.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
-    R_dropping.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+    R_people.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
     
     % read camera 10 background
@@ -129,35 +129,35 @@ for file_number_str = all_file_nums
     im_background = imresize(im_background, scale);
     im_background = imrotate(im_background, rot_angle);
     
-    R_belt.im_r4_p = im_background(R_belt.r4(3):R_belt.r4(4),R_belt.r4(1):R_belt.r4(2),:);
-    R_dropping.im_r1_p = im_background(R_dropping.r1(3):R_dropping.r1(4),R_dropping.r1(1):R_dropping.r1(2),:);
+    R_bin.im_r4_p = im_background(R_bin.r4(3):R_bin.r4(4),R_bin.r4(1):R_bin.r4(2),:);
+    R_people.im_r1_p = im_background(R_people.r1(3):R_people.r1(4),R_people.r1(1):R_people.r1(2),:);
     % object information for each region
-    R_dropping.r1_obj = [];
-    R_dropping.im_back_c10 = im_background_c10;
-    R_dropping.exit_from_9 = {};
-    R_dropping.v10 = v10;
-    %     R_belt.r4_obj = [];
+    R_people.r1_obj = [];
+    R_people.im_back_c10 = im_background_c10;
+    R_people.exit_from_9 = {};
+    R_people.v10 = v10;
+    %     R_bin.r4_obj = [];
     % sequence of bin and people
-    people_seq = {};
-    bin_seq = {};
-    bin_array={};
-    people_array = {};
+    R_people.people_seq = {};
+    R_bin.bin_seq = {};
+    R_bin.bin_array={};
+    R_people.people_array = {};
     % object count for each region
-    R_dropping.r1_cnt = 0;
-    R_dropping.r1_lb = 0;
-    %R_belt.r4_cnt = 0;
+    R_people.r1_cnt = 0;
+    R_people.r1_lb = 0;
+    %R_bin.r4_cnt = 0;
     % object Labels
-    R_dropping.label = 1;
-    R_belt.label = 1;
+    R_people.label = 1;
+    R_bin.label = 1;
     starting_index = -1;
     
     
     %% save images for training
-    R_belt.file_number = file_number_str;
-    R_belt.imname = 'data';
-    R_dropping.file_number = file_number_str;
-    R_dropping.imname = 'data_people';
-    R_dropping.prev_body = [];
+    R_bin.file_number = file_number_str;
+    R_bin.imname = 'data';
+    R_people.file_number = file_number_str;
+    R_people.imname = 'data_people';
+    R_people.prev_body = [];
     
     
     %% the parameter for the start frame and end frame
@@ -178,24 +178,24 @@ for file_number_str = all_file_nums
         end
         
         % tracking the people
-        [people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-            R_belt,people_seq,people_array, bin_array, v.CurrentTime);
+        [R_people] = a_peopletracking2(im_c,R_people,...
+            R_bin, v.CurrentTime);
         
         % tracking the bin
-        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-        %   R_belt,bin_seq,bin_array, people_array);
+        [R_bin] = a_solve_bin_bin_tracking_2(im_c,R_people,...
+           R_bin);
         
         title(num2str(frame_count));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
-            %image = displayimage2(im_c,R_dropping,R_belt,people_seq,bin_seq);
-            image = displayimage2(im_c, R_belt, R_dropping, bin_array, ...
-                people_array, bin_seq, people_seq);
+            %image = displayimage2(im_c,R_people,R_bin,R_people.people_seq,R_bin.bin_seq);
+            image = displayimage2(im_c, R_bin, R_people, R_bin.bin_array, ...
+                R_people.people_array, R_bin.bin_seq, R_people.people_seq);
         end
         
         
-        % warning('off','last');
+        warning('off','last');
         
         if is_write_video && show_image
             writeVideo(outputVideo,image);
@@ -210,10 +210,10 @@ for file_number_str = all_file_nums
     end
     
     if is_save_for_test
-        %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
-        imageFilenames = R_dropping.imageFilenames;
-        BoundingBox = R_dropping.BoundingBox;
-        ids = R_dropping.person_id;
+        %save(file_to_save, 'R_people', 'R_bin', 'R_people.people_seq', 'R_bin.bin_seq', 'start_fr', 'frame_count');
+        imageFilenames = R_people.imageFilenames;
+        BoundingBox = R_people.BoundingBox;
+        ids = R_people.person_id;
         fname = sprintf('trainingdata_people_sep_%s.mat', file_number_str);
         %save(fname,'imageFilenames','BoundingBox');
         save(fname,'imageFilenames','BoundingBox', 'ids' );
@@ -221,7 +221,7 @@ for file_number_str = all_file_nums
     
     
     if is_save_region       
-       save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
+       save(file_to_save, 'R_people', 'R_bin', 'start_fr', 'frame_count');
     end
     
     if is_write_video
@@ -233,9 +233,9 @@ for file_number_str = all_file_nums
 end
 
 if is_save_for_test
-    %save(file_to_save, 'R_dropping', 'R_belt', 'people_seq', 'bin_seq', 'start_fr', 'frame_count');
-    imageFilenames = R_dropping.imageFilenames;
-    BoundingBox = R_dropping.BoundingBox;
+    %save(file_to_save, 'R_people', 'R_bin', 'R_people.people_seq', 'R_bin.bin_seq', 'start_fr', 'frame_count');
+    imageFilenames = R_people.imageFilenames;
+    BoundingBox = R_people.BoundingBox;
     save('trainingdata_people.mat','imageFilenames','BoundingBox');
 end
 
