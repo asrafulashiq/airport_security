@@ -84,6 +84,7 @@ im_11 = im_c;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 flag = 0;
 
+
 if ~isempty(R_13)
     
     im_c = im_13;
@@ -137,12 +138,17 @@ end
 %% plot
 figure(1);
 
+h = size(im_11,1);
+w = size(im_11,2);
+
 if flag && ~isempty(im_13)
-    im_13 = imresize(im_13, [size(im_11, 1) size(im_11,2)/2]);
-    im_11 = imresize(im_11, [size(im_11, 1) size(im_11,2)/2]);
+    %im_13 = imresize(im_13, [size(im_11, 1) size(im_11,2)]);
+    %im_11 = imresize(im_11, [size(im_11, 1) size(im_11,2)]);
     imshow([im_11 im_13]);
 else
-    imshow(im_11);
+    z = uint8(zeros(h,w,3));
+    z(:) = 255;
+    imshow([im_11 z]);
 end
 %imshow([im_c text_im]);
 drawnow;

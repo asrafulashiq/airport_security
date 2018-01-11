@@ -24,66 +24,92 @@ for file_number_str = all_file_nums
     
     v_13 = VideoReader(input_filename);
 
-    start_fr = 2700;   
+    start_fr = 2770;   
     
     %% region setting,find region position   
     
     % Region1: droping bags 
-    R_13.R_dropping.r1 = [220 430 1 750]* 2 * scale; %r1;%[103 266 61 436];
+    R_13.R_people.r1 = [220 430 1 750]* 2 * scale; %r1;%[103 266 61 436];
     % Region4: Belt
-    R_13.R_belt.r4 = [24 216 1 550] * 2 * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
-    %R_13.R_belt.r4 = r4;
+    R_13.R_bin.r4 = [24 216 1 550] * 2 * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
+    %R_13.R_bin.r4 = r4;
     R_13.rot_angle = 90;
     %% Region background
     counter = 0;
     im_back = 0;
-  
-    while hasFrame(v_13) && counter < 10
-        im_frame = readFrame(v_13);
-        im_back = im_back + double(im_frame);
-        counter = counter + 1;
-    end
-    R_13.im_background = im_back / (counter);
-    R_13.im_background = uint8(R_13.im_background);
-    
-    %load('imback.mat','R_13.im_background');
-    R_13.im_background = imresize(R_13.im_background, scale);
-    R_13.im_background = imrotate(R_13.im_background, R_13.rot_angle);
-    
+        
     k_distort = -0.20;
 
-    R_13.im_background = lensdistort(R_13.im_background, k_distort); % solve radial distortion
     
-    R_13.R_belt.flow = [];
-    R_13.R_dropping.flow = [];
+    detector = vision.ForegroundDetector(...
+       'NumTrainingFrames', 100, ... 
+       'InitialVariance', 30*30);
+   
+   blob = vision.BlobAnalysis(...
+       'CentroidOutputPort', false, 'AreaOutputPort', false, ...
+       'BoundingBoxOutputPort', true, ...
+       'MinimumBlobAreaSource', 'Property', 'MinimumBlobArea', 1000);
+   
+   shapeInserter = vision.ShapeInserter('BorderColor','White');
+  
+%     while hasFrame(v_13) && counter < 10
+%         im_frame = readFrame(v_13);
+%         
+%         im_c = imresize(im_frame,scale);%original image
+%         im_c = imrotate(im_c, R_13.rot_angle);
+%         
+%         im_c = lensdistort(im_c, k_distort);
+% 
+%         im_c = im_c(R_13.R_people.r1(3):R_13.R_people.r1(4),R_13.R_people.r1(1):R_13.R_people.r1(2),:);
+%         
+%         im_back = im_back + double(im_c);
+%         counter = counter + 1;
+%         
+%         %fgMask = step(detector, im_c);
+%         
+%         disp(counter);
+%         
+%     end
+%     R_13.im_background = im_back / (counter);
+%     R_13.im_background = uint8(R_13.im_background);
     
-    R_13.R_belt.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+    %load('imback.mat','R_13.im_background');
+    %R_13.im_background = imresize(R_13.im_background, scale);
+    %R_13.im_background = imrotate(R_13.im_background, R_13.rot_angle);
+    
+
+    %R_13.im_background = lensdistort(R_13.im_background, k_distort); % solve radial distortion
+    
+    R_13.R_bin.flow = [];
+    R_13.R_people.flow = [];
+    
+    R_13.R_bin.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
-    R_13.R_dropping.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
+    R_13.R_people.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
         'NeighborhoodSize', 20, 'FilterSize', 20);
     
     
-    R_13.R_belt.im_r4_p = R_13.im_background(R_13.R_belt.r4(3):R_13.R_belt.r4(4),R_13.R_belt.r4(1):R_13.R_belt.r4(2),:);
-    R_13.R_dropping.im_r1_p = R_13.im_background(R_13.R_dropping.r1(3):R_13.R_dropping.r1(4),R_13.R_dropping.r1(1):R_13.R_dropping.r1(2),:);
-    %R_13.R_dropping.im_r1_p = lensdistort(R_13.R_dropping.im_r1_p, k_distort);
+    %R_13.R_bin.im_r4_p = R_13.im_background (R_13.R_bin.r4(3):R_13.R_bin.r4(4),R_13.R_bin.r4(1):R_13.R_bin.r4(2),:);
+    %R_13.R_people.im_r1_p = R_13.im_background(R_13.R_people.r1(3):R_13.R_people.r1(4),R_13.R_people.r1(1):R_13.R_people.r1(2),:);
+    %R_13.R_people.im_r1_p = lensdistort(R_13.R_people.im_r1_p, k_distort);
     
     % object information for each region
-    R_13.R_dropping.r1_obj = [];
-    %     R_13.R_belt.r4_obj = [];
+    R_13.R_people.r1_obj = [];
+    %     R_13.R_bin.r4_obj = [];
     % sequence of bin and people
     R_13.people_seq = {};
     R_13.bin_seq = {};
     bin_array={};
     people_array = {};
     % object count for each region
-    R_13.R_dropping.r1_cnt = 0;
-    R_13.R_dropping.r1_lb = 0;
-    %R_13.R_belt.r4_cnt = 0;
+    R_13.R_people.r1_cnt = 0;
+    R_13.R_people.r1_lb = 0;
+    %R_13.R_bin.r4_cnt = 0;
     % object Labels
-    R_13.R_dropping.label = 1;
-    R_13.R_belt.label = 1;
+    R_13.R_people.label = 1;
+    R_13.R_bin.label = 1;
     starting_index = -1; 
-    R_13.R_dropping.prev_body = [];
+    R_13.R_people.prev_body = [];
     
     %% the parameter for the start frame and end frame
     end_f = v_13.Duration * v_13.FrameRate ; %15500;
@@ -104,13 +130,22 @@ for file_number_str = all_file_nums
         
         im_c = lensdistort(im_c, k_distort);
         
-        im_2 = im_c(R_13.R_dropping.r1(3):R_13.R_dropping.r1(4),R_13.R_dropping.r1(1):R_13.R_dropping.r1(2),:);
+        im_2 = im_c(R_13.R_people.r1(3):R_13.R_people.r1(4),R_13.R_people.r1(1):R_13.R_people.r1(2),:);
+        
+        flow = estimateFlow(R_13.R_people.optic_flow, rgb2gray(im_2));
+        
         
         title(num2str(frame_count));
 
    
         figure(1);
         imshow(im_2);
+        hold on;
+        plot(flow,'DecimationFactor',[5 5],'ScaleFactor',2);
+        hold off;
+        
+        
+        
         drawnow;
         
         disp(frame_count);

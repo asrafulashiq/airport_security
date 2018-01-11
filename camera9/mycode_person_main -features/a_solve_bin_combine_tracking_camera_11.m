@@ -23,7 +23,7 @@ associate_13 = true;
 
 %%
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 
 my_decision = 0;
 global k_distort_11;
@@ -73,7 +73,7 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_f = 2610;
+    start_f = 2770;
     
     %% Camera 11
     %% region setting,find region position
@@ -279,10 +279,10 @@ for file_number_str = all_file_nums
             R_people_var.half_y = 900 * scale; 
         end
         
-        [R_11, R_com_info] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11);
+        [R_11, R_com_info, R_11, R_13] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11, R_11, R_13);
         
         % tracking the bin
-        %R_11 = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9);
+        R_11 = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9);
       
         title(num2str(R_11.frame_count));
         
@@ -334,7 +334,7 @@ for file_number_str = all_file_nums
              R_people_var.init_limit_exit_y1 = 40;
             
             %%
-            [R_13, R_com_info] = a_peopletracking_camera11_13(im_r, R_13 ,R_people_var, R_com_info, R_c9, 13);
+            [R_13, R_com_info, R_11, R_13] = a_peopletracking_camera11_13(im_r, R_13 ,R_people_var, R_com_info, R_c9, 13, R_11, R_13);
                        
         end
         

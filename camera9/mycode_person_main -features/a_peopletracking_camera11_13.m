@@ -1,4 +1,4 @@
-function [R_main, R_com_info] = a_peopletracking_camera11_13(im_r,R_main, R_people_var, R_com_info, R_c9, camera_no)
+function [R_main, R_com_info, R_11, R_13] = a_peopletracking_camera11_13(im_r,R_main, R_people_var, R_com_info, R_c9, camera_no, R_11, R_13)
 %% region 1 extraction
 global scale;
 global debug_people_11;
@@ -445,7 +445,6 @@ for i = 1:size(body_prop, 1)
             
             continue;
         end
-        
     end
     
     % initial detection from 13 to 11
@@ -483,11 +482,8 @@ for i = 1:size(body_prop, 1)
             R_main.people_array{end+1} = Person;
             
             continue;
-        end
-        
-        
+        end        
     end
-    
     
     if body_prop(i).Centroid(2) < half_y && body_prop(i).Area > limit_init_area && sum(sum(total_flow)) > 1500 && ...
             body_prop(i).Centroid(2) < limit_exit_y1 && body_prop(i).Centroid(1) < init_max_x
@@ -529,15 +525,12 @@ for i = 1:size(body_prop, 1)
                 Person.id = intended_label;
             end
         end
-        
-        
+      
         R_main.R_people.label = R_main.R_people.label + 1;
         R_main.people_array{end+1} = Person;
         
     end
 end
-
-
 
 %% check exit from c9
 check_10_threshold = 400;
@@ -561,9 +554,7 @@ if ~isempty(R_main.people_array)
 end
 %% some test image
 if ~isempty(R_main.R_people.prev_body) && ( debug_people_11 || debug_people_13)
-    %figure(2); imshow(im_draw);
     
-    %im_diff = uint8(abs(double(im_r(:,:,2)) - double(R_main.R_people.prev_body)));
     if debug_people_11
         figure(4);
     else
