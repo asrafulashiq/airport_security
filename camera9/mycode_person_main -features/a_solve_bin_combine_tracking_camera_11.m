@@ -23,7 +23,7 @@ associate_13 = true;
 
 %%
 show_image = true;
-is_write_video = false;
+is_write_video = true;
 
 my_decision = 0;
 global k_distort_11;
@@ -73,13 +73,13 @@ for file_number_str = all_file_nums
     %% file to save variables
     file_to_save = fullfile('..',file_number, ['camera9_' file_number '_vars2.mat']);
     
-    start_f = 2770;
+    start_f = 3640;
     
     %% Camera 11
     %% region setting,find region position
     
     % Region1: droping bags
-    R_11.R_people.r1 = [570 1080 286 1800] * scale; %r1;%[103 266 61 436];
+    R_11.R_people.r1 = [570 1080-120 286 1800] * scale; %r1;%[103 266 61 436];
     % Region4: Belt
     R_11.R_bin.r4 = [230 550 150-140 1920] * scale ; %[161   243   123   386]; %r4+5;%[10 93 90 396];
     %R_11.R_bin.r4 = r4;
@@ -242,7 +242,7 @@ for file_number_str = all_file_nums
         R_people_var.thres_low = 0.4;
         R_people_var.thres_up = 1.5;
         R_people_var.min_allowed_dis = 200 * scale;
-        R_people_var.limit_area = 9000 * scale^2;
+        R_people_var.limit_area = 2000 * 4 * scale^2;
         R_people_var.limit_small_area = 4000 * scale^2;
         R_people_var.limit_init_area = 14000 *  scale^2;
         R_people_var.limit_max_width = 420 *  scale;
@@ -252,7 +252,7 @@ for file_number_str = all_file_nums
         R_people_var.limit_exit_x1 = 10 * scale;
         R_people_var.limit_exit_y2 = 1370 * scale;
         R_people_var.limit_exit_x2 = 10 * scale;
-        R_people_var.threshold_img = 30 ;
+        R_people_var.threshold_img = 30 * 0.5 ;
         R_people_var.init_max_x = 127 * 2 * scale;
 
         R_people_var.thres_critical_del = 6;
@@ -279,10 +279,10 @@ for file_number_str = all_file_nums
             R_people_var.half_y = 900 * scale; 
         end
         
-        [R_11, R_com_info, R_11, R_13] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11, R_11, R_13);
+        [R_11, R_com_info, R_13] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11, R_13);
         
         % tracking the bin
-        R_11 = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9);
+       % R_11 = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9);
       
         title(num2str(R_11.frame_count));
         
@@ -334,7 +334,7 @@ for file_number_str = all_file_nums
              R_people_var.init_limit_exit_y1 = 40;
             
             %%
-            [R_13, R_com_info, R_11, R_13] = a_peopletracking_camera11_13(im_r, R_13 ,R_people_var, R_com_info, R_c9, 13, R_11, R_13);
+            [R_13, R_com_info, R_11] = a_peopletracking_camera11_13(im_r, R_13 ,R_people_var, R_com_info, R_c9, 13, R_11);
                        
         end
         

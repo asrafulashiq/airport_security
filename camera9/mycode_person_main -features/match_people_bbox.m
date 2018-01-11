@@ -8,9 +8,9 @@ alpha = 0.05;
 bbox = img_struct.BoundingBox;
 ref_color_val = img_struct.color_val;
 
-flow_x = im_flow.Vx(bbox(2):bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
-flow_y = im_flow.Vy(bbox(2):bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
-flow_mag = im_flow.Magnitude(bbox(2):bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1);
+flow_x = im_flow.Vx(bbox(2):min(bbox(2)+bbox(4)-1, size(im_flow.Vx, 1)), bbox(1):min(bbox(1)+bbox(3)-1, size(im_flow.Vx,2)));
+flow_y = im_flow.Vy(bbox(2):min(bbox(2)+bbox(4)-1, size(im_flow.Vy, 1)), bbox(1):min(bbox(1)+bbox(3)-1, size(im_flow.Vy, 2)));
+flow_mag = im_flow.Magnitude(bbox(2):min(bbox(2)+bbox(4)-1, size(im_flow.Vx, 1)), bbox(1):min(bbox(1)+bbox(3)-1, size(im_flow.Vx, 2)));
 
 epsilon = 0.05;
 flow_index = flow_mag > epsilon;
@@ -58,7 +58,7 @@ for x = x1:x2
         im_box = [x y width height];
         im_color_val = get_color_val(I, im_box,I_mask);
         if ~isempty(flow)
-            flow_mag_box = im_flow.Magnitude(im_box(2):im_box(2)+im_box(4)-1, im_box(1):im_box(1)+im_box(3)-1);
+            flow_mag_box = im_flow.Magnitude(im_box(2):min(im_box(2)+im_box(4)-1, size(im_flow.Magnitude, 1)), im_box(1):min(im_box(1)+im_box(3)-1, size(im_flow.Magnitude, 2)));
             ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val) - alpha * sum(sum(flow_mag_box)) ;
         else
             ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val);
