@@ -1,6 +1,6 @@
 *.mp4
 *.avi
-data/*.jpg
+*.jpg
 detected_bin/*jpg
 label*/*
 new_bin*/*
