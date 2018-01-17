@@ -1,21 +1,21 @@
 function obj = setPara(obj)
 
 % Feature specific parameters
-hog_params.cell_size = 25;
-hog_params.compressed_dim = 30;
+hog_params.cell_size = 15;
+hog_params.compressed_dim = 10;
 
 grayscale_params.colorspace='gray';
-grayscale_params.cell_size = 1;
+grayscale_params.cell_size = 15;
 %
-cn_params.tablename = 'CNnorm';
-cn_params.useForGray = false;
-cn_params.cell_size = 20;
-cn_params.compressed_dim = 11;
+% cn_params.tablename = 'CNnorm';
+% cn_params.useForGray = false;
+% cn_params.cell_size = 20;
+% cn_params.compressed_dim = 11;
 
 ic_params.tablename = 'intensityChannelNorm6';
 ic_params.useForColor = false;
-ic_params.cell_size = 10;
-ic_params.compressed_dim = 30;
+ic_params.cell_size = 5;
+ic_params.compressed_dim = 10;
 
 cnn_params.nn_name = 'imagenet-vgg-m-2048.mat'; % Name of the network
 cnn_params.output_layer = [3 14];               % Which layers to use
@@ -33,7 +33,7 @@ params.t_features = {
     struct('getFeature',@get_table_feature, 'fparams',ic_params),...
     };
 
-% Global feature parameters1s
+% Global feature parameters
 params.t_global.normalize_power = 2;    % Lp normalization with this p
 params.t_global.normalize_size = true;  % Also normalize with respect to the spatial size of the feature
 params.t_global.normalize_dim = true;   % Also normalize with respect to the dimensionality of the feature
@@ -115,7 +115,7 @@ params.use_scale_filter = false;          % Use the fDSST scale filter or not (f
 % params.do_poly_interp = true;           % Do 2nd order polynomial interpolation to obtain more accurate scale
 
 % Visualization
-params.visualization = 1;               % Visualiza tracking and detection scores
+params.visualization = 0;               % Visualiza tracking and detection scores
 params.debug = 0;                       % Do full debug visualization
 
 % GPU
