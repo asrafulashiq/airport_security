@@ -36,7 +36,7 @@ elseif strcmpi(fparam.colorspace,'rgb')
         throw(except);
     end
 end
-
+gparam.use_gpu = false;
 if gparam.use_gpu
     feature_map = gpuArray(feature_map);
 end

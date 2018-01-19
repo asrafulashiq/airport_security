@@ -34,7 +34,11 @@ for file_number_str = all_file_nums
         
         % initial bin detection
         
-        % bin tracking
+        %% bin tracking
+        im_b = im_c(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:); % people region
+        
+        % initial bin detection
+        bin_detector
         
         %% people tracking
         im_r = im_c(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:); % people region

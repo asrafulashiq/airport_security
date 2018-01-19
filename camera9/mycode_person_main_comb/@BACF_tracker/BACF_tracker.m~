@@ -1,0 +1,21 @@
+classdef BACF_tracker
+   
+    properties
+        data
+    end
+    
+    methods
+        
+        function obj = BACF_tracker()
+           obj = obj.setParam(); 
+        end
+        
+        obj = setParam(obj)
+        
+        obj = setInit(obj,im, rect)
+        
+        obj = r
+        
+    end
+    
+end

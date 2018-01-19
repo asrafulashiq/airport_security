@@ -7,11 +7,6 @@ function setup_paths()
 % Tracker implementation
 addpath(genpath([pathstr '/implementation/']));
 
-% Runfiles
-%addpath([pathstr '/runfiles/']);
-
-% Utilities
-%addpath([pathstr '/utils/']);
 
 % The feature extraction
 addpath(genpath([pathstr '/feature_extraction/']));
