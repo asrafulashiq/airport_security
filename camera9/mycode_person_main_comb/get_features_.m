@@ -1,4 +1,4 @@
-function features = get_features(I, bbox, im_binary )
+function features = get_features_(I, bbox, im_binary )
 
 bbox = int32(bbox);
 img = I(bbox(2): bbox(2)+bbox(4)-1, bbox(1):bbox(1)+bbox(3)-1, :);

@@ -7,7 +7,6 @@ function setup_paths()
 % Tracker implementation
 addpath(genpath([pathstr '/implementation/']));
 
-addpath('bacf_funs/')
 
 % The feature extraction
 addpath(genpath([pathstr '/feature_extraction/']));

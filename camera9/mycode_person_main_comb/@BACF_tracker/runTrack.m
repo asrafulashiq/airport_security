@@ -208,9 +208,8 @@ if frame > 1
     obj.data.old_pos = old_pos;
 end
 
-if frame==1
-   obj.data.model_xf = model_xf; 
-end
+obj.data.model_xf = model_xf; 
+
 
 obj.data.pos = pos;
 obj.data.currentScaleFactor = currentScaleFactor;

@@ -6,7 +6,9 @@ classdef BACF_tracker
     
     methods
         
-        function obj = BACF_tracker(seq)
+        function obj = BACF_tracker(im, rect)
+            seq.im = im;
+            seq.init_rect = rect;
            obj = obj.setParams(seq); 
         end
         

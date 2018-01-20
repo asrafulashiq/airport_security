@@ -1,16 +1,15 @@
-function obj = setParams(obj, seq)
+%   This function runs the BACF tracker on the video specified in "seq".
+%   This function borrowed from SRDCF paper. 
+%   details of some parameters are not presented in the paper, you can
+%   refer to SRDCF/CCOT paper for more details.
 
-
-im = seq.im;
-rect = seq.init_rect;
-seq.st_frame = 1;
-
+function results = run_BACF(seq, video_path, lr)
 
 %   Default parameters used in the ICCV 2017 BACF paper
 
 %   HOG feature parameters
 hog_params.nDim   = 31;
-%params.video_path = video_path;
+params.video_path = video_path;
 %   Grayscale feature parameters
 grayscale_params.colorspace='gray';
 grayscale_params.nDim = 1;
@@ -26,10 +25,9 @@ params.t_global.cell_selection_thresh = 0.75^2; % Threshold for reducing the cel
 %   Search region + extended background parameters
 params.search_area_shape = 'square';    % the shape of the training/detection window: 'proportional', 'square' or 'fix_padding'
 params.search_area_scale = 3;           % the size of the training/detection area proportional to the target size
-params.filter_max_area   = 100^2;        % the size of the training/detection area in feature grid cells
+params.filter_max_area   = 150^2;        % the size of the training/detection area in feature grid cells
 
 %   Learning parameters
-lr = 0.013;
 params.learning_rate       = lr;        % learning rate
 params.output_sigma_factor = 1/16;		% standard deviation of the desired correlation output (proportional to target)
 
@@ -44,7 +42,7 @@ params.scale_step       = 1.05;
 %   size, position, frames initialization
 params.wsize    = [seq.init_rect(1,4), seq.init_rect(1,3)];
 params.init_pos = [seq.init_rect(1,2), seq.init_rect(1,1)] + floor(params.wsize/2);
-% params.s_frames = seq.s_frames;
+%params.s_frames = seq.s_frames;
 % params.no_fram  = seq.en_frame - seq.st_frame + 1;
 params.seq_st_frame = seq.st_frame;
 % params.seq_en_frame = seq.en_frame;
@@ -55,12 +53,10 @@ params.admm_iterations = 2;
 params.admm_lambda = 0.01;
 
 %   Debug and visualization
-params.visualization = 0;
+params.visualization = 1;
 
-obj.data.params = params;
-obj.data.hog_params = hog_params;
-obj.data.seq = seq;
+params.curF = seq.startF;
+params.pseq = seq;
 
-obj = obj.setInit(im);
-
-end
+%   Run the main function
+results = BACF_optimized(params);

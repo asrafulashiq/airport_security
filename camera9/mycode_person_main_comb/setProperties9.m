@@ -43,6 +43,9 @@ R_9.R_bin.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIteration
 R_9.R_bin.label = 1;
 R_9.R_bin.bin_seq = {};
 R_9.R_bin.bin_array={};
+R_9.R_bin.threshold = 15; 
+R_9.R_bin.dis_exit_y = 1000 * scale;
+R_9.R_bin.limit_distance = 220 * scale;
 
 %% angle of rotation
 R_9.rot_angle = 102;
@@ -57,6 +60,8 @@ im = imresize(im,scale);%original image
 im = imrotate(im, R_9.rot_angle);
 
 R_9.R_people.im_back = im(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:);
+R_9.R_bin.im_back = im(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:);
+
 
 
 
