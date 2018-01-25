@@ -19,7 +19,7 @@ global associate_10;
 associate_10 = true;
 
 show_image = true;
-is_write_video = true;
+is_write_video = false;
 is_save_region = 1; % flag to save region data to matfile in a completely new fashion
 
 
@@ -179,7 +179,7 @@ for file_number_str = all_file_nums
         
         % tracking the people
         [R_people] = a_peopletracking2(im_c,R_people,...
-            R_bin, v.CurrentTime);
+             v.CurrentTime);
         
         % tracking the bin
         [R_bin] = a_solve_bin_bin_tracking_2(im_c,R_people,...
@@ -189,11 +189,9 @@ for file_number_str = all_file_nums
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% DISPLAY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if show_image
-            %image = displayimage2(im_c,R_people,R_bin,R_people.people_seq,R_bin.bin_seq);
             image = displayimage9(im_c, R_bin, R_people, R_bin.bin_array, ...
                 R_people.people_array);
         end
-        
         
         warning('off','last');
         
@@ -202,11 +200,9 @@ for file_number_str = all_file_nums
         end
         disp('-------------');
         disp(frame_count);
-        disp('-------------');
-        
+        disp('-------------');    
         frame_count = frame_count + 1;
-        
-        
+  
     end
     
     if is_save_for_test

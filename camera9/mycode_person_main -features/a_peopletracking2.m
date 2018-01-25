@@ -1,5 +1,4 @@
-function [R_people] = a_peopletracking2(im_c,R_people,...
-    R_bin, currentTime)
+function [R_people] = a_peopletracking2(im_c,R_people, currentTime)
 %% region 1 extraction
 global scale;
 global debug_people;

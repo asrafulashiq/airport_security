@@ -1,7 +1,7 @@
 *.mp4
 *.avi
 *.jpg
-detected_bin/*jpg
+camera9/detected_bin/*jpg
 label*/*
 new_bin*/*
 *.mat
