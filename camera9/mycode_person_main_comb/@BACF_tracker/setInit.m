@@ -84,7 +84,7 @@ end
 % construct cosine window
 cos_window = single(hann(use_sz(1))*hann(use_sz(2))');
 
-% Calculate feature dimension
+% Calculate feaashiature dimension
 
 if size(im,3) == 3
     if all(all(im(:,:,1) == im(:,:,2)))

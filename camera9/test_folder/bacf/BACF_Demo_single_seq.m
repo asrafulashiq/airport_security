@@ -25,6 +25,9 @@ seq.r4 = [230 550 150-140 1920] * seq.scale ; % camera 11
 seq.r4_13 = [24 216 1 550];
 %seq.r4 = seq.r4_13;
 seq.path_13 = '../../all_videos/6A/13';
+seq.outputvideo = VideoWriter('out1.avi');
+seq.outputvideo.FrameRate = 30;
+open(seq.outputvideo);
 
 video_path = base_path ;
 seq.startF = 2800;

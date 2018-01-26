@@ -320,6 +320,10 @@ for frame = 1:2000
             hold off;
         end
         drawnow
+        
+        F = getframe(gcf);
+        image=F.cdata;
+        writeVideo(params.pseq.outputvideo,image);
     end
     loop_frame = loop_frame + 1;
     params.curF = params.curF + 1;

@@ -89,15 +89,9 @@ for file_number_str = all_file_nums
     
     
     %% save images for training
-    
-    
-    
+  
     R_belt.file_number = file_number_str;
     R_belt.imname = 'data';
-
-    
-    
-    
     R_dropping.prev_body = [];
     
     %% the parameter for the start frame and end frame
@@ -138,13 +132,6 @@ for file_number_str = all_file_nums
         figure(1);
         imshow(im_actual);
         
-        % tracking the people
-        %[people_seq, people_array, R_dropping] = a_peopletracking2(im_c,R_dropping,...
-        %    R_belt,people_seq,people_array, bin_array, v.CurrentTime);
-        
-        % tracking the bin
-        %[bin_seq, bin_array, R_belt] = a_solve_bin_bin_tracking_2(im_c,R_dropping,...
-        %   R_belt,bin_seq,bin_array, people_array);
         
         title(num2str(frame_count));
         

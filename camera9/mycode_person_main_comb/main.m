@@ -63,6 +63,8 @@ for file_number_str = all_file_nums
                 R_9.R_bin.bin_seq{end+1} = bin_array{i};
                 del_exit(end+1) = i;
            end
+           
+           
        
         end
         bin_array(del_exit) = [];
