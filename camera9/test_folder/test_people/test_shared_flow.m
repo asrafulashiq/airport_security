@@ -29,6 +29,12 @@ for file_number_str = all_file_nums
     
     while curF < endF
         
+        im_main = imread(['E:\alert_remote_code\airport_security\camera9\all_videos\7A\9\' ...
+            sprintf('%04d.jpg', curF)]);
+        im_m = imresize(im_main, 0.5);
+        im_m = imrotate(im_m, rot_angle);
+        im_m = im_m(r1(3):r1(4),r1(1):r1(2),:);
+        
         im = imread(fullfile(input_filename, sprintf('%04d_flow.jpg', curF)));
         
         im_c = imrotate(im, rot_angle);
@@ -66,7 +72,7 @@ for file_number_str = all_file_nums
                end
             end
             
-            if k==1
+            if k==1 && body_prop(i).Area < 40000 && body_prop(i).Centroid(2) < 260 
                 insert_ind(end+1) = i;
             end
         end
@@ -77,14 +83,15 @@ for file_number_str = all_file_nums
         
         for i=1:numel(people)
            
-            im_actual = insertShape(im_actual, 'Rectangle', people{i}.BoundingBox, 'LineWidth', 8);
+            im_m = insertShape(im_m, 'Rectangle', people{i}.BoundingBox, 'LineWidth', 8);
              
         end
         
         figure(1);
-        subplot(1,2,1);
-        imshow(im_actual);
-        subplot(1,2,2);
+        %subplot(1,2,1);
+        imshow(im_m);
+        %subplot(1,2,2);
+        figure(2);
         imshow(im_binary);
         drawnow;
         
