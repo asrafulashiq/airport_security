@@ -23,16 +23,20 @@ R_9.R_people.label = 1; % people label
 
 % set initial people detector properties
 R_9.R_people.min_allowed_dis = 200 * scale;
-R_9.R_people.limit_area = 14000 * scale^2;
-R_9.R_people.limit_init_area = 35000 *  scale^2;
+R_9.R_people.limit_area = 5000 * 4 * scale^2;
+R_9.R_people.limit_init_area = 10000 * 4 *  scale^2;
 R_9.R_people.limit_max_width = 450 *  scale;
 R_9.R_people.limit_max_height = 450 * scale;
-R_9.R_people.half_y = 190 * 2 * scale;%0.3 * size(im_r,1) / 2;
+R_9.R_people.half_y = 220 * 2 * scale;%0.3 * size(im_r,1) / 2;
 R_9.R_people.limit_exit_y1 = 1070 * scale;
-R_9.R_people.limit_exit_x1 = 250 * scale;
+R_9.R_people.limit_exit_x1 = 240 * scale;
 R_9.R_people.limit_exit_y2 = 600 * scale;
-R_9.R_people.limit_exit_x2 = 210 * scale;
-R_9.R_people.threshold_img = 60;
+R_9.R_people.limit_exit_x2 = 220 * scale;
+R_9.R_people.limit_init_y = 600 * scale;
+R_9.R_people.limit_init_x = 200 * scale;
+R_9.R_people.limit_exit_y = 1120 * scale;
+R_9.R_people.limit_exit_x = 330 * scale;
+R_9.R_people.threshold_img = 15;
 R_9.R_people.limit_flow = 1500;
 
 %% belt/bin region

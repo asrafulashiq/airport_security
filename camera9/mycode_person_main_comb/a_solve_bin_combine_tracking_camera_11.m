@@ -285,14 +285,12 @@ for file_number_str = all_file_nums
         [R_11, R_com_info, R_13, im11p] = a_peopletracking_camera11_13(im_r, R_11 ,R_people_var, R_com_info, R_c9, 11, R_13);
         
         % tracking the bin
-       % R_11.R_people.im_r1_p = lensdistort(R_11.R_people.im_r1_p, k_distort_11);
-       % [R_11, im11b] = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9, 11);
+        % R_11.R_people.im_r1_p = lensdistort(R_11.R_people.im_r1_p, k_distort_11);
+        % [R_11, im11b] = a_solve_bin_bin_tracking_camera11(im_c, R_11, R_c9, 11);
       
         title(num2str(R_11.frame_count));
         
-        
-        
-        
+   
         
         %% check camera 13
         im_13 = [];

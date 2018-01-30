@@ -1,25 +1,14 @@
-function [R_people] = people_detector(im_r, R_people)
+function [R_people] = people_detector_tracking(im_r, im_flow, R_people)
 
 global scale;
 
 im_g = rgb2gray(im_r);
 
-% calculate optic flow
-flow = estimateFlow(R_people.optic_flow, im_g);
-R_people.flow = flow;
-
 %% background subtract
-
-
-im_r_hsv = rgb2hsv(im_r);
-im_p_hsv = rgb2hsv(R_people.im_back);
-
-im_fore = abs(im_r_hsv(:,:,2)-im_p_hsv(:,:,2)) + abs(im_p_hsv(:,:,2) - im_r_hsv(:,:,2));
-im_fore = uint8(im_fore*255);
-
-
-im_filtered = imgaussfilt(im_fore, 6);
+im_flow_g = rgb2gray(im_flow);
+im_filtered = imgaussfilt(im_flow_g, 6);
 im_filtered(im_filtered < R_people.threshold_img) = 0;
+
 % close operation for the image
 se = strel('disk',15);
 im_closed = imclose(im_filtered,se);
@@ -61,9 +50,8 @@ for i = 1:numel(body_prop)
     
     % check entrance
     bb = body_prop(i).BoundingBox;
-    total_flow = flow.Magnitude(bb(2):bb(2)+bb(4)-1, bb(1):bb(1)+bb(3)-1);
     
-    if body_prop(i).Centroid(2) < R_people.half_y  && sum(sum(total_flow)) > R_people.limit_flow && ...
+    if body_prop(i).Centroid(2) < R_people.half_y  && ...
             body_prop(i).Centroid(1) < R_people.limit_exit_x1 && body_prop(i).Centroid(2) < R_people.limit_exit_y1
         
         limit_flag = false;
