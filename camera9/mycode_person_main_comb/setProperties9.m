@@ -28,16 +28,20 @@ R_9.R_people.limit_init_area = 10000 * 4 *  scale^2;
 R_9.R_people.limit_max_width = 450 *  scale;
 R_9.R_people.limit_max_height = 450 * scale;
 R_9.R_people.half_y = 220 * 2 * scale;%0.3 * size(im_r,1) / 2;
-R_9.R_people.limit_exit_y1 = 1070 * scale;
+R_9.R_people.half_y = 1070 * scale;
 R_9.R_people.limit_exit_x1 = 240 * scale;
 R_9.R_people.limit_exit_y2 = 600 * scale;
 R_9.R_people.limit_exit_x2 = 220 * scale;
-R_9.R_people.limit_init_y = 600 * scale;
+R_9.R_people.limit_init_y = 450 * scale;
 R_9.R_people.limit_init_x = 200 * scale;
 R_9.R_people.limit_exit_y = 1120 * scale;
 R_9.R_people.limit_exit_x = 330 * scale;
 R_9.R_people.threshold_img = 15;
 R_9.R_people.limit_flow = 1500;
+R_9.R_people.limit_exit_max_area = 10000 * 4 * scale^2;
+R_9.R_people.limit_flow_mag = 0.05;
+R_9.R_people.limit_half_x = 210 * scale;
+
 
 %% belt/bin region
 R_9.R_bin.reg = ([660 990 536 1676] * scale) ;
