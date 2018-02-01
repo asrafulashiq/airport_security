@@ -15,8 +15,7 @@ for i = 1:numel(bin_array)
     im_r = insertShape(im_r, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
     im_r = insertShape(im_r, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
     text_ = sprintf('bin:%d', bin_array{i}.label);
-    im_r = insertText(im_r, bounding_box(1:2), text_, 'FontSize', font_size_im);
-    
+    im_r = insertText(im_r, bounding_box(1:2), text_, 'FontSize', font_size_im);   
 end
 
 figure(1);

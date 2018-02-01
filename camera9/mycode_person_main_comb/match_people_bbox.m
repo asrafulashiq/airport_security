@@ -1,4 +1,4 @@
-function [bbox_, min_val, centroid] = match_people_bbox(I, I_mask, img_struct)
+function [bbox_matched, min_val, centroid] = match_people_bbox(I, I_mask, img_struct)
 
 x_lim = 5;
 y_lim = 5;
@@ -85,14 +85,14 @@ if isempty(centroid)
     return 
 end
 
-x = max(centroid(1) - width / 2, 1);
-y = max(centroid(2) - height / 2, 1);
-x_ = min(centroid(1) + width / 2, size(I, 2));
-y_ = min(centroid(2) + height / 2, size(I, 1));
-
-wid = x_ - x + 1;
-hei = y_ - y + 1;
-
-bbox_ = [x y wid hei];
+% x = max(centroid(1) - width / 2, 1);
+% y = max(centroid(2) - height / 2, 1);
+% x_ = min(centroid(1) + width / 2, size(I, 2));
+% y_ = min(centroid(2) + height / 2, size(I, 1));
+% 
+% wid = x_ - x + 1;
+% hei = y_ - y + 1;
+% 
+% bbox_ = [x y wid hei];
 
 end
