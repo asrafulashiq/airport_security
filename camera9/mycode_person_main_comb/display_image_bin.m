@@ -23,5 +23,4 @@ imshow(im_r);
 title(sprintf('%04d',R_9.current_frame));
 drawnow;
 
-
 end

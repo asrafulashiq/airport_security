@@ -1,3 +1,4 @@
+%%
 if ~isempty(R_people.people_array) && ~isempty(list_bbox)
     
     for i = 1:size(R_people.people_array,2)
@@ -227,9 +228,7 @@ end
 %%
 for i=1:numel(body_prop)
     for j=1:numel(R_people.people_array)
-        
-        
-        
+
         if norm(body_prop(i).Centroid - R_people.people_array{j}.Centroid) < R_people.min_allowed_dis
             
             if  body_prop(i).Area < 2*R_people.people_array{j}.Area && ...

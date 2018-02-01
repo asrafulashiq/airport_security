@@ -18,7 +18,7 @@ num_bins = 10;
 
 im_1 = img(:,:,1) .* mask;
 im_2 = img(:,:,2) .* mask;
-im_3 = img(:,:,3) .* mask;
+%im_3 = img(:,:,3) .* mask;
 
 %im_red(black_indices) = 0; im_green(black_indices) = 0; im_blue(black_indices) = 0;
 % color_val = [];
@@ -26,8 +26,8 @@ h1 = histcounts(im_1, num_bins, 'BinLimits',[0 1], 'Normalization', 'probability
 %h1(1:30) = 0;
 h2 = histcounts(im_2, num_bins, 'BinLimits',[0 1], 'Normalization', 'probability');
 %h2(1:30) = 0;
-h3 = histcounts(im_3, num_bins, 'BinLimits',[0 1], 'Normalization', 'probability');
+%h3 = histcounts(im_3, num_bins, 'BinLimits',[0 1], 'Normalization', 'probability');
 %h3(1:30) = 0;
-color_val = [h1 h2 h3];
+color_val = [h1 h2];
 
 end

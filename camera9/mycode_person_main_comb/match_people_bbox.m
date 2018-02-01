@@ -60,7 +60,7 @@ for x = x1:x2
         if img_struct.color_count >= 40
             ind_array(x-x1+1,y-y1+1) = mahal(im_color_val, ref_color_val)  ;
         else
-            ind_array(x-x1+1,y-y1+1) = norm(im_color_val - ref_color_val)  ;
+            ind_array(x-x1+1,y-y1+1) = norm(im_color_val - mean(ref_color_val))  ;
         end
     end
 end

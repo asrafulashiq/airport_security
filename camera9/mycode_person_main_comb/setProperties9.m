@@ -41,8 +41,7 @@ R_9.R_people.limit_flow = 1500;
 R_9.R_people.limit_exit_max_area = 10000 * 4 * scale^2;
 R_9.R_people.limit_flow_mag = 0.05;
 R_9.R_people.limit_half_x = 210 * scale;
-
-
+R_9.R_people.limit_max_displacement = 300 * scale;
 %% belt/bin region
 R_9.R_bin.reg = ([660 990 536 1676] * scale) ;
 

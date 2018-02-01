@@ -34,7 +34,7 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties9;
-    R_9.start_frame = 4540;
+    R_9.start_frame = 1200;
     R_9.current_frame = R_9.start_frame;
     
     %% read video
