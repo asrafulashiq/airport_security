@@ -1,4 +1,4 @@
-function [R_people] = people_detector_tracking(im_r, im_flow, R_people)
+function [R_people] = people_detector_tracking_13(im_r, im_flow, R_people)
 
 global scale;
 
@@ -24,8 +24,8 @@ imshow(im_binary);
 figure(3);
 imshow(im_flow);
 
-im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
-im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
+%im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
+%im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
 %im_flow_angle_degree = im_flow_angle / (180 / pi / 2);
 
 % check bad flow
@@ -43,23 +43,19 @@ cpro_r1 = regionprops(im_binary,'Centroid','Area','BoundingBox'); % extract para
 body_prop = {};
 list_bbox = [];
 
-X1 = [100 66]; X2 = [146 279];
-    A = ([X1;X2]) \ [-1;-1];
-    aa = A(1)/norm(A); bb = A(2)/norm(A); cc = 1/norm(A);
-
 for i = 1:numel(cpro_r1)
     
     x = cpro_r1(i).Centroid;
-    d = aa*x(1)+bb*x(2)+cc;
     
     inc = 0;
-    
-    if  ( d<60 && x(2) > 200 ) || x(1) > R_people.limit_exit_x
+    if  x(2) < R_people.half_y && x(1) < R_people.half_x
+        if cpro_r1(i).Area > R_people.limit_area_med
+            inc =1;
+        end
+    else
         if cpro_r1(i).Area > R_people.limit_area
             inc =1;
         end
-    elseif cpro_r1(i).Area > R_people.limit_init_area
-        inc =1;
     end
     
     if inc==1
@@ -92,18 +88,13 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
         person = R_people.people_array{i};
         
         x = person.Centroid;
-        d = aa*x(1)+bb*x(2)+cc;
         
         if person.Centroid(1) > R_people.limit_exit_x && ...
-                person.Centroid(2) >  R_people.limit_exit_y
+                person.Centroid(2) >  R_people.limit_exit_y && ...
+                person.flow_angle > 135 && person.flow_angle < 250
             del_exit(end+1) = i;
         end
         
-        if d < 60 && person.Centroid(2) > R_people.limit_exit_y2 &&   ...
-                (person.flow_angle) > 30 && (person.flow_angle) < 180 && ...
-                person.Area < R_people.limit_exit_max_area
-            del_exit(end+1) = i;
-        end
         R_people.people_array{i}.counter = R_people.people_array{i}.counter + 1;
     end
     
@@ -148,14 +139,14 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                     prev_index = min_dis_vector(:,2) == vect(i);
                     if isinf(min_dis_vector(prev_index, 1)) || ...
                             ~ ( body_prop(min_arg).Area < 2*R_people.people_array{prev_index}.Area && ...
-                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) < R_people.limit_half_x && body_prop(min_arg).Area > R_people.limit_init_area  ) || ...
-                            (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) >= R_people.limit_half_x))
-                        
+                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) < R_people.half_x ...
+                                    && body_prop(min_arg).Area > R_people.limit_init_area  ) || ...
+                            (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) >= R_people.half_x))                       
                         continue;
                     end
                     
                     if min_dis_vector(prev_index, 1) > R_people.min_allowed_dis
-                       continue; 
+                        continue;
                     end
                     
                     min_arg = vect(i);
@@ -183,13 +174,13 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                     % check mahal distance
                     cnt = R_people.people_array{prev_index}.color_count;
                     color = get_color_val(im_r, body_prop(min_arg).BoundingBox, im_binary );
-                    if cnt >= 40
-                        dis = mahal( color,  R_people.people_array{prev_index}.color_mat);
-                        fprintf('Distance (mahal) : %f\n', dis);
-                    else
-                        dis = pdist2(color, mean(R_people.people_array{prev_index}.color_mat(1:cnt,:), 1), 'correlation' );
-                        fprintf('Distance (corr) : %f\n', dis);
-                    end
+%                     if cnt >= 40
+%                         dis = mahal( color,  R_people.people_array{prev_index}.color_mat);
+%                         fprintf('Distance (mahal) : %f\n', dis);
+%                     else
+%                         dis = pdist2(color, mean(R_people.people_array{prev_index}.color_mat(1:cnt,:), 1), 'correlation' );
+%                         fprintf('Distance (corr) : %f\n', dis);
+%                     end
                     
                     
                     R_people.people_array{prev_index}.Centroid = body_prop(min_arg).Centroid;
@@ -304,13 +295,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                                 R_people.people_array{other_index}.BoundingBox = body_prop(other_matched_index).BoundingBox;
                                 del_index_of_body = [del_index_of_body; other_matched_index];
                                 R_people.people_array{other_index}.temp_count = 0;
-                                
-                                
-                                %                                 cnt = R_people.people_array{prev_index}.color_count;
-                                %                                 R_people.people_array{prev_index}.color_mat(mod(cnt,100)+1,:) = get_color_val(im_r, ...
-                                %                                     R_people.people_array{prev_index}.BoundingBox, im_binary);
-                                %                                 R_people.people_array{prev_index}.color_count = R_people.people_array{prev_index}.color_count + 1;
-                                %
+                            
                             else
                                 % temporary vanishing
                                 R_people.people_array{other_index}.state = "temporary_vanishing";
@@ -376,9 +361,9 @@ for i = 1:numel(body_prop)
         continue;
     end
     
-    if body_prop(i).Area < R_people.limit_init_area
-            continue;
-    end
+     if body_prop(i).Area < R_people.limit_init_area
+             continue;
+     end
     
     flag = 1;
     for j = 1:numel(R_people.people_array)
@@ -417,6 +402,9 @@ for i = 1:numel(body_prop)
         
         [a, m] = calcAngleMag(im_flow_hsv, im_binary, body_prop(i).BoundingBox);
         
+%         if ~(a <= 45 || (a>=225 && a<=360))
+%             continue;
+%         end
         
         Person = struct('Area', body_prop(i).Area, 'Centroid', ...
             body_prop(i).Centroid,'BoundingBox', body_prop(i).BoundingBox, ...
@@ -430,28 +418,5 @@ for i = 1:numel(body_prop)
         
     end
 end
-
-% % check exit
-% del_exit = [];
-% for i=1:numel(R_people.people_array)
-%     person = R_people.people_array{i};
-%
-%     if person.Centroid(1) > R_people.limit_exit_x && ...
-%             person.Centroid(2) >  R_people.limit_exit_y
-%         del_exit(end+1) = i;
-%     end
-%
-%     if person.Centroid(1) > R_people.limit_exit_x2 && ...
-%             person.Centroid(2) >  R_people.limit_exit_y2 && ...
-%             mean(person.angle) > 30 && mean(person.angle) < 180 && ...
-%             person.Area < R_people.limit_exit_max_area
-%         del_exit(end+1) = i;
-%     end
-%
-%     R_people.people_array{i}.counter = R_people.people_array{i}.counter + 1;
-%
-% end
-
-
 
 end

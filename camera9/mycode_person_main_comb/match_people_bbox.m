@@ -17,10 +17,10 @@ flow_y = - flow_mag * cosd(flow_angle);
 
 epsilon = 0.05;
 
-x_lim1 = int32(1);
-x_lim2 = int32(1);
-y_lim1 = int32(1);
-y_lim2 = int32(1);
+x_lim1 = int32(2);
+x_lim2 = int32(2);
+y_lim1 = int32(2);
+y_lim2 = int32(2);
 
 mag_scale = 40;
 if flow_x > 0
@@ -30,9 +30,9 @@ else
 end
 
 if flow_y > 0
-    y_lim2 = max(1,int32(flow_y * 20));
+    y_lim2 = max(1,int32(flow_y * mag_scale));
 else
-    y_lim1 = max(1,int32(abs(flow_y) * 20));
+    y_lim1 = max(1,int32(abs(flow_y) * mag_scale));
 end
 
 x1 = max(bbox(1) - x_lim1, 1);
