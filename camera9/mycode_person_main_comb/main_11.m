@@ -56,56 +56,53 @@ for file_number_str = all_file_nums
         
         if R_11.current_frame  >= 1984
             1;
-        end
+        end        
+        
         %% bin tracking
+        im_b = im_c(R_11.R_bin.reg(3):R_11.R_bin.reg(4),R_11.R_bin.reg(1):R_11.R_bin.reg(2),:); % people region
         
         % initial bin detection
+        R_11.R_bin = bin_detector(im_b, R_11);
         
-        %% bin tracking
-%         im_b = im_c(R_11.R_bin.reg(3):R_11.R_bin.reg(4),R_11.R_bin.reg(1):R_11.R_bin.reg(2),:); % people region
-%         
-%         % initial bin detection
-%         R_11.R_bin = bin_detector(im_b, R_11);
-%         
-%         % tracking
-%         bin_array = R_11.R_bin.bin_array;
-%         
-%         del_exit = [];
-%         for i = 1:numel(bin_array)
-%            if isempty(bin_array{i}.tracker)
-%                % init tracker
-%                tracker = BACF_tracker(im_b, bin_array{i}.BoundingBox);           
-%            else
-%               tracker = bin_array{i}.tracker; 
-%            end
-%            [bin_array{i}.tracker, bb] = tracker.runTrack(im_b);
-%            bin_array{i}.BoundingBox = bb;
-%            bin_array{i}.Centroid = [bb(1)+bb(3)/2 bb(2)+bb(4)/2]';
-%            
-%            % detect exit
-%            
-%            if bin_array{i}.Centroid(2) > R_11.R_bin.dis_exit_y 
-%                 R_11.R_bin.bin_seq{end+1} = bin_array{i};
-%                 del_exit(end+1) = i;
-%            end
-%            
-%            
-%        
-%         end
-%         bin_array(del_exit) = [];
-%         R_11.R_bin.bin_array = bin_array;
+        % tracking
+        bin_array = R_11.R_bin.bin_array;
+        
+        del_exit = [];
+        for i = 1:numel(bin_array)
+           if isempty(bin_array{i}.tracker)
+               % init tracker
+               tracker = BACF_tracker(im_b, bin_array{i}.BoundingBox);           
+           else
+              tracker = bin_array{i}.tracker; 
+           end
+           [bin_array{i}.tracker, bb] = tracker.runTrack(im_b);
+           bin_array{i}.BoundingBox = bb;
+           bin_array{i}.Centroid = [bb(1)+bb(3)/2 bb(2)+bb(4)/2]';
+           
+           % detect exit
+           
+           if bin_array{i}.Centroid(2) > R_11.R_bin.dis_exit_y 
+                R_11.R_bin.bin_seq{end+1} = bin_array{i};
+                del_exit(end+1) = i;
+           end
+           
+           
+       
+        end
+        bin_array(del_exit) = [];
+        R_11.R_bin.bin_array = bin_array;
         
         %% people tracking
-        im_r = im_c(R_11.R_people.reg(3):R_11.R_people.reg(4),R_11.R_people.reg(1):R_11.R_people.reg(2),:); % people region
-        
-        if ~isempty(im_flow_all)
-           im_flow = im_flow_all(R_11.R_people.reg(3):R_11.R_people.reg(4),R_11.R_people.reg(1):R_11.R_people.reg(2),:);
-        else
-            im_flow = [];
-        end
-        
-        % detect people
-        R_11.R_people = people_detector_tracking_11(im_r, im_flow, R_11.R_people);
+%         im_r = im_c(R_11.R_people.reg(3):R_11.R_people.reg(4),R_11.R_people.reg(1):R_11.R_people.reg(2),:); % people region
+%         
+%         if ~isempty(im_flow_all)
+%            im_flow = im_flow_all(R_11.R_people.reg(3):R_11.R_people.reg(4),R_11.R_people.reg(1):R_11.R_people.reg(2),:);
+%         else
+%             im_flow = [];
+%         end
+%         
+%         % detect people
+%         R_11.R_people = people_detector_tracking_11(im_r, im_flow, R_11.R_people);
         
         
         %% display image
