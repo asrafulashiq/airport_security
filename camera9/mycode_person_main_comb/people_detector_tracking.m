@@ -4,7 +4,7 @@ global scale;
 
 im_g = rgb2gray(im_r);
 
-%% background subtract
+%% flow segmentation
 im_flow_g = rgb2gray(im_flow);
 im_flow_hsv = rgb2hsv(im_flow);
 

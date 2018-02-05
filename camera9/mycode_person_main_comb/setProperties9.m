@@ -8,7 +8,7 @@ R_9.write_video_filename = fullfile('..',file_number, ['cam9_output_' file_numbe
 
 %% frame info
 
-x = dir(R_11.filename);
+x = dir(R_9.filename);
 len = numel(x);
 lastfilename = split(x(len).name,'.');
 R_9.end_frame = str2num(lastfilename{1});
@@ -16,9 +16,6 @@ R_9.end_frame = str2num(lastfilename{1});
 
 %% people region
 R_9.R_people.reg = ([996 1396 512 2073] * scale);
-
-R_9.R_people.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-        'NeighborhoodSize', 20, 'FilterSize', 20);
 
 R_9.R_people.people_seq = {}; % store exit people info
 R_9.R_people.people_array = {}; % current people info
@@ -45,17 +42,23 @@ R_9.R_people.limit_exit_max_area = 10000 * 4 * scale^2;
 R_9.R_people.limit_flow_mag = 0.05;
 R_9.R_people.limit_half_x = 210 * scale;
 R_9.R_people.limit_max_displacement = 300 * scale;
-%% belt/bin region
-R_9.R_bin.reg = ([660 990 536 1676] * scale) ;
 
-R_9.R_bin.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-        'NeighborhoodSize', 20, 'FilterSize', 20);
+%% belt/bin region
+R_9.R_bin.reg = ([640 990 500 1676] * scale) ;
 R_9.R_bin.label = 1;
 R_9.R_bin.bin_seq = {};
 R_9.R_bin.bin_array={};
 R_9.R_bin.threshold = 15; 
-R_9.R_bin.dis_exit_y = 1000 * scale;
+R_9.R_bin.limit_exit_y = 1000 * scale;
 R_9.R_bin.limit_distance = 220 * scale;
+R_9.R_bin.threshold_img = 15;
+R_9.R_bin.limit_area = 16000 * 4 * scale^2;
+R_9.R_bin.limit_min_area = 12000 * 4 * scale^2;
+R_9.R_bin.limit_area2 = 20000 * 4 * scale^2;
+R_9.R_bin.limit_max_area = 40000 * 4 * scale^2;
+R_9.R_bin.limit_init_y = 270 * 2 * scale; 
+R_9.R_bin.solidness_ratio = 31;
+R_9.R_bin.area_ratio = 2;
 
 %% angle of rotation
 R_9.rot_angle = 102;

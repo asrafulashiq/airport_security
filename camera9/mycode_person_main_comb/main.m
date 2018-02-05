@@ -34,7 +34,7 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties9;
-    R_9.start_frame = 4500;
+    R_9.start_frame = 2420;
     R_9.current_frame = R_9.start_frame;
     
     %% read video
@@ -57,60 +57,35 @@ for file_number_str = all_file_nums
         if R_9.current_frame  >= 1984
             1;
         end
+
         %% bin tracking
-        
-        % initial bin detection
-        
-        %% bin tracking
-%         im_b = im_c(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:); % people region
-%         
-%         % initial bin detection
-%         R_9.R_bin = bin_detector(im_b, R_9);
-%         
-%         % tracking
-%         bin_array = R_9.R_bin.bin_array;
-%         
-%         del_exit = [];
-%         for i = 1:numel(bin_array)
-%            if isempty(bin_array{i}.tracker)
-%                % init tracker
-%                tracker = BACF_tracker(im_b, bin_array{i}.BoundingBox);           
-%            else
-%               tracker = bin_array{i}.tracker; 
-%            end
-%            [bin_array{i}.tracker, bb] = tracker.runTrack(im_b);
-%            bin_array{i}.BoundingBox = bb;
-%            bin_array{i}.Centroid = [bb(1)+bb(3)/2 bb(2)+bb(4)/2]';
-%            
-%            % detect exit
-%            
-%            if bin_array{i}.Centroid(2) > R_9.R_bin.dis_exit_y 
-%                 R_9.R_bin.bin_seq{end+1} = bin_array{i};
-%                 del_exit(end+1) = i;
-%            end
-%            
-%            
-%        
-%         end
-%         bin_array(del_exit) = [];
-%         R_9.R_bin.bin_array = bin_array;
-        
-        %% people tracking
-        im_r = im_c(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:); % people region
+        im_b = im_c(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:); % people region
         
         if ~isempty(im_flow_all)
-           im_flow = im_flow_all(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:);
+           im_flow_bin = im_flow_all(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:);
         else
-            im_flow = [];
+            im_flow_bin = [];
         end
         
-        % detect people
-        R_9.R_people = people_detector_tracking(im_r, im_flow, R_9.R_people);
+        R_9.R_bin = bin_detection_tracking(im_b, im_flow_bin, R_9.R_bin);
+       
         
-        
+        %% people tracking
+%         im_r = im_c(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:); % people region
+%         
+%         if ~isempty(im_flow_all)
+%            im_flow_people = im_flow_all(R_9.R_people.reg(3):R_9.R_people.reg(4),R_9.R_people.reg(1):R_9.R_people.reg(2),:);
+%         else
+%             im_flow_people = [];
+%         end
+%         
+%         % detect people
+%         R_9.R_people = people_detector_tracking(im_r, im_flow_people, R_9.R_people);
+%         
+%         
         %% display image
-        %display_image_bin(im_b, R_9);
-        display_image_people(im_r, R_9);
+        display_image_bin(im_b, R_9);
+        %display_image_people(im_r, R_9);
                
         %% increment frame
         R_9.current_frame = R_9.current_frame + 1;
