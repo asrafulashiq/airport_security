@@ -35,8 +35,7 @@ if sum(im_tmp(:)) > 60000
 end
 
 %% blob analysis
-cpro_r1 = regionprops(im_binary,'Centroid','Area','BoundingBox', ...
-    'MajorAxisLength', 'MinorAxisLength', 'Perimeter'); % extract parameters
+cpro_r1 = regionprops(im_binary,'all'); % extract parameters
 body_prop = cpro_r1([cpro_r1.Area] > R_bin.limit_area & ...
     [cpro_r1.Area] < R_bin.limit_max_area & [cpro_r1.MinorAxisLength] > 120 & ...
     [cpro_r1.MajorAxisLength]./[cpro_r1.MinorAxisLength] > 1.1 & ...
@@ -95,11 +94,11 @@ for i = 1:numel(bin_array)
         tracker = BACF_tracker(im, bin_array{i}.BoundingBox);
     else
         tracker = bin_array{i}.tracker;
-        x = imcrop(im_binary_orig, bin_array{i}.BoundingBox);    
-        area = sum(x(:));
-        if area > R_bin.limit_min_area
-           bin_array{i}.Area = area; 
-        end
+%         x = imcrop(im_binary_orig, bin_array{i}.BoundingBox);    
+%         area = sum(x(:));
+%         if area > R_bin.limit_min_area
+%            bin_array{i}.Area = area; 
+%         end
     end
     
     [bin_array{i}.tracker, bb] = tracker.runTrack(im);
@@ -107,45 +106,45 @@ for i = 1:numel(bin_array)
     bin_array{i}.Centroid = [bb(1)+bb(3)/2 bb(2)+bb(4)/2]';
     
     % check flow
-    if strt == 0
-        bbf = bin_array{i}.BoundingBox;
-        rf = [max(bbf(2)-30,1) min(bbf(2)+bbf(4)-1+30,size(im_binary,1)) ...
-            max(bbf(1),1) min(bbf(1)+bbf(3)-1, size(im_binary,2))];
-        im_crop = im_binary_orig(rf(1):rf(2), rf(3):rf(4));
-        rat_prev = bin_array{i}.Area / bin_array{i}.Perimeter - R_bin.solidness_ratio;
-        fprintf('solid ratio : %.2f\n', rat_prev);
-        
-        if sum(im_crop(:)) > R_bin.limit_area
-            cpro_reg = regionprops(im_crop,'Centroid','Area','BoundingBox', ...
-                'MajorAxisLength', 'MinorAxisLength', 'Perimeter'); % extract parameters
-            if numel(cpro_reg)>=1
-                region = cpro_reg([cpro_reg.Area]==max([cpro_reg.Area]));
-                
-                dim = sort(region.BoundingBox(3:4));
-                
-                %rat_prev = bin_array{i}.Area / bin_array{i}.Perimeter - R_bin.solidness_ratio;
-                rat_now = region.Area / region.Perimeter - R_bin.solidness_ratio;
-                
-                if region.Area > R_bin.limit_area && abs(rat_now) < 4 && ...
-                        dim(2) / dim(1) > 1.10 && dim(2) / dim(1) < 1.50 && ...
-                        norm(region.BoundingBox-bin_array{i}.BoundingBox) > 60 && ...
-                        region.Area < R_bin.limit_area2 && ...
-                        region.MajorAxisLength/region.MinorAxisLength > 1.28 && ...
-                        region.MajorAxisLength/region.MinorAxisLength < 1.38
-                    
-                    region.BoundingBox(1:2) = region.BoundingBox(1:2) + [rf(3) rf(1)];
-                    region.Centroid = region.Centroid + [rf(3) rf(1)];
-                    region.tracker = BACF_tracker(im, region.BoundingBox);
-                    region.label = bin_array{i}.label;
-                    bin_array{i} = region;
-                    
-                    fprintf('tracker initiated for label : %d\n', region.label);
-                    
-                end
-                
-            end
-        end
-    end
+%     if strt == 0
+%         bbf = bin_array{i}.BoundingBox;
+%         rf = [max(bbf(2)-30,1) min(bbf(2)+bbf(4)-1+30,size(im_binary,1)) ...
+%             max(bbf(1),1) min(bbf(1)+bbf(3)-1, size(im_binary,2))];
+%         im_crop = im_binary_orig(rf(1):rf(2), rf(3):rf(4));
+%         rat_prev = bin_array{i}.Area / bin_array{i}.Perimeter - R_bin.solidness_ratio;
+%         fprintf('solid ratio : %.2f\n', rat_prev);
+%         
+%         if sum(im_crop(:)) > R_bin.limit_area
+%             cpro_reg = regionprops(im_crop,'Centroid','Area','BoundingBox', ...
+%                 'MajorAxisLength', 'MinorAxisLength', 'Perimeter'); % extract parameters
+%             if numel(cpro_reg)>=1
+%                 region = cpro_reg([cpro_reg.Area]==max([cpro_reg.Area]));
+%                 
+%                 dim = sort(region.BoundingBox(3:4));
+%                 
+%                 %rat_prev = bin_array{i}.Area / bin_array{i}.Perimeter - R_bin.solidness_ratio;
+%                 rat_now = region.Area / region.Perimeter - R_bin.solidness_ratio;
+%                 
+%                 if region.Area > R_bin.limit_area && abs(rat_now) < 4 && ...
+%                         dim(2) / dim(1) > 1.10 && dim(2) / dim(1) < 1.4  && ...
+%                         norm(region.BoundingBox-bin_array{i}.BoundingBox) > 60 && ...
+%                         region.Area < R_bin.limit_area2 && ...
+%                         region.MajorAxisLength/region.MinorAxisLength > 1.28 && ...
+%                         region.MajorAxisLength/region.MinorAxisLength < 1.38
+%                     
+%                     region.BoundingBox(1:2) = region.BoundingBox(1:2) + [rf(3) rf(1)];
+%                     region.Centroid = region.Centroid + [rf(3) rf(1)];
+%                     region.tracker = BACF_tracker(im, region.BoundingBox);
+%                     region.label = bin_array{i}.label;
+%                     bin_array{i} = region;
+%                     
+%                     fprintf('tracker initiated for label : %d\n', region.label);
+%                     
+%                 end
+%                 
+%             end
+%         end
+%     end
     
 
     

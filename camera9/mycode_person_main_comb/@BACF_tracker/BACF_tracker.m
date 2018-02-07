@@ -18,6 +18,10 @@ classdef BACF_tracker
         
         [obj, rect] = runTrack(obj, im)
         
+        obj = setPos(obj, pos, ind)
+        
+        pos = getPos(obj)
+        
     end
     
 end

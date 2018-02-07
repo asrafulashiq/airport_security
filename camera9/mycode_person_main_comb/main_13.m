@@ -25,6 +25,10 @@ for file_number_str = all_file_nums
     file_number = char(file_number_str);
     basename = fullfile(base_folder_name, file_number);
     
+     % video write
+    writer = VideoWriter('../video_main_13.avi');
+    open(writer);
+    
     % flow path
     if ~isempty(base_shared_name)
        R_13.flow_dir = fullfile(base_shared_name,file_number,sprintf('13_flow'));
@@ -34,7 +38,7 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties13;
-    R_13.start_frame = 3500;
+    R_13.start_frame = 1500;
     R_13.current_frame = R_13.start_frame;
     
     %% read video
@@ -117,7 +121,10 @@ for file_number_str = all_file_nums
         fprintf('frame : %04i\n', R_13.current_frame);
         
         %warning('off','last');
-        
+        writeVideo(writer, im);
+
     end
+    
+    close(writer);
     
 end

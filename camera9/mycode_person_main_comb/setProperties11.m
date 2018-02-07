@@ -49,15 +49,22 @@ R_11.R_people.limit_max_displacement = 300 * scale;
 %% belt/bin region
 R_11.R_bin.reg = [230 550 150-140 1920] * scale ;
 
-%R_11.R_bin.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-%        'NeighborhoodSize', 20, 'FilterSize', 20);
 R_11.R_bin.label = 1;
 R_11.R_bin.bin_seq = {};
 R_11.R_bin.bin_array={};
 R_11.R_bin.threshold = 15; 
-R_11.R_bin.dis_exit_y = 1000 * scale;
+R_11.R_bin.limit_exit_y = 1800 * scale;
 R_11.R_bin.limit_distance = 220 * scale;
+R_11.R_bin.threshold_img = 15;
+R_11.R_bin.limit_area = 16000 * 4 * scale^2;
+R_11.R_bin.limit_min_area = 12000 * 4 * scale^2;
+R_11.R_bin.limit_area2 = 20000 * 4 * scale^2;
+R_11.R_bin.limit_max_area = 40000 * 4 * scale^2;
+R_11.R_bin.limit_init_y = 250 * 2 * scale; 
+R_11.R_bin.solidness_ratio = 31;
+R_11.R_bin.area_ratio = 2;
 
+R_11.R_bin.k_distort = -0.20;
 %% angle of rotation
 R_11.rot_angle = 90;
 

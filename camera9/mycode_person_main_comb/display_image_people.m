@@ -1,4 +1,4 @@
-function display_image_people(im_r, R_9)
+function image = display_image_people(im_r, R_9)
 
 global scale;
 
@@ -22,6 +22,9 @@ figure(2);
 imshow(im_r);
 title(sprintf('%04d',R_9.current_frame));
 drawnow;
+
+F = getframe(gcf);
+image=F.cdata;
 
 
 end
