@@ -4,7 +4,7 @@ offset_x = b_b(3) * 0.1;
 offset_y = b_b(4) * 0.1;
 
 bb(1:2) = b_b(1:2) + [offset_x offset_y];
-bb(3:4) = b_b(3:4) - 2*[offset_x offset_y]
+bb(3:4) = b_b(3:4) - 2*[offset_x offset_y];
 
 im = imcrop(im_hsv, bb);
 mask = imcrop(im_binary, bb);

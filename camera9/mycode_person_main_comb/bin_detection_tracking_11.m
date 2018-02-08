@@ -17,8 +17,8 @@ im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 im_binary_orig = im_binary;
 
-figure(2);imshow(im_binary);
-figure(3); imshow(im_flow);
+% figure(2);imshow(im_binary);
+% figure(3); imshow(im_flow);
 
 %% initial bin detection
 % remove previous bins region
@@ -82,6 +82,7 @@ for i = 1:numel(body_prop)
     
     R_bin.bin_array{end+1} = Bin;
     
+    R_bin.check = R_bin.check + 1;
 end
 
 %% tracking
@@ -92,7 +93,7 @@ for i = 1:numel(bin_array)
     
     if isempty(bin_array{i}.tracker)
         % init tracker
-        tracker = R_bin.prev_bin{bin_array{i}.label}.tracker;%BACF_tracker(im, bin_array{i}.BoundingBox);
+        tracker = R_bin.stack_of_bins{bin_array{i}.label}.tracker;%BACF_tracker(im, bin_array{i}.BoundingBox);
         new_pos = bin_array{i}.Centroid ;
         tracker = tracker.setPos(new_pos,[]);
     else
@@ -119,6 +120,7 @@ for i = 1:numel(bin_array)
 end
 
 bin_array(del_exit) = [];
+R_bin.check_del = -length(del_exit);
 
 R_bin.bin_array = bin_array;
 

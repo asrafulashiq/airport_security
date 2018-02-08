@@ -13,8 +13,12 @@ len = numel(x);
 lastfilename = split(x(len).name,'.');
 R_2.end_frame = str2num(lastfilename{1});
 
+R_2.max_flow_thres = 70000;
 
 %% people region
+R_2.R_people.stack_of_people = {};
+R_2.R_people.associate_9 = true;
+
 R_2.R_people.reg = [];
 
 R_2.R_people.people_seq = {}; % store exit people info
@@ -24,16 +28,17 @@ R_2.R_people.label = 1; % people label
 % set initial people detector properties
 R_2.R_people.min_allowed_dis = 200 * scale;
 R_2.R_people.limit_area = 8000 * 4 * scale^2;
-R_2.R_people.limit_init_area = 13000 * 4 *  scale^2;
+R_2.R_people.limit_init_area = 10000 * 4 *  scale^2;
 R_2.R_people.limit_init_max_area = 40000 * 4 *  scale^2;
 R_2.R_people.limit_max_width = 450 *  scale;
 R_2.R_people.limit_max_height = 600 * scale;
 R_2.R_people.half_y = 390 * 2 * scale;
 
-R_2.R_people.enter_x_cam_9 = 100 * 2 * scale;
-R_2.R_people.enter_y_cam_9 = 581 * 2 * scale;
+R_2.R_people.enter_x_cam_9 = 60 * 2 * scale;
+R_2.R_people.enter_y_cam_9 = 541 * 2 * scale;
 
-R_2.R_people.exit_x_cam_9 = 120 * 2 * scale;
+R_2.R_people.exit_x_cam_9_min = 70 * 2 * scale;
+R_2.R_people.exit_x_cam_9_all_min = 140 * 2 * scale; % for combined videos
 R_2.R_people.exit_y_cam_9 = 581 * 2 * scale;
 
 R_2.R_people.limit_exit_x1 = 240 * scale;

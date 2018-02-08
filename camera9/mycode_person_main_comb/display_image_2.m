@@ -13,11 +13,6 @@ font_size_im = 40 * scale;
 people_array = R_2.R_people.people_array;
 
 for i = 1:size(people_array, 2)
-%     bounding_box = [ people_array{i}.BoundingBox(1) + R_2.R_people.reg(1) ...
-%         people_array{i}.BoundingBox(2) + R_2.R_people.reg(3) ...
-%         people_array{i}.BoundingBox(3) ...
-%         people_array{i}.BoundingBox(4) ];
-
     bounding_box = people_array{i}.BoundingBox;
 
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
@@ -27,7 +22,7 @@ for i = 1:size(people_array, 2)
     
 end
 
-figure(1);
+figure(2);
 imshow(im_c);
 title(sprintf('%04d',R_2.current_frame));
 drawnow;

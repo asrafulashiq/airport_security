@@ -1,5 +1,7 @@
 function R_bin =  bin_detect_prev(im, im_flow, R_bin, R_people)
 
+% for camera 9, flow is not required here
+
 global scale;
 
 thr = 0.8;

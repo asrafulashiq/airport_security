@@ -13,18 +13,17 @@ for i = 1:numel(people_array)
     bounding_box = people_array{i}.BoundingBox;
     im_r = insertShape(im_r, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
     im_r = insertShape(im_r, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
-    text_ = sprintf('bin:%d', people_array{i}.label);
+    text_ = sprintf('people:%d', people_array{i}.label);
     im_r = insertText(im_r, bounding_box(1:2), text_, 'FontSize', font_size_im);
     
 end
 
-figure(2);
-imshow(im_r);
-title(sprintf('%04d',R_9.current_frame));
-drawnow;
+% figure(2);
+% imshow(im_r);
+% title(sprintf('%04d',R_9.current_frame));
+% drawnow;
 
-F = getframe(gcf);
-image=F.cdata;
+image=im_r;
 
 
 end

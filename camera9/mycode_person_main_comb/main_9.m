@@ -7,15 +7,15 @@ scale = 0.5;
 global debug_people;
 debug_people = false;
 
-write = false;
-save_info = false;
+R_9.write = false;
+R_9.save_info = false;
 
 setup_paths(); 
 
 
 %% load video data
 all_file_nums = ["7A"];
-base_folder_name = fullfile('..', 'all_videos');
+base_folder_name = fullfile('E:\shared_folder\all_videos');
 
 % shared folder name
 base_shared_name = [];
@@ -27,12 +27,12 @@ for file_number_str = all_file_nums
 
     file_number = char(file_number_str);
     basename = fullfile(base_folder_name, file_number);
-    file_save_info = fullfile(basename,'infor_9.mat');
+    R_9.file_save_info = fullfile(basename,'infor_9.mat');
     
-    % video write
-    if write
-        writer = VideoWriter('../video_main_9.avi');
-        open(writer);
+    % video R_9.write
+    if R_9.write
+        R_9.writer = VideoWriter('../video_main_9.avi');
+        open(R_9.writer);
     end
     % flow path
     if ~isempty(base_shared_name)
@@ -43,7 +43,7 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties9;
-    R_9.start_frame = 320;
+    R_9.start_frame = 323;
     R_9.current_frame = R_9.start_frame;
     
     %% read video
@@ -109,18 +109,18 @@ for file_number_str = all_file_nums
         
         %warning('off','last');
         
-        % write
-        if write
-            writeVideo(writer, im);
+        % R_9.write
+        if R_9.write
+            writeVideo(R_9.writer, im);
         end
         
     end
-    if write
-        close(writer);
+    if R_9.write
+        close(R_9.writer);
     end
     
-    if save_info
-       save(file_save_info, 'R_9');
+    if R_9.save_info
+       save(R_9.file_save_info, 'R_9');
     end
     
 end

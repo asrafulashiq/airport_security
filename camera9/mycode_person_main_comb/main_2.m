@@ -7,8 +7,8 @@ scale = 0.5;
 global debug_people;
 debug_people = false;
 
-write = false;
-save_info = false;
+R_2.write = false;
+R_2.save_info = false;
 
 setup_paths(); 
 
@@ -26,12 +26,12 @@ for file_number_str = all_file_nums
 
     file_number = char(file_number_str);
     basename = fullfile(base_folder_name, file_number);
-    file_save_info = fullfile(basename,'infor_2.mat');
+    R_2.file_save_info = fullfile(basename,'infor_2.mat');
     
-    % video write
-    if write
-        writer = VideoWriter('../video_main_2.avi');
-        open(writer);
+    % video R_2.write
+    if R_2.write
+        R_2.writer = VideoWriter('../video_main_2.avi');
+        open(R_2.writer);
     end
     
     % flow path
@@ -42,7 +42,7 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties2;
-    R_2.start_frame = 2030;
+    R_2.start_frame = 323;
     R_2.current_frame = R_2.start_frame;
     
     %% read video
@@ -51,10 +51,7 @@ for file_number_str = all_file_nums
         img = imread(fullfile(R_2.filename, sprintf('%04i.jpg', R_2.current_frame)));
         im_c = imresize(img,scale);%original image
         im_c = imrotate(im_c, R_2.rot_angle);
-        
-        if R_2.current_frame >= 1934
-           1; 
-        end
+      
         
         % flow image
         try 
@@ -95,18 +92,18 @@ for file_number_str = all_file_nums
         
         %warning('off','last');
         
-        % write
-        if write
-            writeVideo(writer, im);
+        % R_2.write
+        if R_2.write
+            writeVideo(R_2.writer, im);
         end
         
     end
-    if write
-        close(writer);
+    if R_2.write
+        close(R_2.writer);
     end
     
-    if save_info
-       save(file_save_info, 'R_2');
+    if R_2.save_info
+       save(R_2.file_save_info, 'R_2');
     end
     
 end

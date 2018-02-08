@@ -1,4 +1,6 @@
-function [R_people] = people_detector_tracking(im_r, im_flow, R_people)
+function [R_people, R_people_2] = people_detector_tracking(im_r, im_flow, R_people, R_people_2)
+
+% for camera 9
 
 global scale;
 
@@ -21,19 +23,19 @@ im_binary = imfill(im_binary, 'holes');
 % figure(1);
 % imshow(im_binary);
 %
- figure(3);
- imshow(im_flow);
+%  figure(3);
+%  imshow(im_flow);
 
-im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
-im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
-%im_flow_angle_degree = im_flow_angle / (180 / pi / 2);
-
-% check bad flow
-im_tmp(im_tmp < 5) = 0;
-im_tmp = logical(im_tmp);
-if sum(im_tmp(:)) > 60000
-    return;
-end
+% im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
+% im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
+% %im_flow_angle_degree = im_flow_angle / (180 / pi / 2);
+% 
+% % check bad flow
+% im_tmp(im_tmp < 5) = 0;
+% im_tmp = logical(im_tmp);
+% if sum(im_tmp(:)) > 60000
+%     return;
+% end
 
 %% blob analysis
 
@@ -110,6 +112,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
     
     for k = del_exit
         R_people.people_seq{end+1} = R_people.people_array{k};
+        R_people_2.stack_of_people{end+1} = R_people.people_array{k};
     end
     
     R_people.people_array(del_exit) = [];
@@ -377,8 +380,6 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
 end
 
 
-
-
 %% initial detection
 for i = 1:numel(body_prop)
     
@@ -432,7 +433,7 @@ for i = 1:numel(body_prop)
             body_prop(i).Centroid,'BoundingBox', body_prop(i).BoundingBox, ...
             'color_mat', zeros(40,20), 'label', R_people.label, 'counter', 1, ...
             'critical_del', -1000, 'color_count', 1, 'state', "unspec", ...
-            'flow_angle', a, 'flow_mag', m, 'temp_count', 0);
+            'flow_angle', a, 'flow_mag', m, 'temp_count', 0, 'Orientation',body_prop(i).Orientation);
         Person.angle = zeros(1,5);
         R_people.label = R_people.label + 1;
         Person.color_mat(1,:) = get_color_val(im_r, body_prop(i).BoundingBox, im_binary);

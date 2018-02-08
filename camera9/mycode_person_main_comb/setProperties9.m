@@ -13,9 +13,12 @@ len = numel(x);
 lastfilename = split(x(len).name,'.');
 R_9.end_frame = str2num(lastfilename{1});
 
+R_9.max_flow_thres = 90000;
 
 %% people region
-R_9.R_people.reg = ([996 1396 542 2073] * scale);
+
+R_9.R_people.stack_of_people = {};
+R_9.R_people.reg = ([996 1396 542 2073] * scale); % x,y = 498, 271
 
 R_9.R_people.people_seq = {}; % store exit people info
 R_9.R_people.people_array = {}; % current people info
@@ -33,13 +36,15 @@ R_9.R_people.half_y = 1070 * scale;
 R_9.R_people.limit_exit_x1 = 240 * scale;
 R_9.R_people.limit_exit_y2 = 600 * scale;
 R_9.R_people.limit_exit_x2 = 220 * scale;
+
 R_9.R_people.limit_init_y = 450 * scale;
 R_9.R_people.limit_init_x = 200 * scale;
+
 R_9.R_people.limit_exit_y = 515 * 2 * scale;
 R_9.R_people.limit_exit_x = 316 * scale;
 R_9.R_people.threshold_img = 10;
 R_9.R_people.limit_flow = 1500;
-R_9.R_people.limit_exit_max_area = 14000 * 4 * scale^2;
+R_9.R_people.limit_exit_max_area = 15000 * 4 * scale^2;
 R_9.R_people.limit_flow_mag = 0.05;
 R_9.R_people.limit_half_x = 210 * scale;
 R_9.R_people.limit_max_displacement = 300 * scale;

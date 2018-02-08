@@ -1,4 +1,4 @@
-function image = display_image(im_c, R_9)
+function img = display_image(im_c, R_9, nfig)
 
 global scale;
 
@@ -16,9 +16,9 @@ for i = 1:numel(bin_array)
         bin_array{i}.BoundingBox(3) ...
         bin_array{i}.BoundingBox(4) ];
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', 'red', 'opacity', 0.2);
-    im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'red');
+    im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', 'green');
     text_ = sprintf('bin:%d', bin_array{i}.label);
-    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);   
+    im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
 end
 
 %% people
@@ -38,12 +38,13 @@ for i = 1:size(people_array, 2)
     
 end
 
-figure(2);
-imshow(im_c);
-title(sprintf('%04d',R_9.current_frame));
-drawnow;
+if nfig > 0
+    figure(nfig);
+    imshow(im_c);
+    title(sprintf('%04d',R_9.current_frame));
+    drawnow;
+end
 
-F = getframe(gcf);
-image=F.cdata;
+img = im_c;
 
 end

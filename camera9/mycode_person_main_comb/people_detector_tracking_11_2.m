@@ -1,4 +1,4 @@
-function [R_people] = people_detector_tracking_13(im_r, im_flow, R_people)
+function [R_people] = people_detector_tracking_11_2(im_r, im_flow, R_people)
 
 global scale;
 
@@ -18,11 +18,11 @@ im_closed = imclose(im_filtered,se);
 im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 
-% figure(1);
-% imshow(im_binary);
-% 
-% figure(3);
-% imshow(im_flow);
+figure(1);
+imshow(im_binary);
+
+figure(3);
+imshow(im_flow);
 
 %im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
 %im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
@@ -35,7 +35,6 @@ if sum(im_tmp(:)) > 60000
     return;
 end
 
-
 %% blob analysis
 
 cpro_r1 = regionprops(im_binary,'Centroid','Area','BoundingBox'); % extract parameters
@@ -47,8 +46,10 @@ list_bbox = [];
 for i = 1:numel(cpro_r1)
     
     x = cpro_r1(i).Centroid;
+
     
     inc = 0;
+    
     if  x(2) < R_people.half_y && x(1) < R_people.half_x
         if cpro_r1(i).Area > R_people.limit_area_med
             inc =1;
@@ -98,11 +99,8 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
         
         R_people.people_array{i}.counter = R_people.people_array{i}.counter + 1;
     end
-    for k = del_exit
-        R_people.people_seq{end+1} = R_people.people_array{k};
-    end
+    
     R_people.people_array(del_exit) = [];
-    R_people.check_del = -length(del_exit);
     
     if numel(R_people.people_array) ~= 0
         
@@ -143,8 +141,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                     prev_index = min_dis_vector(:,2) == vect(i);
                     if isinf(min_dis_vector(prev_index, 1)) || ...
                             ~ ( body_prop(min_arg).Area < 2*R_people.people_array{prev_index}.Area && ...
-                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) < R_people.half_x ...
-                                    && body_prop(min_arg).Area > R_people.limit_init_area  ) || ...
+                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) < R_people.half_x && body_prop(min_arg).Area > R_people.limit_init_area  ) || ...
                             (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index}.Area && body_prop(min_arg).Centroid(1) >= R_people.half_x))                       
                         continue;
                     end
@@ -406,9 +403,9 @@ for i = 1:numel(body_prop)
         
         [a, m] = calcAngleMag(im_flow_hsv, im_binary, body_prop(i).BoundingBox);
         
-%         if ~(a <= 45 || (a>=225 && a<=360))
-%             continue;
-%         end
+        if ~(a <= 45 || (a>=225 && a<=360))
+            continue;
+        end
         
         Person = struct('Area', body_prop(i).Area, 'Centroid', ...
             body_prop(i).Centroid,'BoundingBox', body_prop(i).BoundingBox, ...
@@ -416,13 +413,12 @@ for i = 1:numel(body_prop)
             'critical_del', -1000, 'color_count', 1, 'state', "unspec", ...
             'flow_angle', a, 'flow_mag', m);
         Person.angle = zeros(1,5);
-        Person.label = R_people.stack_of_people{end}.label;
+        R_people.label = R_people.label + 1;
         Person.color_mat(1,:) = get_color_val(im_r, body_prop(i).BoundingBox, im_binary);
         R_people.people_array{end+1} = Person;
         
-%         R_people.check = R_people.check + 1;
-        R_people.label = R_people.label + 1;
     end
 end
+
 
 end

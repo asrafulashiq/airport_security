@@ -55,6 +55,8 @@ R_13.R_bin.bin_array={};
 R_13.R_bin.threshold = 15; 
 R_13.R_bin.dis_exit_y = 1000 * scale;
 R_13.R_bin.limit_distance = 220 * scale;
+R_13.R_bin.threshold_img = 15;
+R_13.R_bin.limit_exit_y = 310 * 2 * scale;
 
 %% angle of rotation
 R_13.rot_angle = 90;
