@@ -1,0 +1,108 @@
+function [obj, rect] = runTrack(obj, im)
+
+%%
+%   Setting parameters for local use.
+params = obj.data.params;
+search_area_scale   = params.search_area_scale;
+output_sigma_factor = params.output_sigma_factor;
+learning_rate       = params.learning_rate;
+filter_max_area     = params.filter_max_area;
+nScales             = params.number_of_scales;
+scale_step          = params.scale_step;
+interpolate_response = params.interpolate_response;
+
+
+visualization  = params.visualization;
+num_frames     = params.no_fram;
+
+%set the feature ratio to the feature-cell size
+
+pos = obj.data.pos;
+target_sz = obj.data.target_sz;
+data.currentScaleFactor = obj.data.currentScaleFactor;
+base_target_sz  = obj.data.base_target_sz;
+sz = obj.data.sz;
+use_sz= obj.data.use_sz;
+y = obj.data.y;
+yf = obj.data.yf;
+interp_sz = obj.data.interp_sz;
+cos_window = obj.data.cos_window;
+features = obj.data.features;
+scaleFactors = obj.data.scaleFactors;
+min_scale_factor = obj.data.min_scale_factor;
+max_scale_factor = obj.data.max_scale_factor;
+ky = obj.data.ky;
+kx = obj.data.kx;
+newton_iterations = obj.data.newton_iterations;
+rect_position = obj.data.rect_position;
+time = obj.data.time;
+multires_pixel_template = obj.data.multires_pixel_template;
+small_filter_sz = obj.data.small_filter_sz;
+loop_frame = obj.data.loop_frame;
+
+frame = obj.data.
+
+if frame > 1
+    for scale_ind = 1:nScales
+        multires_pixel_template(:,:,:,scale_ind) = ...
+            get_pixels(im, pos, round(sz*currentScaleFactor*scaleFactors(scale_ind)), sz);
+    end
+    xtf = fft2(bsxfun(@times,get_features(multires_pixel_template,features,global_feat_params),cos_window));
+    responsef = permute(sum(bsxfun(@times, conj(g_f), xtf), 3), [1 2 4 3]);
+    
+    % if we undersampled features, we want to interpolate the
+    % response so it has the same size as the image patch
+    if interpolate_response == 2
+        % use dynamic interp size
+        interp_sz = floor(size(y) * featureRatio * currentScaleFactor);
+    end
+    responsef_padded = resizeDFT2(responsef, interp_sz);
+    
+    % response in the spatial domain
+    response = ifft2(responsef_padded, 'symmetric');
+    
+    % find maximum peak
+    if interpolate_response == 3
+        error('Invalid parameter value for interpolate_response');
+    elseif interpolate_response == 4
+        [disp_row, disp_col, sind] = resp_newton(response, responsef_padded, newton_iterations, ky, kx, use_sz);
+    else
+        [row, col, sind] = ind2sub(size(response), find(response == max(response(:)), 1));
+        disp_row = mod(row - 1 + floor((interp_sz(1)-1)/2), interp_sz(1)) - floor((interp_sz(1)-1)/2);
+        disp_col = mod(col - 1 + floor((interp_sz(2)-1)/2), interp_sz(2)) - floor((interp_sz(2)-1)/2);
+    end
+    % calculate translation
+    switch interpolate_response
+        case 0
+            translation_vec = round([disp_row, disp_col] * featureRatio * currentScaleFactor * scaleFactors(sind));
+        case 1
+            translation_vec = round([disp_row, disp_col] * currentScaleFactor * scaleFactors(sind));
+        case 2
+            translation_vec = round([disp_row, disp_col] * scaleFactors(sind));
+        case 3
+            translation_vec = round([disp_row, disp_col] * featureRatio * currentScaleFactor * scaleFactors(sind));
+        case 4
+            translation_vec = round([disp_row, disp_col] * featureRatio * currentScaleFactor * scaleFactors(sind));
+    end
+    
+    % set the scale
+    currentScaleFactor = currentScaleFactor * scaleFactors(sind);
+    % adjust to make sure we are not to large or to small
+    if currentScaleFactor < min_scale_factor
+        currentScaleFactor = min_scale_factor;
+    elseif currentScaleFactor > max_scale_factor
+        currentScaleFactor = max_scale_factor;
+    end
+    
+    % update position
+    old_pos = pos;
+    pos = pos + translation_vec;
+end
+
+
+
+
+
+
+
+end
