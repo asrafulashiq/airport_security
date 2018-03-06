@@ -22,6 +22,8 @@ classdef BACF_tracker
         
         pos = getPos(obj)
         
+        obj = setRect(obj, r)
+        
     end
     
 end

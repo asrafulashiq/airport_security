@@ -11,7 +11,7 @@ setup_paths();
 
 
 %% load video data
-all_file_nums = ["7A"];
+all_file_nums = ["9A"];
 base_folder_name = fullfile('..', 'all_videos');
 
 % shared folder name
@@ -38,8 +38,13 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties13;
-    R_13.start_frame = 3530;
+    R_13.start_frame = 1540;
     R_13.current_frame = R_13.start_frame;
+    
+    % 
+    load('..\all_videos\9A\infor_11.mat');
+    R_13.R_bin.stack_of_bins = R_11.R_bin.bin_seq;
+    
     
     %% read video
     while R_13.current_frame <= R_13.end_frame
@@ -73,19 +78,18 @@ for file_number_str = all_file_nums
         %% people tracking
         im_r = im_c(R_13.R_people.reg(3):R_13.R_people.reg(4),R_13.R_people.reg(1):R_13.R_people.reg(2),:); % people region
         
-        if ~isempty(im_flow_all)
-           im_flow = im_flow_all(R_13.R_people.reg(3):R_13.R_people.reg(4),R_13.R_people.reg(1):R_13.R_people.reg(2),:);
-        else
-            im_flow = [];
-        end
-        
-        % detect people
-        R_13.R_people = people_detector_tracking_13(im_r, im_flow, R_13.R_people);
-        
+%         if ~isempty(im_flow_all)
+%            im_flow = im_flow_all(R_13.R_people.reg(3):R_13.R_people.reg(4),R_13.R_people.reg(1):R_13.R_people.reg(2),:);
+%         else
+%             im_flow = [];
+%         end
+%         
+%         % detect people
+%         R_13.R_people = people_detector_tracking_13(im_r, im_flow, R_13.R_people);
         
         %% display image
-        %display_image_bin(im_b, R_13);
-        display_image_people(im_r, R_13);
+        display_image_bin(im_b, R_13);
+%         display_image_people(im_r, R_13);
                
         %% increment frame
         R_13.current_frame = R_13.current_frame + 1;

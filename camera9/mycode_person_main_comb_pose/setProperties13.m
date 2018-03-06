@@ -15,7 +15,7 @@ R_13.end_frame = str2num(lastfilename{1});
 
 
 %% people region
-R_13.R_people.reg = [220 430 1 750]* 2 * scale;
+R_13.R_people.reg = [220 430 1 900]* 2 * scale;
 
 R_13.R_people.people_seq = {}; % store exit people info
 R_13.R_people.people_array = {}; % current people info
@@ -37,13 +37,18 @@ R_13.R_people.limit_exit_x2 = 220 * scale;
 R_13.R_people.limit_init_y = 300 * scale;
 R_13.R_people.limit_init_x = 340 * scale;
 
-R_13.R_people.limit_exit_y = 1300 * scale;
+R_13.R_people.limit_exit_y = 800 * 2 * scale;
 R_13.R_people.limit_exit_x = 2 * scale;
-R_13.R_people.threshold_img = 15;
+
+R_13.R_people.threshold_img = 20;
+
 R_13.R_people.limit_flow = 1500;
 R_13.R_people.limit_exit_max_area = 10000 * 4 * scale^2;
 R_13.R_people.limit_flow_mag = 0.05;
 R_13.R_people.limit_max_displacement = 300 * scale;
+
+R_13.R_people.max_overlap = 0.3;
+
 %% belt/bin region
 R_13.R_bin.reg = [24 216 1 550] * 2 * scale ;
 

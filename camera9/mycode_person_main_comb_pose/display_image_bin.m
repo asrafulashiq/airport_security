@@ -22,10 +22,10 @@ for i = 1:numel(bin_array)
     im_r = insertText(im_r, bounding_box(1:2), text_, 'FontSize', font_size_im);   
 end
 
-% figure(1);
-% imshow(im_r);
-% title(sprintf('%04d',R_9.current_frame));
-% drawnow;
+figure(1);
+imshow(im_r);
+title(sprintf('%04d',R_9.current_frame));
+drawnow;
 
 img = im_r;
 

@@ -51,7 +51,7 @@ for i = 1:numel(cpro_r1)
     
     inc = 0;
     
-    if  (  x(1) > 100 ) 
+    if  (  x(1) > 100 )
         if cpro_r1(i).Area > R_people.limit_init_area && cpro_r1(i).Area<R_people.limit_init_max_area
             inc =1;
         end
@@ -114,10 +114,13 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
             
             % if flow magnitude is less than particular value, don't update
             if R_people.people_array{i}.flow_mag < R_people.limit_flow_mag
-                tmp_del(i) = [];
+                tmp_del(i) = 0;
             end
             
         end
+        
+         tmp_del(tmp_del==0) = [];
+
         
         people_array_struct = [R_people.people_array{tmp_del}];
         % determine minimum distance
@@ -148,8 +151,8 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                     prev_index_p = tmp_del(prev_index);
                     if isinf(min_dis_vector(prev_index, 1)) || ...
                             ~ ( body_prop(min_arg).Area < 2*R_people.people_array{prev_index_p}.Area && ...
-                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index_p}.Area  && body_prop(min_arg).Area > R_people.limit_init_area  )) %|| && body_prop(min_arg).Centroid(1) < R_people.limit_half_x
-%                             (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index_p}.Area && body_prop(min_arg).Centroid(1) >= R_people.limit_half_x))
+                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index_p}.Area  && body_prop(min_arg).Area > R_people.limit_area_med  )) %|| && body_prop(min_arg).Centroid(1) < R_people.limit_half_x
+                        %                             (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index_p}.Area && body_prop(min_arg).Centroid(1) >= R_people.limit_half_x))
                         
                         continue;
                     end
@@ -179,7 +182,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                         end
                         continue;
                     end
-                  
+                    
                     R_people.people_array{prev_index_p}.Centroid = body_prop(min_arg).Centroid;
                     del_index_of_body = [del_index_of_body; min_arg];
                     
@@ -288,7 +291,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                                 del_index_of_body = [del_index_of_body; other_matched_index];
                                 R_people.people_array{other_index}.temp_count = 0;
                                 
-                        
+                                
                             else
                                 % temporary vanishing
                                 R_people.people_array{other_index}.state = "temporary_vanishing";
@@ -374,7 +377,12 @@ for i = 1:numel(body_prop)
     % check entrance
     
     if body_prop(i).Centroid(1) < R_people.limit_init_x && ...
-          body_prop(i).Centroid(2) < R_people.limit_init_y 
+            body_prop(i).Centroid(2) < R_people.limit_init_y
+        
+        if body_prop(i).Centroid(1) < 103 && body_prop(i).Centroid(2) < 260
+            
+            continue;
+        end
         
         limit_flag = false;
         centre_rec =  [ body_prop(i).BoundingBox(1) + body_prop(i).BoundingBox(3)/2 ...

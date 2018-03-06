@@ -1,6 +1,7 @@
 function [R_people] = people_detector_tracking_11(im_r, im_flow, R_people)
 
 global scale;
+gobal debug_people;
 
 im_g = rgb2gray(im_r);
 
@@ -18,23 +19,23 @@ im_closed = imclose(im_filtered,se);
 im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 
-% figure(1);
-% imshow(im_binary);
+figure(1);
+imshow(im_binary);
 %
 %  figure(3);
 %  imshow(im_flow);
 
-im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
-im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
+% im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
+% im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
 %im_flow_angle_degree = im_flow_angle / (180 / pi / 2);
 
-% check bad flow
-im_tmp(im_tmp < 10) = 0;
-im_tmp = logical(im_tmp);
-if sum(im_tmp(:)) > 60000
-    disp('BAD FLOW!!!');
-    return;
-end
+% % check bad flow
+% im_tmp(im_tmp < 10) = 0;
+% im_tmp = logical(im_tmp);
+% if sum(im_tmp(:)) > 60000
+%     disp('BAD FLOW!!!');
+%     return;
+% end
 
 %% blob analysis
 
@@ -47,8 +48,7 @@ list_bbox = [];
 
 for i = 1:numel(cpro_r1)
     
-    x = cpro_r1(i).Centroid;
-    
+    x = cpro_r1(i).Centroid;  
     inc = 0;
     
     if  (  x(1) > 100 ) 
@@ -100,6 +100,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
     end
     
     for k = del_exit
+        R_people.people_array{k}.frame = R_people.current_frame;
         R_people.people_seq{end+1} = R_people.people_array{k};
     end
     
@@ -113,10 +114,13 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
             
             % if flow magnitude is less than particular value, don't update
             if R_people.people_array{i}.flow_mag < R_people.limit_flow_mag
-                tmp_del(i) = [];
+                tmp_del(i) = 0;
             end
             
         end
+        
+       tmp_del(tmp_del==0) = [];
+
         
         people_array_struct = [R_people.people_array{tmp_del}];
         % determine minimum distance
@@ -147,7 +151,7 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
                     prev_index_p = tmp_del(prev_index);
                     if isinf(min_dis_vector(prev_index, 1)) || ...
                             ~ ( body_prop(min_arg).Area < 2*R_people.people_array{prev_index_p}.Area && ...
-                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index_p}.Area  && body_prop(min_arg).Area > R_people.limit_init_area  )) %|| && body_prop(min_arg).Centroid(1) < R_people.limit_half_x
+                            (body_prop(min_arg).Area > 0.5 * R_people.people_array{prev_index_p}.Area  && body_prop(min_arg).Area > R_people.limit_area_med  )) %|| && body_prop(min_arg).Centroid(1) < R_people.limit_half_x
 %                             (body_prop(min_arg).Area > 0.3 * R_people.people_array{prev_index_p}.Area && body_prop(min_arg).Centroid(1) >= R_people.limit_half_x))
                         
                         continue;
@@ -373,7 +377,12 @@ for i = 1:numel(body_prop)
     % check entrance
     
     if body_prop(i).Centroid(1) < R_people.limit_init_x && ...
-          body_prop(i).Centroid(2) < R_people.limit_init_y 
+          body_prop(i).Centroid(2) < R_people.limit_init_y
+       
+      if body_prop(i).Centroid(1) < 103 && body_prop(i).Centroid(2) < 260
+          
+          continue;
+      end
         
         limit_flag = false;
         centre_rec =  [ body_prop(i).BoundingBox(1) + body_prop(i).BoundingBox(3)/2 ...
@@ -394,13 +403,13 @@ for i = 1:numel(body_prop)
         end
         
         [a, m] = calcAngleMag(im_flow_hsv, im_binary, body_prop(i).BoundingBox);
-        
-        
+            
         Person = struct('Area', body_prop(i).Area, 'Centroid', ...
             body_prop(i).Centroid,'BoundingBox', body_prop(i).BoundingBox, ...
             'color_mat', zeros(40,20), 'label', R_people.label, 'counter', 1, ...
             'critical_del', -1000, 'color_count', 1, 'state', "unspec", ...
-            'flow_angle', a, 'flow_mag', m, 'temp_count', 0);
+            'flow_angle', a, 'flow_mag', m, 'temp_count', 0, 'Orientation', ...
+            body_prop(i).Orientation, 'frame', 0);
         Person.angle = zeros(1,5);
         R_people.label = R_people.label + 1;
         Person.color_mat(1,:) = get_color_val(im_r, body_prop(i).BoundingBox, im_binary);
@@ -408,6 +417,7 @@ for i = 1:numel(body_prop)
         
     end
 end
+
 
 
 end

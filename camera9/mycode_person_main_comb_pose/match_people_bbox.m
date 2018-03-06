@@ -3,6 +3,7 @@ function [bbox_matched, min_val, centroid] = match_people_bbox(I, I_mask, img_st
 if nargin >=4 && isempty(im_prev)
     bbox_matched = [];
     centroid = [];
+    min_val = [];
     return
 end
 

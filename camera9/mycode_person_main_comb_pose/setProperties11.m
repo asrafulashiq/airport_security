@@ -6,6 +6,9 @@ R_11.filename = fullfile(basename, '11'); % input file
 R_11.file_to_save =  fullfile('..',file_number, [file_number '_cam11_vars'  '.mat']); % file to save variables
 R_11.write_video_filename = fullfile('..',file_number, ['cam11_output_' file_number '.avi']); % file to save video
 
+%% event
+R_11.Event = {}; % [id people_index bin_index count]; id: 3:potential stealing
+
 %% frame info
 
 x = dir(R_11.filename);
@@ -13,12 +16,17 @@ len = numel(x);
 lastfilename = split(x(len).name,'.');
 R_11.end_frame = str2num(lastfilename{1});
 
+R_11.max_flow = 200000;
+
+R_11.R_peope.current_frame = 0;
+R_11.R_bin.current_frame = 0;
+
+% 115    75   365   869
+% [ 230  150  730  1738]*scale
 
 %% people region
-R_11.R_people.reg = [570 1080-120 300 1800] * scale;
-
-%R_11.R_people.optic_flow = opticalFlowFarneback('NumPyramidLevels', 5, 'NumIterations', 10,...
-%        'NeighborhoodSize', 20, 'FilterSize', 20);
+% R_11.R_people.reg = [570 1080-120 300 1800] * scale;
+R_11.R_people.reg = [289 480 75 960] * 2 * scale;
 
 R_11.R_people.people_seq = {}; % store exit people info
 R_11.R_people.people_array = {}; % current people info
@@ -39,7 +47,7 @@ R_11.R_people.limit_exit_x2 = 220 * scale;
 R_11.R_people.limit_init_y = 950 * scale;
 R_11.R_people.limit_init_x = 300 * scale;
 
-R_11.R_people.limit_exit_y = 1300 * scale;
+R_11.R_people.limit_exit_y = 820 * 2 * scale;
 R_11.R_people.limit_exit_x = 2 * scale;
 R_11.R_people.threshold_img = 15;
 R_11.R_people.limit_flow = 1500;
@@ -48,24 +56,27 @@ R_11.R_people.limit_flow_mag = 0.05;
 R_11.R_people.half_x = 315 * scale;
 R_11.R_people.limit_max_displacement = 300 * scale;
 %% belt/bin region
-R_11.R_bin.reg = [230 550 150-140 1920] * scale ;
-
+% R_11.R_bin.reg = [230 550 150-140 1920] * scale ;
+R_11.R_bin.reg = [115 288  75 960] * 2 * scale;
 R_11.R_bin.label = 1;
 R_11.R_bin.bin_seq = {};
 R_11.R_bin.bin_array={};
-R_11.R_bin.threshold = 15; 
-R_11.R_bin.limit_exit_y = 1800 * scale;
+R_11.R_bin.threshold = 20; 
+
+R_11.R_bin.limit_exit_y = 820 * 2 * scale;
+
+
 R_11.R_bin.limit_distance = 220 * scale;
 R_11.R_bin.threshold_img = 15;
 R_11.R_bin.limit_area = 16000 * 4 * scale^2;
-R_11.R_bin.limit_min_area = 12000 * 4 * scale^2;
+R_11.R_bin.limit_min_area = 8000 * 4 * scale^2;
 R_11.R_bin.limit_area2 = 20000 * 4 * scale^2;
 R_11.R_bin.limit_max_area = 40000 * 4 * scale^2;
 R_11.R_bin.limit_init_y = 250 * 2 * scale; 
 R_11.R_bin.solidness_ratio = 31;
 R_11.R_bin.area_ratio = 2;
 
-R_11.R_bin.k_distort = -0.20;
+R_11.R_bin.k_distort = -0.2;
 %% angle of rotation
 R_11.rot_angle = 90;
 

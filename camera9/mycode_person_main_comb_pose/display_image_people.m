@@ -18,10 +18,10 @@ for i = 1:numel(people_array)
     
 end
 
-% figure(2);
-% imshow(im_r);
-% title(sprintf('%04d',R_9.current_frame));
-% drawnow;
+figure(11);
+imshow(im_r);
+title(sprintf('%04d',R_9.current_frame));
+drawnow;
 
 image=im_r;
 
