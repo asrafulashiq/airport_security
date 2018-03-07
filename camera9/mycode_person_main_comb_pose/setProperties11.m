@@ -7,8 +7,7 @@ R_11.file_to_save =  fullfile('..',file_number, [file_number '_cam11_vars'  '.ma
 R_11.write_video_filename = fullfile('..',file_number, ['cam11_output_' file_number '.avi']); % file to save video
 
 %% event
-R_11.Event = {}; % [id people_index bin_index count]; id: 3:potential stealing
-
+R_11.Event = zeros(0,4); % [id people_index bin_index count]; id: 3:potential stealing
 %% frame info
 
 x = dir(R_11.filename);
@@ -23,6 +22,10 @@ R_11.R_bin.current_frame = 0;
 
 % 115    75   365   869
 % [ 230  150  730  1738]*scale
+
+R_11.R_bin.event = {};
+R_11.R_people.event = {};
+R_11.recent_events = {};
 
 %% people region
 % R_11.R_people.reg = [570 1080-120 300 1800] * scale;

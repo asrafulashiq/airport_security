@@ -6,7 +6,7 @@ R_2.R_people.stack_of_people = {};
 
 % video R_2.write
 if R_2.write
-    R_2.writer = VideoWriter('../all_videos/video_main_2.avi');
+    R_2.writer = VideoWriter('../video_main_2.avi');
     open(R_2.writer);
 end
 

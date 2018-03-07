@@ -26,7 +26,7 @@ R_9.file_save_info = fullfile(basename,'infor_9.mat');
 
 % video R_9.write
 if R_9.write
-    R_9.writer = VideoWriter('../all_videos/video_main_9.avi');
+    R_9.writer = VideoWriter('../video_main_9.avi');
     open(R_9.writer);
 end
 % flow path

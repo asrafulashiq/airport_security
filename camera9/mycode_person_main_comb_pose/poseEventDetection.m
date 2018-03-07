@@ -4,7 +4,7 @@ crop =  [ 230  150  730  1738]*scale;
 % Img = imcrop(im, crop);
 Img = im;
 
-event = R_11.Event;
+event = [];
 
 load('E:\alert_remote_code\airport_security\camera9\mycode_person_main_comb_pose\clasp_pose\Result_09C11.mat');
 
@@ -31,7 +31,7 @@ if isempty(head_ind)
    return; 
 end
 
-for index = head_ind
+for index = head_ind'
     
     % assign head to person
     X = candidates(index,1) ;
@@ -51,72 +51,76 @@ for index = head_ind
     % get hand co-ord of the people : 3, 18
     right_wrist_ind = find(candidates(:, 4) == 3.0);
     
-    min_ = [inf -1 -1 -1];
+    min_ = [inf -1 inf inf];
     
-    for k = right_wrist_ind
-        rx = candidates(k,1) + crop(1);
-        ry = candidates(k,2) + crop(2);
+    for k = right_wrist_ind'
+        rx = candidates(k,1) ;
+        ry = candidates(k,2) ;
         
-        centre = people{p_ind}.Centroid + [R_11.R_people.reg(1); R_11.R_people.reg(3)];
-        
-        dis = norm( [X;Y]- centre );
+%         centre = people{p_ind}.Centroid + [R_11.R_people.reg(1); R_11.R_people.reg(3)];
+        dis = norm( [X;Y]- [rx; ry] );
         
         if dis < 200 && dis < min_(1)
             min_ = [dis k rx ry];
         end
     end
     
-    right_wrist = min_(3:4);
+    right_wrist = min_(3:4)+ crop(1:2);
     
     
     left_wrist_ind = find(candidates(:, 4) == 18.0);
     min_ = [inf -1 0 0];
-    for k = left_wrist_ind
-        lx = candidates(k,1) + crop(1);
-        ly = candidates(k,2) + crop(2);
+    for k = left_wrist_ind'
+        lx = candidates(k,1);
+        ly = candidates(k,2);
         
         centre = people{p_ind}.Centroid + [R_11.R_people.reg(1); R_11.R_people.reg(3)];
         
-        dis = norm( [X;Y]- centre );
+        dis = norm( [X;Y]- [lx; ly] );
         
         if dis < 200 && dis < min_(1)
             min_ = [dis k lx ly];
         end
     end
-    left_wrist = min_(3:4);
+    
+    left_wrist = min_(3:4) + crop(1:2);
     
     %% check waving over other people's bins
     bin_array = R_11.R_bin.bin_array;
-    if left_wrist(1) ~= -1 
+    if ~isinf(left_wrist(1))
         lx = left_wrist(1); ly = left_wrist(2);
         
         for l = 1:numel(R_11.R_bin.bin_array)
-            bb = [ bin_array{i}.BoundingBox(1) + R_11.R_bin.reg(1) ...
-                bin_array{i}.BoundingBox(2) + R_11.R_bin.reg(3) ...
-                bin_array{i}.BoundingBox(3) ...
-                bin_array{i}.BoundingBox(4) ];
+            bb = [ bin_array{l}.BoundingBox(1) + R_11.R_bin.reg(1) ...
+                bin_array{l}.BoundingBox(2) + R_11.R_bin.reg(3) ...
+                bin_array{l}.BoundingBox(3) ...
+                bin_array{l}.BoundingBox(4) ];
             if inpoint(lx, ly, bb)
                 if bin_array{l}.belongs_to ~= people{p_ind}.label
                    % event id 3 happend
-                   event{end+1} = [3 people{p_ind}.label bin_array{l}.belongs_to];
+                   event = [ 3 people{p_ind}.label bin_array{l}.label 1];
+                else
+                    event = [ 4 people{p_ind}.label bin_array{l}.label 1];
                 end
             end
             
         end
     end
     
-    if right_wrist(1) ~= -1 
+    if ~isinf(right_wrist(1))
         lx = right_wrist(1); ly = right_wrist(2);
         
         for l = 1:numel(R_11.R_bin.bin_array)
-            bb = [ bin_array{i}.BoundingBox(1) + R_11.R_bin.reg(1) ...
-                bin_array{i}.BoundingBox(2) + R_11.R_bin.reg(3) ...
-                bin_array{i}.BoundingBox(3) ...
-                bin_array{i}.BoundingBox(4) ];
+            bb = [ bin_array{l}.BoundingBox(1) + R_11.R_bin.reg(1) ...
+                bin_array{l}.BoundingBox(2) + R_11.R_bin.reg(3) ...
+                bin_array{l}.BoundingBox(3) ...
+                bin_array{l}.BoundingBox(4) ];
             if inpoint(lx, ly, bb)
                 if bin_array{l}.belongs_to ~= people{p_ind}.label
                    % event id 3 happend
-                   event{end+1} = [3 people{p_ind}.label bin_array{l}.belongs_to 1];
+                   event = [ 3 people{p_ind}.label bin_array{l}.label bin_array{l}.belongs_to];
+                else
+                    event = [ 4 people{p_ind}.label bin_array{l}.label 1];
                 end
             end
             

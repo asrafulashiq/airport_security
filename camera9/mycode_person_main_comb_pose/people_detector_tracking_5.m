@@ -18,11 +18,11 @@ im_closed = imclose(im_filtered,se);
 im_binary = logical(im_closed); %extract people region
 im_binary = imfill(im_binary, 'holes');
 
-% figure(1);
-% imshow(im_binary);
+figure(3);
+imshow(im_binary);
 %
- figure(3);
- imshow(im_flow);
+%  figure(3);
+%  imshow(im_flow);
 
 im_flow_angle = im_flow_hsv(:,:,1) .* im_binary;
 im_flow_val = im_flow_hsv(:,:,3) .* im_binary;
@@ -131,10 +131,12 @@ if ~isempty(R_people.people_array) && ~isempty(list_bbox)
             
             % if flow magnitude is less than particular value, don't update
             if R_people.people_array{i}.flow_mag < R_people.limit_flow_mag
-                tmp_del(i) = [];
+%                 tmp_del(i) = 0;
             end
             
         end
+        
+        tmp_del(tmp_del==0)=[];
         
         people_array_struct = [R_people.people_array{tmp_del}];
         % determine minimum distance
@@ -392,7 +394,11 @@ for i = 1:numel(body_prop)
     
     if body_prop(i).Centroid(1) < R_people.limit_init_x && ...
           body_prop(i).Centroid(2) < R_people.limit_init_y 
-        
+      
+      if body_prop(i).Centroid(1) > 200 && body_prop(i).Centroid(2) < 100
+          continue
+      end
+      
         limit_flag = false;
         centre_rec =  [ body_prop(i).BoundingBox(1) + body_prop(i).BoundingBox(3)/2 ...
             body_prop(i).BoundingBox(2) + body_prop(i).BoundingBox(4)/2];

@@ -50,7 +50,7 @@ if debug_bin
     Bin.MajorAxisLength = 0;
     Bin.MinorAxisLength = 0;
     Bin.t_count = 1;
-    
+    Bin.frame = 0;
     Bin.belongs_to = R_bin.stack_of_bins{R_bin.label}.belongs_to;
     
     R_bin.label = R_bin.label + 1;
@@ -123,7 +123,7 @@ for i = 1:numel(body_prop)
 %     Bin.label = R_bin.label;
     Bin.label =  R_bin.stack_of_bins{R_bin.label}.label;
     Bin.belongs_to = R_bin.stack_of_bins{R_bin.label}.belongs_to;
-    
+        
     Bin.t_count = 1;
     Bin.frame = 0;
     
@@ -132,6 +132,9 @@ for i = 1:numel(body_prop)
     R_bin.bin_array{end+1} = Bin;
     
     R_bin.check = R_bin.check + 1;
+    
+    R_bin.event{end+1} = sprintf('Bin %d enters', Bin.label); 
+    
 end
 
 %% tracking
@@ -209,6 +212,7 @@ for i = 1:numel(bin_array)
     if bin_array{i}.Centroid(2) > R_bin.limit_exit_y
         R_bin.bin_seq{end+1} = bin_array{i};
         del_exit(end+1) = i;
+        R_bin.event{end+1} = sprintf('Bin %d exits scene', bin_array{i}.label);
     end
 end
 

@@ -443,6 +443,9 @@ if numel(R_people.stack_of_people) > 0
                    if R9_people.people_array{j}.label == Person.label
                        R9_people.people_seq{end+1} = Person;
                        fprintf('Camera 9: person %d exit\n', Person.label)
+                       
+                       R9_people.event{end+1} = sprintf('Person %d exits', R_people.people_array{j}.label);
+
                        break; 
                    end
                end

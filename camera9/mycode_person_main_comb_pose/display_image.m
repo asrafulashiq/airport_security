@@ -3,7 +3,7 @@ function img = display_image(im_c, R_9, nfig)
 global scale;
 
 %% decorate text
-font_size_im = 30 * scale;
+font_size_im = 80 * scale;
 
 %% bin
 %im_c = im_c(R_9.R_bin.reg(3):R_9.R_bin.reg(4),R_9.R_bin.reg(1):R_9.R_bin.reg(2),:); % bin region
@@ -25,16 +25,16 @@ for i = 1:numel(bin_array)
     
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', color, 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', color);
-    text_ = sprintf('bin:%d', bin_array{i}.label);
+    text_ = sprintf('B%d', bin_array{i}.label);
     im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
     
-    if bin_array{i}.belongs_to ~= -1
-        text_ = sprintf('person:%d', bin_array{i}.belongs_to);
-        im_c = insertText(im_c, bounding_box(1:2)+[0 40], text_, 'FontSize', font_size_im);        
-    end   
+%     if bin_array{i}.belongs_to ~= -1
+%         text_ = sprintf('%d', bin_array{i}.belongs_to);
+%         im_c = insertText(im_c, bounding_box(1:2)+[0 40], text_, 'FontSize', font_size_im);        
+%     end   
     %if bin_array{i}.state=="full"
-        text_ = char(sprintf("state:%s", bin_array{i}.state));
-        im_c = insertText(im_c, bounding_box(1:2)+[0 80], text_, 'FontSize', font_size_im);        
+%         text_ = char(sprintf("state:%s", bin_array{i}.state));
+%         im_c = insertText(im_c, bounding_box(1:2)+[0 80], text_, 'FontSize', font_size_im);        
     %end
 end
 
@@ -54,7 +54,7 @@ for i = 1:size(people_array, 2)
     
     im_c = insertShape(im_c, 'FilledRectangle', bounding_box, 'Color', color, 'opacity', 0.2);
     im_c = insertShape(im_c, 'Rectangle', bounding_box, 'LineWidth', 3, 'Color', color);
-    text_ = sprintf('person:%d', people_array{i}.label);
+    text_ = sprintf('P%d', people_array{i}.label);
     im_c = insertText(im_c, bounding_box(1:2), text_, 'FontSize', font_size_im);
     
 end

@@ -14,7 +14,7 @@ setup_paths();
 
 
 %% load video data
-all_file_nums = ["7A"];
+all_file_nums = ["9A"];
 base_folder_name = fullfile('E:\shared_folder\all_videos');
 
 % shared folder name
@@ -43,9 +43,9 @@ for file_number_str = all_file_nums
     %% start with camera 9  
     % set camera 9 constant properties
     setProperties5;
-    R_5.start_frame = 1270;
+    R_5.start_frame = 1230;
     R_5.current_frame = R_5.start_frame;
-    
+    R_5.end_frame = 2130;
     %% read video
     while R_5.current_frame <= R_5.end_frame
         
@@ -89,7 +89,7 @@ for file_number_str = all_file_nums
         %display_image_bin(im_b, R_5);
         %im = display_image_people(im_r, R_5);
         
-        im = display_image_2(im_c, R_5);
+        im = display_image_2(im_c, R_5, 5);
                
         %% increment frame
         R_5.current_frame = R_5.current_frame + 1;
@@ -103,6 +103,9 @@ for file_number_str = all_file_nums
         end
         
     end
+    
+    
+    
     if R_5.write
         close(R_5.writer);
     end

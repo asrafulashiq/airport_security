@@ -440,6 +440,8 @@ for i = 1:numel(body_prop)
         Person.color_mat(1,:) = get_color_val(im_r, body_prop(i).BoundingBox, im_binary);
         R_people.people_array{end+1} = Person;
         
+        R_people.event{end+1} = sprintf('Person %d enters', Person.label);
+
     end
 end
 

@@ -34,7 +34,7 @@ else
 end
 
 
-im = display_image_2(im_c, R_2);
+im = display_image_2(im_c, R_2, 0);
 
 %% increment frame
 R_2.current_frame = R_2.current_frame + 1;

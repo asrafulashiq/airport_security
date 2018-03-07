@@ -23,8 +23,8 @@ R_5.R_people.label = 1; % people label
 
 % set initial people detector properties
 R_5.R_people.min_allowed_dis = 200 * scale;
-R_5.R_people.limit_area = 8000 * 4 * scale^2;
-R_5.R_people.limit_init_area = 9000 * 4 *  scale^2;
+R_5.R_people.limit_area = 7000 * 4 * scale^2;
+R_5.R_people.limit_init_area = 7500 * 4 *  scale^2;
 R_5.R_people.limit_init_max_area = 60000 * 4 *  scale^2;
 R_5.R_people.limit_max_width = 450 *  scale;
 R_5.R_people.limit_max_height = 600 * scale;

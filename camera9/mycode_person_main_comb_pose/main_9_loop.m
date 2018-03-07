@@ -7,6 +7,8 @@ if R_9.current_frame <= R_9.end_frame
     if R_9.current_frame >= 1934
         1;
     end
+    R_9.R_bin.event = {};
+R_9.R_people.event = {};
     
     % flow image
     try
@@ -52,7 +54,14 @@ if R_9.current_frame <= R_9.end_frame
     %display_image_bin(im_b, R_9);
     %im = display_image_people(im_r, R_9);
     
-    im = display_image(im_c, R_9, 9);
+    im = display_image(im_c, R_9);
+    
+    [im_text, R_9.recent_events] = display_event(R_9, size(im, 1));
+
+    im = cat(2, im, im_text);
+
+       figure(9);
+       imshow(im);
     
     %% increment frame
     R_9.current_frame = R_9.current_frame + 1;

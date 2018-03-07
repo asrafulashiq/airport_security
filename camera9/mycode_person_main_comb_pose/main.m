@@ -13,6 +13,17 @@ R_2.R_people.check = 0;
 global debug_9; 
 debug_9 = false;
 
+base_folder_name = fullfile('E:\shared_folder\all_videos');
+
+% shared folder name
+base_shared_name = [];
+if ispc
+    base_shared_name = fullfile('E:','shared_folder','all_videos');
+end
+
+
+basename = fullfile(base_folder_name, file_number);
+
 %% work with 9 and 2
 % main_9_init;
 % main_2_init;
@@ -48,7 +59,7 @@ debug_9 = false;
 % end
 
 %% work with 5,11,13
-%main_5_init;
+main_5_init;
 R_11.R_bin.check = 1;
 R_11.R_people.check = 1;
 R_13.R_bin.check = 0;
@@ -59,8 +70,10 @@ R_11.R_people.check_del = 0;
 R_13.R_bin.check_del = 0;
 R_13.R_people.check_del = 0;
 
+R_11.start_frame = 1200;
 
 main_11_init;
+
 % main_13_init;
 % 
 % % loop
@@ -69,8 +82,7 @@ while true
    main_11_loop;
    
 %    main_13_loop;
-    
-    
+   
 end
 
 

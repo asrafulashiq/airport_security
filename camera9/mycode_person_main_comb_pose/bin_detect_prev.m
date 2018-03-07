@@ -115,7 +115,7 @@ if ~isempty(loc)
                 'BoundingBox', [1 min_loc size(I,2) height ], ...
                 'limit', [ min_loc loc_end ] ,...
                 'belongs_to', -1, ...
-                'label', -1, 'tracker', [],...
+                'label', R_bin.label, 'tracker', [],...
                 'in_flag', 1, 'r_val', r_tall_val, 'bin_or',"tall", ...
                 'state', "empty", 'count', 1, ...
                 'std', std(calc_intens(I, [min_loc loc_end]), 1), 'destroy', false, ...
@@ -123,6 +123,10 @@ if ~isempty(loc)
                 );
             
             R_bin.bin_array{end+1} = Bin;
+            R_bin.label = R_bin.label + 1;
+            
+            R_bin.event{end+1} = sprintf('Bin %d enters', Bin.label); 
+            
         end
     end
 end
@@ -178,6 +182,8 @@ for i = 1:numel(bin_array)
     if bin_array{i}.Centroid(2) > R_bin.limit_exit_y
         R_bin.bin_seq{end+1} = bin_array{i};
         del_exit(end+1) = i;
+        R_bin.event{end+1} = sprintf('Bin %d exits scene', bin_array{i}.label);
+
     end
     
     bin_array{i}.count = bin_array{i}.count + 1;

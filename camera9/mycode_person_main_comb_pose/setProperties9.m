@@ -13,6 +13,10 @@ len = numel(x);
 lastfilename = split(x(len).name,'.');
 R_9.end_frame = str2num(lastfilename{1});
 
+R_9.R_bin.event = {};
+R_9.R_people.event = {};
+R_9.recent_events = {};
+R_9.Event = [];
 
 %% people region
 R_9.R_people.im = []; 
